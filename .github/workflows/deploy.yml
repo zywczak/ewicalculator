@@ -1,0 +1,40 @@
+name: Build and Deploy UI App
+
+on:
+  pull_request:
+    branches: [ "stage" ]
+    types:
+      - closed
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+ 
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  build-and-deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: stage-fortpublish
+
+    strategy:
+      matrix:
+        node: [ 22.12.0 ]
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: 'Install packages and build app'
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+    - run: npm install
+    - run: npm run build
+
+    - name: 'Deploy the application'
+      run: |
+        rm -rf deploy/*
+        cp -r ./dist/* /deploy/

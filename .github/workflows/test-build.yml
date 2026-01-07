@@ -1,0 +1,36 @@
+name: Test UI Build
+
+on:
+  push:
+    branches: [ "feature" ]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: .
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node: [ 22.12.0 ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install packages
+        run: npm install
+
+      - name: Build application
+        run: npm run build
