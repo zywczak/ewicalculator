@@ -7,7 +7,7 @@ import {
   LAYER_Z_INDEX
 } from "../../data/images/imageMapping";
 
-const adress = "http://0.0.0.0:80"
+const adress = "https://0.0.0.0:80"
 
 interface OverlayImages {
   main: string | null;

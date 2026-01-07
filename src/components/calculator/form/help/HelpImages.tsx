@@ -7,7 +7,7 @@ interface HelpImagesProps {
   isMobile?: boolean;
 }
 
-const adress = "http://0.0.0.0:80"
+const adress = "https://0.0.0.0:80"
 
 const HelpImages: React.FC<HelpImagesProps> = ({ images, isMobile = false }) => {
   const count = images.length;

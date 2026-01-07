@@ -14,7 +14,7 @@ import {
 import { SimpleTable } from "../../../../data/tables/tables";
 
 const CELL_PADDING = "12px";
-const adress = "http://0.0.0.0:80"
+const adress = "https://0.0.0.0:80"
 
 const HeaderCell = styled(TableCell)({
   fontWeight: 600,
