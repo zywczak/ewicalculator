@@ -14,7 +14,7 @@ import {
 import { SimpleTable } from "../../../../data/tables/tables";
 
 const CELL_PADDING = "12px";
-const adress = "https://0.0.0.0:80"
+const adress = "https://precious-choux-6bd82f.netlify.app"
 
 const HeaderCell = styled(TableCell)({
   fontWeight: 600,

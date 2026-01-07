@@ -7,7 +7,7 @@ import {
   LAYER_Z_INDEX
 } from "../../data/images/imageMapping";
 
-const adress = "https://0.0.0.0:80"
+const adress = "https://precious-choux-6bd82f.netlify.app"
 
 interface OverlayImages {
   main: string | null;

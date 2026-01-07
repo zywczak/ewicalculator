@@ -7,7 +7,7 @@ interface HelpImagesProps {
   isMobile?: boolean;
 }
 
-const adress = "https://0.0.0.0:80"
+const adress = "https://precious-choux-6bd82f.netlify.app"
 
 const HelpImages: React.FC<HelpImagesProps> = ({ images, isMobile = false }) => {
   const count = images.length;
