@@ -27,8 +27,17 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: 'public', 
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production')
+  },
+  server: {
+    cors: true
+  },
+  preview: {
+    cors: true,
+    port: 80,
+    host: '0.0.0.0'
   },
   build: {
     lib: {
