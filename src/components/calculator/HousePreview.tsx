@@ -7,6 +7,8 @@ import {
   LAYER_Z_INDEX
 } from "../../data/images/imageMapping";
 
+import address from "../../api/adress";
+
 const adress = "https://precious-choux-6bd82f.netlify.app"
 
 interface OverlayImages {

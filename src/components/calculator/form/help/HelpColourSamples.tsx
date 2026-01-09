@@ -19,27 +19,27 @@ const HelpColourSamples: React.FC = () => {
     .findLast(part => Number.isNaN(Number(part))) ?? code;
 
 
-  useEffect(() => {
-    const fetchColors = async () => {
-      try {
-        const response = await api.post({
-          action: "getColourCodes",
-          filters: [{ popularColoursOnly: true }],
-          start: 0,
-          limit: 49,
-        });
-        console.log("Colour codes response:", response);
+  // useEffect(() => {
+  //   const fetchColors = async () => {
+  //     try {
+  //       const response = await api.post({
+  //         action: "getColourCodes",
+  //         filters: [{ popularColoursOnly: true }],
+  //         start: 0,
+  //         limit: 49,
+  //       });
+  //       console.log("Colour codes response:", response);
 
-        if (response.data?.status && Array.isArray(response.data.results)) {
-          setColors(response.data.results);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       if (response.data?.status && Array.isArray(response.data.results)) {
+  //         setColors(response.data.results);
+  //       }
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchColors();
-  }, []);
+  //   fetchColors();
+  // }, []);
 
   if (loading) {
     return (

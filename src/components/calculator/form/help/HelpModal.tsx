@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   Typography,
   IconButton,
   Box,
+  Divider,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import HelpImages from "./HelpImages";
@@ -26,10 +27,9 @@ const HelpModal: React.FC<HelpModalProps> = ({
   isMobile = false,
   container,
 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   if (helpSections.length === 0) return null;
-  const currentHelp = helpSections[currentIndex];
+  const currentHelp = helpSections[0];
 
   return (
     <Dialog
@@ -166,7 +166,7 @@ const HelpModal: React.FC<HelpModalProps> = ({
         sx={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          gap: isMobile ? "0px" : "22px",
+          // gap: isMobile ? "0px" : "22px",
           height: "100%",
           width: "100%",
           overflowY: isMobile ? "auto" : "visible",
@@ -183,12 +183,14 @@ const HelpModal: React.FC<HelpModalProps> = ({
         <Box
           sx={{
             pl: isMobile ? "16px" : "32px",
-            pr: isMobile ? "16px" : 0,
+            pr: isMobile ? "16px" : "24px",
             pb: isMobile ? "28px" : 0,
             pt: "10px",
-            flex: isMobile ? "0 0 auto" : "0 0 200px",
+            flex: isMobile ? "0 0 auto" : "0 0 327px",
+            // 295 + 24 + 32
             display: "flex",
             flexDirection: "column",
+            boxSizing: "border-box",
           }}
         >
           {!isMobile && (
@@ -199,34 +201,37 @@ const HelpModal: React.FC<HelpModalProps> = ({
             </Typography>
           )}
           {!isMobile && (
+            <>
             <Typography
               variant="h4"
               sx={{
                 fontWeight: 700,
-                mb: "50px",
+                mb: "16px",
                 lineHeight: "38px",
                 fontSize: "32px",
               }}
             >
               {currentHelp.help_title}
             </Typography>
+            <Divider sx={{ color: "#D0DBE0", mb: "36px" }} />
+            </>
           )}
           
           <Box
   display="flex"
   flexDirection="column"
   justifyContent="space-between"
-  height="100%" // opcjonalnie, aby space-between zadziałało w pełnej wysokości kontenera
+  height="100%"
 >
   <Typography
     variant="body1"
-    sx={{ fontWeight: 400, fontSize: "12px" }}
+    sx={{ fontWeight: 400, fontSize: "14px" }}
     dangerouslySetInnerHTML={{ __html: currentHelp.upper_description || "" }}
   />
   
   <Typography
     variant="body1"
-    sx={{ fontWeight: 400, fontSize: "12px"}}
+    sx={{ fontWeight: 400, fontSize: "14px"}}
     dangerouslySetInnerHTML={{ __html: currentHelp.downer_description || "" }}
   />
 </Box>
@@ -279,9 +284,9 @@ const HelpModal: React.FC<HelpModalProps> = ({
             </Box>
           )}
 
-          {/* {currentHelp.useColourSamples && (
+          {currentHelp.useColourSamples && (
             <HelpColourSamples />
-          )} */}
+          )}
 
           {currentHelp.disclaimer && (
           <Box

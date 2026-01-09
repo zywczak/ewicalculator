@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button } from "@mui/material";
+import { Box, Button, useTheme } from "@mui/material";
 
 interface StepNavigationProps {
   isFirst: boolean;
@@ -18,6 +18,7 @@ const StepNavigation: React.FC<StepNavigationProps> = ({
   isStepComplete,
   isMobile = false,
 }) => {
+  const theme = useTheme();
 
   return (
     <Box display="flex" justifyContent="space-between" sx={{ mt: isMobile ? 1 : 2 }}>

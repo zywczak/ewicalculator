@@ -53,11 +53,11 @@ const NumberStepInput: React.FC<StepInputProps> = ({
         sx: {
           color: "#9E9E9E",
           position: "absolute",
-          fontSize: "16px",
+          fontSize: "14px",
           left: localValue ? "14px" : "50%",
           top: localValue ? 0 : "50%",
           transform: localValue
-            ? "translate(0, -50%) scale(0.75)"
+            ? "translate(-5%, -50%) scale(1)"
             : "translate(-50%, -50%)",
           transformOrigin: "top left",
           transition: "all 0.2s ease",
@@ -77,6 +77,10 @@ const NumberStepInput: React.FC<StepInputProps> = ({
 
       inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
       sx={{
+         "& input::placeholder": {
+            fontSize: "12px",
+          },
+        mt: isSubstep ? 0 : "16px",
         width: isSubstep ? (isMobile ? "150px" : "96px") : isMobile ? "calc(100% - 48px)" : "240px",
         mx: isSubstep ? 0 : "24px",
         mr: isSubstep ? "24px" : undefined,
@@ -85,7 +89,7 @@ const NumberStepInput: React.FC<StepInputProps> = ({
           height: isSubstep ? "26px" : "44px",
           borderRadius: "44px",
           backgroundColor: "#fff",
-          fontSize: "16px",
+          fontSize: isSubstep ? "12px" : "16px",
           "& fieldset": {
             borderColor: "#E0E0E0",
           },

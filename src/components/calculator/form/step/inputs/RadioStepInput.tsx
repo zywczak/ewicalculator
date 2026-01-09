@@ -2,11 +2,24 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import { StepInputProps } from "../StepInput";
 
-const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSubstep, isMobile = false }) => {
+const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSubstep, isMobile = false, selectedParentOptionIds = [] }) => {
   const handleChange = (val: string) => {
     const selectedOpt = step.options.find((o) => o.option_value === val);
     onChange(val, selectedOpt?.id);
   };
+
+  // Filter options based on parent_option_id
+  const filteredOptions = React.useMemo(() => {
+    return step.options.filter(opt => {
+      // If option has no parent_option_id, it's always visible
+      if (!opt.parent_option_id || opt.parent_option_id.length === 0) {
+        return true;
+      }
+      
+      // If option has parent_option_id, check if any selected parent option ID is in the list
+      return opt.parent_option_id.some(parentId => selectedParentOptionIds.includes(parentId));
+    });
+  }, [step.options, selectedParentOptionIds]);
 
   return (
     <Box
@@ -14,9 +27,9 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
         width: isSubstep ? isMobile ? "170px" : "130px" : "100%",
       }}
     >
-      {step.options.map((opt, index) => {
+      {filteredOptions.map((opt, index) => {
         const isSelected = value === opt.option_value;
-        const isLast = index === step.options.length - 1;
+        const isLast = index === filteredOptions.length - 1;
 
         return (
           <Box

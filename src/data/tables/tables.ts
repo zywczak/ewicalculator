@@ -29,7 +29,7 @@ export const INSULATION_VS_RENDER_TABLE: SimpleTable = {
   description: null,
   
   columns: [
-    { label: "Insulation and Render", borderColor: "#A32362" },
+    { label: "Insulation & Render", borderColor: "#A32362" },
     { label: "Render only", borderColor: "#0097CF" }
   ],
   

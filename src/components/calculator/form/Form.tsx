@@ -25,6 +25,7 @@ interface FormProps {
   errors: Record<number, boolean>;
   setErrors: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
   selectedOptions: number[];
+  setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
   stepsData: StepsData;
 }
 
@@ -42,6 +43,7 @@ const Form = ({
   errors,
   setErrors,
   selectedOptions,
+  setSelectedOptions,
   stepsData,
 }: FormProps) => {
   const isFirstStep = currentStep === 0;
@@ -162,6 +164,9 @@ const Form = ({
           setValues={setValues}
           errors={errors}
           setErrors={setErrors}
+          selectedOptions={selectedOptions}
+          setSelectedOptions={setSelectedOptions}
+          stepsData={stepsData}
         />
       </Box>
       {isMobile ? null :

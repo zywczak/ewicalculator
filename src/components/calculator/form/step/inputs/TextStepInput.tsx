@@ -38,15 +38,15 @@ const TextStepInput: React.FC<StepInputProps> = ({
       error={!!error}
       helperText={error}
       InputLabelProps={{
-        shrink: !!localValue,
+        shrink: localValue,
         sx: {
           color: "#9E9E9E",
           position: "absolute",
           fontSize: "16px",
-          left: !!localValue ? "14px" : "50%",
-          top: !!localValue ? 0 : "22px",
-          transform: !!localValue
-            ? "translate(0, -50%) scale(0.75)"
+          left: localValue ? "14px" : "50%",
+          top: localValue ? 0 : "22px",
+          transform: localValue
+            ? "translate(-5%, -45%) scale(0.85)"
             : "translate(-50%, -50%)",
           transformOrigin: "top left",
           transition: "all 0.2s ease",
@@ -64,6 +64,7 @@ const TextStepInput: React.FC<StepInputProps> = ({
         },
       }}
       sx={{
+        mt: "8px",
         width: isMobile ? "calc(100% - 48px)" : "240px",
         mx: "24px",
         mb: "16px",

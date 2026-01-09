@@ -12,9 +12,11 @@ import {
   Typography,
 } from "@mui/material";
 import { SimpleTable } from "../../../../data/tables/tables";
+import address from "../../../../api/adress";
+
+const adress = "https://precious-choux-6bd82f.netlify.app"
 
 const CELL_PADDING = "12px";
-const adress = "https://precious-choux-6bd82f.netlify.app"
 
 const HeaderCell = styled(TableCell)({
   fontWeight: 600,
@@ -70,7 +72,7 @@ const HelpTable: React.FC<HelpTableProps> = ({ table }) => {
             {Array.from({ length: max }).map((_, i) => (
               <img
                 key={i}
-                src={adress +rowIcon}
+                src={adress + rowIcon}
                 alt="scale-icon"
                 style={{ width: iconSize, height: iconSize, marginRight: i < max - 1 ? gap : 0 }}
               />

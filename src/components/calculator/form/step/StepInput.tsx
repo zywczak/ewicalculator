@@ -13,6 +13,7 @@ export interface StepInputProps {
   isSubstep?: boolean;
   label?: string;
   isMobile?: boolean;
+  selectedParentOptionIds?: number[];
 }
 
 const StepInput: React.FC<StepInputProps> = (props) => {

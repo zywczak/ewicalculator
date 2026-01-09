@@ -27,7 +27,7 @@ const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = 
       const windowHeight = window.innerHeight;
 
       // Skala na podstawie szerokości
-      let newScale = containerWidth >= defaultWidth ? 1 : containerWidth / defaultWidth;
+      let newScale = containerWidth / defaultWidth;
 
       // Sprawdzenie wysokości – jeśli po tej skali jest za wysoko (>80% okna)
       const scaledHeight = defaultHeight * newScale;

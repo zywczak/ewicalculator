@@ -3,6 +3,7 @@ import { Box, Typography, Divider } from "@mui/material";
 import HelpButton from "../form/help/helpButton";
 import EwiproLogo from "../../../assets/EWI-Pro-Render-Systems.png";
 import Slide from '@mui/material/Slide';
+import address from "../../../api/adress";
 
 const adress = "https://precious-choux-6bd82f.netlify.app"
 
@@ -30,8 +31,8 @@ const StepHeader: React.FC<StepHeaderProps> = ({
   return (
     <Box
       sx={{
-        pl: "24px",
-        width: isMobile ? null : "212px",
+        px: "24px",
+        width: isMobile ? null : "236px",
         height: isMobile ? "auto" : "490px",
         position: "relative",
       }}
@@ -134,11 +135,11 @@ const StepHeader: React.FC<StepHeaderProps> = ({
       )}
 
       {!isMobile && selectedOptionImage && (
-        <Box sx={{ width: "300px", overflow: 'hidden' }}>
+        <Box sx={{ position: 'absolute', left: 0, width: "280px", overflow: 'hidden', p: 0, m: 0 }}>
           <Slide direction="left" in={!!selectedOptionImage} key={selectedOptionImage}>
-            <Box sx={{ width: "212px", textAlign: 'center', mt: '24px' }}>
+            <Box sx={{ width: "236px", textAlign: 'center', mt: '24px', pl: '24px' }}>
               <img
-                src={adress +selectedOptionImage}
+                src={adress + selectedOptionImage}
                 alt="Selected option"
                 style={{ width: '100%' }}
               />

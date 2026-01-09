@@ -8,7 +8,7 @@ import Calculator from './components/app/Calculator';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
       <BrowserRouter>
-          <Routes> 
+          <Routes>
             <Route path="/" element={<Calculator />} />
           </Routes>
       </BrowserRouter>

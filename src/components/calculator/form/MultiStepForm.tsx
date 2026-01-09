@@ -3,7 +3,7 @@ import { Box, Divider, Typography } from "@mui/material";
 import StepInput from "./step/StepInput";
 import SubStep from "./step/SubStep";
 
-import { FormStep } from "../../../data/steps/stepsData";
+import { FormStep, StepsData } from "../../../data/steps/stepsData";
 
 interface MultiStepFormProps {
   currentStep: number;
@@ -22,6 +22,9 @@ interface MultiStepFormProps {
   setValues: React.Dispatch<React.SetStateAction<Record<number, string | number>>>;
   errors: Record<number, boolean>;
   setErrors: React.Dispatch<React.SetStateAction<Record<number, boolean>>>;
+  selectedOptions?: number[];
+  setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
+  stepsData: StepsData;
 }
 
 const MultiStepForm: React.FC<MultiStepFormProps> = ({
@@ -37,6 +40,9 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   setValues,
   errors,
   setErrors,
+  selectedOptions = [],
+  setSelectedOptions,
+  stepsData,
 }) => {
   const isLast = currentStep === totalSteps - 1;
 
@@ -52,9 +58,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     });
   }, [values, errors, parentStep]);
 
-  // Jeśli przy wejsciu do kroku istnieją już ustawione wartości (np. po cofnięciu
-  // lub przywróceniu stanu), przekaż odpowiadające im `optionId` do nadrzędnego
-  // komponentu, żeby `selectedOptions` zostało zsynchronizowane natychmiast.
   React.useEffect(() => {
     const allSteps = [parentStep, ...(parentStep.substeps || [])];
 
@@ -75,20 +78,35 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
   const handleChange = (stepId: number, value: string | number, optionId?: number) => {
     setValues(prev => {
       const newValues = { ...prev, [stepId]: value };
-
       setJsonValues(prevJson => {
         const updatedJson = { ...prevJson };
-
         const stepJson = updateJsonValues(parentStep, newValues);
         return { ...updatedJson, ...stepJson };
       });
-
       return newValues;
     });
 
     if (optionId !== undefined) {
-      const allSteps = [parentStep, ...(parentStep.substeps || [])];
+      const getAllSteps = (steps: FormStep[]): FormStep[] => {
+        const result: FormStep[] = [];
+        for (const step of steps) {
+          result.push(step);
+          if (step.substeps && step.substeps.length > 0) {
+            result.push(...getAllSteps(step.substeps));
+          }
+        }
+        return result;
+      };
+
+      const allSteps = getAllSteps([parentStep]);
       const step = allSteps.find(s => s.id === stepId);
+      const stepOptions = step?.options?.map(o => o.id) || [];
+      
+      // Aktualizuj selectedOptions
+      setSelectedOptions(prev => {
+        const filtered = prev.filter(opt => !stepOptions.includes(opt));
+        return [...filtered, optionId];
+      });
 
       step?.conditions?.forEach(cond => {
         if (cond.trigger_option === optionId) {
@@ -96,7 +114,7 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
             const skipStep = allSteps.find(s => s.id === skipStepId);
             if (!skipStep?.json_key) return;
 
-            if (parentStep.json_key && parentStep.substeps?.some(s => s.id === skipStepId)) {
+            if (parentStep.json_key && allSteps.some(s => s.id === skipStepId)) {
               setJsonValues(prev => {
                 const key = String(parentStep.json_key);
                 const nested = { ...((prev[key] as Record<string, any>) || {}) };
@@ -115,8 +133,25 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
             setValues(prevValues => {
               const updatedValues = { ...prevValues };
               delete updatedValues[skipStepId];
+              
+              const clearNestedValues = (s: FormStep) => {
+                if (s.substeps) {
+                  s.substeps.forEach(sub => {
+                    delete updatedValues[sub.id];
+                    clearNestedValues(sub);
+                  });
+                }
+              };
+              
+              if (skipStep.substeps) {
+                clearNestedValues(skipStep);
+              }
+              
               return updatedValues;
             });
+
+            const skipStepOptions = skipStep.options?.map(o => o.id) || [];
+            setSelectedOptions(prev => prev.filter(opt => !skipStepOptions.includes(opt)));
           });
         }
       });
@@ -130,19 +165,15 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     valueMap: Record<number, string | number>
   ): Record<string, any> => {
     let result: Record<string, any> = {};
-
     const stepValue = valueMap[step.id];
 
     if (step.json_key !== undefined) {
       if (step.input_type === "radio") {
-        const selectedOption = step.options?.find(
-          o => o.option_value === stepValue
-        );
+        const selectedOption = step.options?.find(o => o.option_value === stepValue);
         if (selectedOption?.json_value !== undefined) {
           result[step.json_key] = selectedOption.json_value;
         }
-      }
-      else if (
+      } else if (
         step.input_type === "text" ||
         step.input_type === "number" ||
         step.input_type === "colour"
@@ -150,7 +181,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
         result[step.json_key] = stepValue;
       }
     }
-
 
     if (step.substeps?.length) {
       const nested: Record<string, any> = {};
@@ -197,7 +227,6 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     }
 
     const stepJson = updateJsonValues(parentStep, values);
-
     const finalJson = { ...jsonValues, ...stepJson };
 
     console.log("📦 JSON wysyłany do onNext:", finalJson);
@@ -237,6 +266,84 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     }
   }, [handleNextClick, handlePrevClick, isStepComplete]);
 
+  const isSubstepVisible = React.useCallback((substepId: number): boolean => {
+    const checkConditionsRecursively = (steps: FormStep[]): { shouldShow: boolean; shouldHide: boolean } => {
+      let shouldShow = false;
+      let shouldHide = false;
+
+      for (const step of steps) {
+        if (step.conditions) {
+          for (const cond of step.conditions) {
+            if (cond.skip_steps.includes(substepId) && selectedOptions.includes(cond.trigger_option)) {
+              shouldHide = true;
+            }
+            
+            if (cond.show_steps?.includes(substepId) && selectedOptions.includes(cond.trigger_option)) {
+              shouldShow = true;
+            }
+          }
+        }
+        
+        if (step.substeps && step.substeps.length > 0) {
+          const nested = checkConditionsRecursively(step.substeps);
+          shouldShow = shouldShow || nested.shouldShow;
+          shouldHide = shouldHide || nested.shouldHide;
+        }
+      }
+
+      return { shouldShow, shouldHide };
+    };
+
+    const { shouldShow, shouldHide } = checkConditionsRecursively(stepsData.steps);
+
+    if (shouldHide) {
+      return false;
+    }
+
+    const hasShowConditions = (steps: FormStep[]): boolean => {
+      for (const step of steps) {
+        if (step.conditions?.some(cond => cond.show_steps?.includes(substepId))) {
+          return true;
+        }
+        if (step.substeps && step.substeps.length > 0) {
+          if (hasShowConditions(step.substeps)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    if (hasShowConditions(stepsData.steps)) {
+      return shouldShow;
+    }
+
+    return true;
+  }, [stepsData, selectedOptions]);
+
+  const getVisibleSubsteps = React.useCallback((substeps: FormStep[]): FormStep[] => {
+    if (!substeps || substeps.length === 0) return [];
+    
+    return substeps.filter(substep => {
+      if (!isSubstepVisible(substep.id)) {
+        return false;
+      }
+      return true;
+    }).map(substep => {
+      if (substep.substeps && substep.substeps.length > 0) {
+        return {
+          ...substep,
+          substeps: getVisibleSubsteps(substep.substeps)
+        };
+      }
+      return substep;
+    });
+  }, [isSubstepVisible]);
+
+  const visibleSubsteps = React.useMemo(() => {
+    return getVisibleSubsteps(parentStep.substeps || []);
+  }, [parentStep.substeps, getVisibleSubsteps]);
+
   return (
     <Box
       sx={{
@@ -247,26 +354,26 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
     >
       {isMobile && (
         <>
-  <Typography
-    sx={{
-      fontSize: "20px",
-      fontWeight: 700,
-      lineHeight: "38px",
-      pl: "24px",
-      mb: "10px",
-    }}
-    dangerouslySetInnerHTML={{ __html: parentStep.step_name || "" }}
-  />
-  <Typography
-          sx={{
-            fontSize: "12px",
-            fontWeight: 400,
-            color: "#424242",
-            mt: "24px",
-            px: "24px",
-          }}
-          dangerouslySetInnerHTML={{ __html: parentStep.description || "" }}
-        />
+          <Typography
+            sx={{
+              fontSize: "20px",
+              fontWeight: 700,
+              lineHeight: "38px",
+              pl: "24px",
+              mb: "10px",
+            }}
+            dangerouslySetInnerHTML={{ __html: parentStep.step_name || "" }}
+          />
+          <Typography
+            sx={{
+              fontSize: "12px",
+              fontWeight: 400,
+              color: "#424242",
+              mt: "24px",
+              px: "24px",
+            }}
+            dangerouslySetInnerHTML={{ __html: parentStep.description || "" }}
+          />
           <Divider sx={{ mb: "24px", ml: "24px", mr: "20px", color: "#D0DBE0" }} />
         </>
       )}
@@ -278,39 +385,41 @@ const MultiStepForm: React.FC<MultiStepFormProps> = ({
           setErrors(prev => ({ ...prev, [parentStep.id]: hasError }))
         }
         isMobile={isMobile}
+        selectedParentOptionIds={selectedOptions}
       />
 
-      {(parentStep.substeps || [])
-        .map((sub) => {
-          const value = values[sub.id] || "";
+      {visibleSubsteps.map((sub) => {
+        const value = values[sub.id] || "";
 
-          if (isLast && (sub.input_type === "text" || sub.input_type === "number")) {
-            return (
-              <StepInput
-                key={sub.id}
-                step={sub}
-                label={sub.step_name || undefined}
-                value={value}
-                onChange={(val) => handleChange(sub.id, val)}
-                onErrorChange={(hasError) =>
-                  setErrors(prev => ({ ...prev, [sub.id]: hasError }))
-                }
-                isMobile={isMobile}
-              />
-            );
-          }
-
+        if (isLast && (sub.input_type === "text" || sub.input_type === "number")) {
           return (
-            <SubStep
+            <StepInput
               key={sub.id}
               step={sub}
-              value={values[sub.id] || ""}
-              onChange={handleChange}
-              valuesMap={values}
+              label={sub.step_name || undefined}
+              value={value}
+              onChange={(val) => handleChange(sub.id, val)}
+              onErrorChange={(hasError) =>
+                setErrors(prev => ({ ...prev, [sub.id]: hasError }))
+              }
               isMobile={isMobile}
             />
           );
-        })}
+        }
+
+        return (
+          <SubStep
+            key={sub.id}
+            step={sub}
+            value={values[sub.id] || ""}
+            onChange={handleChange}
+            valuesMap={values}
+            isMobile={isMobile}
+            selectedParentOptionIds={selectedOptions}
+            stepsData={stepsData}
+          />
+        );
+      })}
     </Box>
   );
 };

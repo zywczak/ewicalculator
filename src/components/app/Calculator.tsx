@@ -72,7 +72,7 @@ const Calculator: React.FC = () => {
           handleNext();
         }
       }
-    }, 100);
+    }, 1);
 
     return () => clearTimeout(timer);
   }, [targetStepToReach, currentStep]);
@@ -259,7 +259,6 @@ const Calculator: React.FC = () => {
                 display: isMobileView ? 'block' : 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: "24px",
               }}
             >
               <StepHeader
@@ -295,6 +294,7 @@ const Calculator: React.FC = () => {
                 errors={errors}
                 setErrors={setErrors}
                 selectedOptions={selectedOptions}
+                setSelectedOptions={setSelectedOptions}
                 stepsData={stepsData}
               />
             </Box>
