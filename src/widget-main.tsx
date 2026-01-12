@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import reactToWebComponent from "react-to-webcomponent";
 import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
-import Calculator from "./components/app/Calculator";
+import Calculator from "./pages/Calculator";
 
 const theme = createTheme();
 

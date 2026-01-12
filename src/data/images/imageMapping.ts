@@ -1,48 +1,13 @@
-export type LayerType = 
-  | "main" 
-  | "second" 
-  | "third" 
-  | "fourth" 
-  | "fifth" 
-  | "sixth" 
-  | "seventh" 
-  | "eighth";
-
-export interface StepOptionImage {
-  layer: LayerType;
-  image_url: string;
-  options: number[];
-}
-
-import { OPTION_IDS } from '../constants/optionIds';
-
-export const LAYER_Z_INDEX: Record<LayerType, number> = {
-  main: 1,
-  second: 2,
-  third: 3,
-  fourth: 4,
-  fifth: 5,
-  sixth: 6,
-  seventh: 7,
-  eighth: 8,
-};
-
-export const LAYER_CHOICES: LayerType[] = [
-  "main",
-  "second", 
-  "third",
-  "fourth",
-  "fifth",
-  "sixth",
-  "seventh",
-  "eighth"
-];
-
+import { StepOptionImage } from "./types";
+import OPTION_IDS from "../constants/optionIds";
 
 export const STEP_OPTION_IMAGES: StepOptionImage[] = [
+  
   // Main Layer - Default images per house type
   { layer: "main", image_url: "/media/detacheddefault.jpg", options: [OPTION_IDS.HOUSE.DETACHED] },
+
   { layer: "main", image_url: "/media/semidetacheddefault.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED] },
+  
   { layer: "main", image_url: "/media/terraceddefault.jpg", options: [OPTION_IDS.HOUSE.TERRACED] },
 
   // Second Layer - Surface materials
@@ -73,11 +38,7 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   { layer: "second", image_url: "/media/semidetachedrendercarrierboard.png", options: [OPTION_IDS.SURFACE.RENDER_CARRIER, OPTION_IDS.HOUSE.SEMI_DETACHED] },
   { layer: "second", image_url: "/media/semidetachedsandandcement.png", options: [OPTION_IDS.SURFACE.SAND_CEMENT, OPTION_IDS.HOUSE.SEMI_DETACHED] },
 
-  // Third Layer - Insulation materials (thick variants)
-  { layer: "third", image_url: "/media/terracedmaterialepsthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.HOUSE.TERRACED] },
-  { layer: "third", image_url: "/media/detachedmaterialepsthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.HOUSE.DETACHED] },
-  { layer: "third", image_url: "/media/semidetachedmaterialepsthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.HOUSE.SEMI_DETACHED] },
-  
+  // Third Layer - Insulation materials (thick variants)  
   { layer: "third", image_url: "/media/detachedmaterialkingspanthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.INSULATION.KINGSPAN, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "third", image_url: "/media/detachedmaterialepsthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.INSULATION.EPS, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "third", image_url: "/media/detachedmaterialwoolthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.INSULATION.WOOL, OPTION_IDS.HOUSE.DETACHED] },
@@ -108,34 +69,35 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   { layer: "fifth", image_url: "/media/terracedmask.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "fifth", image_url: "/media/terracedmask.png", options: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "fifth", image_url: "/media/terracedmask.png", options: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.HOUSE.TERRACED] },
-  { layer: "fifth", image_url: "/media/terracedmask.png", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+  { layer: "fifth", image_url: "/media/terracedmask.png", options: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS,OPTION_IDS.HOUSE.TERRACED] },
   
   { layer: "fifth", image_url: "/media/detachedmask.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "fifth", image_url: "/media/detachedmask.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "fifth", image_url: "/media/detachedmask.png", options: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "fifth", image_url: "/media/detachedmask.png", options: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.HOUSE.DETACHED] },
-  { layer: "fifth", image_url: "/media/detachedmask.png", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+  { layer: "fifth", image_url: "/media/detachedmask.png", options: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, OPTION_IDS.HOUSE.DETACHED] },
 
   // Sixth Layer - Render textures
-  { layer: "sixth", image_url: "/media/terracedbricktexture.png", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+  { layer: "sixth", image_url: "/media/terracedbricktexture.png", options: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "sixth", image_url: "/media/terracedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "sixth", image_url: "/media/terracedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "sixth", image_url: "/media/terracedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "sixth", image_url: "/media/terracedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.HOUSE.TERRACED] },
   
-  { layer: "sixth", image_url: "/media/detachedbricktexture.png", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+  { layer: "sixth", image_url: "/media/detachedbricktexture.png", options: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "sixth", image_url: "/media/detachedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "sixth", image_url: "/media/detachedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "sixth", image_url: "/media/detachedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "sixth", image_url: "/media/detachedrendertexture.png", options: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.HOUSE.DETACHED] },
+  
   // Seventh Layer - Shadows
   { layer: "seventh", image_url: "/media/terracedshadow.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "seventh", image_url: "/media/terracedshadow.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "seventh", image_url: "/media/terracedshadow.png", options: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "seventh", image_url: "/media/terracedshadow.png", options: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.HOUSE.TERRACED] },
-  { layer: "seventh", image_url: "/media/terracedshadow.png", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+  { layer: "seventh", image_url: "/media/terracedshadow.png", options: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, OPTION_IDS.HOUSE.TERRACED,] },
   
-  { layer: "seventh", image_url: "/media/detachedshadow.png", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+  { layer: "seventh", image_url: "/media/detachedshadow.png", options: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "seventh", image_url: "/media/detachedshadow.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "seventh", image_url: "/media/detachedshadow.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "seventh", image_url: "/media/detachedshadow.png", options: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.HOUSE.DETACHED] },
@@ -146,43 +108,5 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   { layer: "eighth", image_url: "/media/semidetachedscenerythin.png", options: [OPTION_IDS.HOUSE.SEMI_DETACHED] },
   { layer: "eighth", image_url: "/media/terracedscenerythin.png", options: [OPTION_IDS.HOUSE.TERRACED] }
 ];
-
-export const findBestMatchingImage = (
-  layer: LayerType,
-  selectedOptions: number[]
-): string | null => {
-  const matched = STEP_OPTION_IMAGES
-    .filter(img => img.layer === layer)
-    .filter(img => img.options.every(optId => selectedOptions.includes(optId)));
-
-  if (matched.length === 0) return null;
-
-  const bestMatch = matched.reduce((prev, curr) => {
-    const prevMax = Math.max(...prev.options);
-    const currMax = Math.max(...curr.options);
-    return currMax > prevMax ? curr : prev;
-  }, matched[0]);
-
-  return bestMatch.image_url;
-};
-
-export const buildOverlayImages = (selectedOptions: number[]) => {
-  const overlays: Record<LayerType, string | null> = {
-    main: null,
-    second: null,
-    third: null,
-    fourth: null,
-    fifth: null,
-    sixth: null,
-    seventh: null,
-    eighth: null,
-  };
-
-  LAYER_CHOICES.forEach(layer => {
-    overlays[layer] = findBestMatchingImage(layer, selectedOptions);
-  });
-
-  return overlays;
-};
 
 export default STEP_OPTION_IMAGES;
