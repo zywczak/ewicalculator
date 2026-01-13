@@ -31,6 +31,7 @@ export default [
       ...reactPlugin.configs.recommended.rules,
       'constructor-super': 'off',
       'react/react-in-jsx-scope': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

@@ -37,7 +37,7 @@ export const HelpRightPanel: React.FC<HelpRightPanelProps> = ({ isMobile, curren
       {currentHelp.side_description && (
         <Typography
           sx={{
-            fontSize: "12px",
+            fontSize: "14px",
             color: "#000",
             mb: "16px",
             textAlign: "center",

@@ -3,7 +3,7 @@ import { FormStep } from "../types";
 
 export const STEP_10_GRAIN: FormStep = {
     id: 10,
-    step_name: "Render grain size",
+    step_name: "Render sizes",
     description: null,
     json_key: "grainsize",
     input_type: "radio",
@@ -21,39 +21,39 @@ export const STEP_10_GRAIN: FormStep = {
     ],
     help: [
     {
-        help_title: "Render grain size",
+        help_title: "Render sizes",
         upper_description: null,
-        downer_description: "Our renders are available in 5 different grains thicknesses. Render samples available online and in-store are in 1.0mm and 1.5mm sizes.",
-        side_description:  "We offer 5 grain sizes, 0.5mm, 1mm, 1.5mm, 2mm and 3mm depending on the finish required. <br /> <b>Silicone, Silicone-Silicate, Nano Drex Silicone, Premium Bio Silicone</b>",
+        downer_description: "<h4>EWI Pro renders are available in a range of grain sizes:</h4><b>Silicone Render</b> – all sizes available<br /><b>Nano Drex Silicone Render</b> – 1mm, 1.5mm<br /><b>Premium Bio Silicone Render</b> – 1mm, 1.5mm<br /><b>Silicone-Silicate Render</b> – 1.5mm only",
+        side_description:  "Approximate appearance of each render grain size.",
         images: [
         {
-            image_name: "bellcastbead.png",
+            image_name: "texture_0_5mm.png",
             caption: "0.5 mm",
-            image_url: "/media/bellcastbead.png",
+            image_url: "/media/texture_0_5mm.png",
             description: null
         },
         {
-            image_name: "bellcastbead.png",
+            image_name: "texture_1mm.png",
             caption: "1 mm",
-            image_url: "/media/bellcastbead.png",
+            image_url: "/media/texture_1mm.png",
             description: null
         },
         {
-            image_name: "stopbead.png",
+            image_name: "texture_1_5mm.png",
             caption: "1.5 mm",
-            image_url: "/media/stopbead.png",
+            image_url: "/media/texture_1_5mm.png",
             description: null
         },
         {
-            image_name: "cornerbead.png",
+            image_name: "texture_2mm.png",
             caption: "2 mm",
-            image_url: "/media/cornerbead.png",
+            image_url: "/media/texture_2mm.png",
             description: null
         },
         {
-            image_name: "startertrack.png",
+            image_name: "texture_3mm.png",
             caption: "3 mm",
-            image_url: "/media/startertrack.png",
+            image_url: "/media/texture_3mm.png",
             description: null
         },
         ]

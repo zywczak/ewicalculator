@@ -164,6 +164,7 @@ const Form = ({
           width: isMobile ? "100%" : "600px",
           height: isMobile ? "auto" : "450px",
           px: isMobile ? "24px" : 0,
+          boxSizing: "border-box",
           zIndex: isMobile ? 2 : "auto",
         }}
       >
@@ -206,7 +207,7 @@ const Form = ({
         <Box
           sx={{
             position: "absolute",
-            bottom: "-18px",
+            bottom: "-10px",
             left: "40px",
             display: "flex",
             gap: "12px",

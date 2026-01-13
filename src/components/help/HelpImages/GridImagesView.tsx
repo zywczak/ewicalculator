@@ -13,7 +13,7 @@ const GridImagesView: React.FC<GridImagesViewProps> = ({ images, isMobile = fals
   const imagesCount = images.length;
 
   const getGridColumns = () => {
-    if (isMobile) return "repeat(2, 1fr)";
+    if (isMobile) return "repeat(2, 2fr)";
 
     if (imagesCount <= 3) {
       return `repeat(${imagesCount}, 1fr)`;
@@ -30,15 +30,22 @@ const GridImagesView: React.FC<GridImagesViewProps> = ({ images, isMobile = fals
     <Box
       sx={{
         display: "grid",
-        gridTemplateColumns: {
-          xs: "1fr",
-          sm: isMobile ? "repeat(2, 1fr)" : getGridColumns(),
-        },
+        gridTemplateColumns: getGridColumns(), 
         gap: 1.5,
         width: "100%",
         px: "24px",
         py: "24px",
         boxSizing: "border-box",
+
+        ...(isMobile && {
+      "@media (max-width: 400px)": {
+        gridTemplateColumns: "1fr",
+      },
+
+      "@media (min-width: 401px) and (max-width: 900px)": {
+        gridTemplateColumns: "repeat(2, 1fr)",
+      },
+    }),
       }}
     >
       {images.map((img) => (

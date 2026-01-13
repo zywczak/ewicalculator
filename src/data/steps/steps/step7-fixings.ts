@@ -13,8 +13,8 @@ export const STEP_7_FIXINGS: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.FIXINGS.PLASTIC, option_value: "Plastic", json_value: "2", image: "/media/plasticfixing.png" },
-    { id: OPTION_IDS.FIXINGS.METAL, option_value: "Metal", json_value: "1", image: "/media/metalfixing.png" },
+    { id: OPTION_IDS.FIXINGS.PLASTIC, option_value: "Plastic", json_value: "2", image: "/media/plastic fixing.png" },
+    { id: OPTION_IDS.FIXINGS.METAL, option_value: "Metal", json_value: "1", image: "/media/metal fixing.png" },
     { id: OPTION_IDS.FIXINGS.SCREW, option_value: "Screw", json_value: "3", image: "/media/screwfixing.png" }
     ],
     help: [

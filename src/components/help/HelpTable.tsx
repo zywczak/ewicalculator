@@ -57,37 +57,60 @@ const getCellContent = (value: string | number | boolean | null, rowType?: strin
   }
 
   if (rowType === "scale" && rowIcon && rowScale) {
-    const numValue = Number(value);
-    const [max] = rowScale;
-    const iconSize = 24;
-    const gap = 2;
-    const coverPercent = Math.max(0, (max - numValue) / max) * 100;
+  const numValue = Number(value);
+  const [, max] = rowScale;
+  const iconSize = 24;
+  const gap = 2;
 
-    return (
-      <Box sx={{ position: "relative", display: "inline-block" }}>
-        <Box sx={{ display: "flex" }}>
-          {Array.from({ length: max }).map((_, i) => (
+  const fullIcons = Math.floor(numValue);
+  const partialFill = numValue - fullIcons;
+
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {Array.from({ length: max }).map((_, i) => {
+        const isFull = i < fullIcons;
+        const isPartial = i === fullIcons && partialFill > 0;
+
+        return (
+          <Box
+            key={`scale-icon-${rowIcon}-${i}-${numValue}`}
+            sx={{
+              position: "relative",
+              width: iconSize,
+              height: iconSize,
+              mr: i < max - 1 ? `${gap}px` : 0,
+              opacity: isFull || isPartial ? 1 : 0.3,
+            }}
+          >
             <img
-              key={`scale-icon-${rowIcon}-${i}-${numValue}`}
               src={address + rowIcon}
               alt="scale-icon"
-              style={{ width: iconSize, height: iconSize, marginRight: i < max - 1 ? gap : 0 }}
+              style={{
+                width: iconSize,
+                height: iconSize,
+                display: "block",
+              }}
             />
-          ))}
-        </Box>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            height: "100%",
-            width: `${coverPercent}%`,
-            backgroundColor: "rgba(255,255,255,0.8)",
-          }}
-        />
-      </Box>
-    );
-  }
+
+            {isPartial && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  width: `${(1 - partialFill) * 100}%`,
+                  height: "100%",
+                  backgroundColor: "rgba(255,255,255,0.8)",
+                }}
+              />
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+}
+
 
   if (typeof value === "string" && value.includes("<")) {
     return <span dangerouslySetInnerHTML={{ __html: value }} />;

@@ -32,7 +32,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       onClick={onClick}
       disabled={disabled}
       sx={{
-        backgroundColor: disabled ? "#BDBDBD" : "#438E44",
+        backgroundColor: disabled ? "#BDBDBD" : "#48D858",
         width: getButtonWidth(),
         minWidth: isMobile ? "100%" : undefined,
         borderRadius: "999px",

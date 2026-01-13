@@ -135,7 +135,13 @@ const StepHeader: React.FC<StepHeaderProps> = ({
 
       {!isMobile && selectedOptionImage && (
         <Box sx={{ position: 'absolute', left: 0, width: "280px", overflow: 'hidden', p: 0, m: 0 }}>
-          <Slide direction="left" in={!!selectedOptionImage} key={selectedOptionImage}>
+          <Slide
+            direction="left"
+            in={!!selectedOptionImage}
+            key={selectedOptionImage}
+            timeout={700}
+            easing={{ enter: 'ease-in' }}
+          >
             <Box sx={{ width: "236px", textAlign: 'center', mt: '24px', pl: '24px' }}>
               <img
                 src={address + selectedOptionImage}

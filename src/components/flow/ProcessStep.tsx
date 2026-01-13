@@ -20,7 +20,7 @@ const STATUS_STYLES: Record<
     border: "none",
   },
   current: {
-    bg: "#438E44",
+    bg: "#48D858",
     text: "#ffffff",
     border: "none",
   },

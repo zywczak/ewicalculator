@@ -46,10 +46,22 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
               alignItems: "center",
               pl: "30px",
               position: "relative",
-              transition: "background-color 0.2s ease",
-              backgroundColor: isSelected ? "#438E44" : "transparent",
-              fontWeight: isSelected ? "700" : "400",
+
+              backgroundColor: isSelected ? "#48D858" : "transparent",
               color: isSelected ? "#fff" : "#000",
+              fontWeight: isSelected ? 700 : 400,
+
+              transition: `
+                background-color 0.4s ease,
+                color 0.4s ease,
+                font-weight 0.4s ease
+              `,
+
+              "&:hover": {
+                backgroundColor: isSelected ? "#48D858" : "#8B959A",
+                color: "#fff",
+              },
+
               "&::before": {
                 content: '""',
                 position: "absolute",
@@ -57,7 +69,12 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
                 left: "20px",
                 right: isSubstep ? "24px" : "20px",
                 height: "1px",
-                backgroundColor: backgroundColor,
+                backgroundColor: isSelected ? "#48D858" : backgroundColor,
+                transition: "background-color 0.4s ease",
+              },
+
+              "&:hover::before": {
+                backgroundColor: "#ffffff00",
               },
             }}
           >
