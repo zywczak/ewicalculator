@@ -2,16 +2,26 @@ import reportWebVitals from './reportWebVitals';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import './index.css';
 import Calculator from './pages/Calculator';
 
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Inter", sans-serif',
+  },
+});
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <BrowserRouter>
           <Routes>
             <Route path="/" element={<Calculator />} />
           </Routes>
       </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>
 );
 

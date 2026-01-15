@@ -17,7 +17,6 @@ const Calculator: React.FC = () => {
   const [stepsData] = useState<StepsData>(STEPS_DATA);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([]));
-  const [skipStepIds,] = useState<number[]>([]);
   const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 705);
   const [isSmallerTitle, setIsSmallerTitle] = useState(window.innerWidth <= 900);
@@ -284,7 +283,6 @@ const Calculator: React.FC = () => {
                 currentStep={currentStep}
                 totalSteps={parentSteps.length}
                 parentStep={parentStep}
-                skipStepIds={skipStepIds}
                 onNext={handleNext}
                 onPrev={handlePrev}
                 onOptionChange={(option) => handleOptionChange(option.id, option.stepId)}

@@ -4,7 +4,11 @@ import reactToWebComponent from "react-to-webcomponent";
 import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import Calculator from "./pages/Calculator";
 
-const theme = createTheme();
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Inter", sans-serif',
+  },
+});
 
 const ThemedForm = () => (
   <ThemeProvider theme={theme}>

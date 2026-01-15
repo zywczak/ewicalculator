@@ -10,7 +10,6 @@ interface FormProps {
   currentStep: number;
   totalSteps: number;
   parentStep: FormStep;
-  skipStepIds: number[];
   onNext: (
     values?: Record<string, any>,
     triggerStepId?: number,
@@ -109,7 +108,6 @@ const Form = ({
   currentStep,
   totalSteps,
   parentStep,
-  skipStepIds,
   onNext,
   onPrev,
   onOptionChange,
@@ -186,7 +184,6 @@ const Form = ({
           currentStep={currentStep}
           totalSteps={totalSteps}
           parentStep={parentStep}
-          skipStepIds={skipStepIds}
           onNext={onNext}
           onPrev={onPrev}
           onOptionChange={(optionId, stepId) =>
