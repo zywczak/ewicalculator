@@ -12,11 +12,11 @@ export const INSULATION_VS_RENDER_TABLE: SimpleTable = {
   ],
   
   rows: [
-    { label: "Improve thermal comfort", type: "boolean", values: [true, null] },
+    { label: "Improve Thermal Comfort", type: "boolean", values: [true, null] },
     { label: "Reduce Energy Bills", type: "boolean", values: [true, null] },
-    { label: "Improve look of property", type: "boolean", values: [true, true] },
-    { label: "Crack free solution", type: "boolean", values: [true, true] },
-    { label: "Weatherproof/Damp prevention", type: "boolean", values: [true, true] },
+    { label: "Improve Look of Property", type: "boolean", values: [true, true] },
+    { label: "Crack Free Solution", type: "boolean", values: [true, true] },
+    { label: "Weatherproof/Damp Prevention", type: "boolean", values: [true, true] },
     { label: "Increase Property Value", type: "boolean", values: [true, true] }
   ]
 };
