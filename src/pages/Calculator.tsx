@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";//, useNemo
 import { Box, Card, Typography } from "@mui/material";
 import ProcessFlow from "../components/flow/ProcessFlow";
 import StepHeader from "../components/form/Step/StepHeader";
@@ -12,6 +12,7 @@ import ResponsiveCalculatorWrapper from "../components/FormWrapper";
 import { STEPS_DATA} from "../data/steps/stepsData";
 import { StepsData } from "../data/steps/types";
 import Help from "../components/help/Help";
+//import { useAIAssistantWS } from "../webSocket/useAIAssistantWS";
 
 const Calculator: React.FC = () => {
   const [stepsData] = useState<StepsData>(STEPS_DATA);
@@ -204,6 +205,33 @@ const Calculator: React.FC = () => {
     }
   };
 
+  // const userInfo = useMemo(() => ({
+  //   userID: localStorage.getItem("userID") ?? "",
+  //   userName: localStorage.getItem("userName") ?? "",
+  //   userNameSurname: localStorage.getItem("userNameSurname") ?? "",
+  //   position: "test",
+  //   userBranchID: "test",
+  //   userBranchName: "test",
+  //   userDepartmentName: "test"
+  // }), []);
+
+  // const { messages, status, sendMessage } = useAIAssistantWS(userInfo);
+  // const [aiHint, setAiHint] = React.useState<string>("");
+
+  // React.useEffect(() => {
+  //   if (status === "connected") {
+  //     setAiHint("");
+  //     sendMessage("czesc");
+  //   }
+  // }, [status, sendMessage, currentStep]);
+
+  // React.useEffect(() => {
+  //   const lastMessage = messages[messages.length - 1];
+  //   if (lastMessage && lastMessage.role === "assistant" && !lastMessage.streaming) {
+  //     setAiHint(lastMessage.content);
+  //   }
+  // }, [messages]);
+
   return (
     <>
       <Box sx={{ textAlign: "center", py: "16px" }}>
@@ -279,6 +307,7 @@ const Calculator: React.FC = () => {
                     return selectedOption?.image || null;
                   })()
                 }
+                // aiHint={aiHint}
               />
               <FormBoard
                 currentStep={currentStep}

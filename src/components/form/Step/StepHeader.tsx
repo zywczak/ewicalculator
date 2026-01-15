@@ -1,9 +1,10 @@
-import React, { ReactNode } from "react";
-import { Box, Typography, Divider } from "@mui/material";
+import React, { ReactNode } from "react";//, useState
+import { Box, Typography, Divider } from "@mui/material";//, Popover
 import HelpButton from "../buttons/helpButton";
 import EwiproLogo from "../../../assets/EWI-Pro-Render-Systems.png";
 import Slide from '@mui/material/Slide';
 import address from "../../../api/adress";
+//import LightbulbIcon from '@mui/icons-material/Lightbulb';
 
 interface StepHeaderProps {
   stepName: string | null;
@@ -14,6 +15,7 @@ interface StepHeaderProps {
   onHelpClick: () => void;
   isMobile?: boolean;
   selectedOptionImage?: string | null;
+  // aiHint?: string;
 }
 
 const StepHeader: React.FC<StepHeaderProps> = ({
@@ -25,7 +27,20 @@ const StepHeader: React.FC<StepHeaderProps> = ({
   onHelpClick,
   isMobile = false,
   selectedOptionImage,
+  // aiHint = "",
 }) => {
+  // const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+
+  // const handleBulbClick = (event: React.MouseEvent<HTMLElement>) => {
+  //   setAnchorEl(event.currentTarget);
+  // };
+
+  // const handlePopoverClose = () => {
+  //   setAnchorEl(null);
+  // };
+
+  // const open = Boolean(anchorEl);
+  // const hasHint = aiHint.length > 0;
   return (
     <Box
       sx={{
@@ -69,6 +84,45 @@ const StepHeader: React.FC<StepHeaderProps> = ({
             : null
           }
         </Box>
+        {/* <Box sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <Box
+            onClick={handleBulbClick}
+            sx={{
+              height: "30px",
+              width: "30px",
+              mb: "4px",
+              ml: isMobile ? "16px" : 0,
+              borderRadius: "9999px",
+              background: "#f5f5f5",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: hasHint ? "pointer" : "default",
+              transition: "background 0.3s ease",
+              "&:hover": {
+                backgroundColor: hasHint ? "#8B959A" : "#f5f5f5",
+              },
+            }}
+          >
+            <svg width="0" height="0">
+              <defs>
+                <linearGradient id="bulbGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stopColor="#000000" />
+                  <stop offset="30%" stopColor="#000000" />
+                  <stop offset="30%" stopColor="#FFC107" />
+                  <stop offset="100%" stopColor="#FFC107" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <LightbulbIcon
+              sx={{
+                fontSize: 19,
+                ...(hasHint
+                  ? { fill: 'url(#bulbGradient)' }
+                  : { color: '#BDBDBD' }),
+              }}
+            />
+          </Box> */}
         {helpAvailable && (
           <Box
             onClick={onHelpClick}
@@ -99,6 +153,7 @@ const StepHeader: React.FC<StepHeaderProps> = ({
 
           </Box>
         )}
+        {/* </Box> */}
         {isMobile ?
           <Box sx={{ marginLeft: 'auto' }}>
             <img
@@ -109,6 +164,29 @@ const StepHeader: React.FC<StepHeaderProps> = ({
           </Box>
           : null}
       </Box>
+
+      {/* <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handlePopoverClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        sx={{
+          mt: 1,
+        }}
+      >
+        <Box sx={{ p: 2, maxWidth: 300 }}>
+          <Typography sx={{ fontSize: "12px", color: "#424242" }}>
+            {aiHint}
+          </Typography>
+        </Box>
+      </Popover> */}
 
       <Divider sx={{ mb: 2, color: "#D0DBE0" }} />
       {isMobile ? null :
