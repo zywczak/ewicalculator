@@ -32,7 +32,7 @@ export const HelpLeftPanel: React.FC<HelpLeftPanelProps> = ({ isMobile, currentH
               fontWeight: 700,
               mb: "16px",
               lineHeight: "38px",
-              fontSize: "32px",
+              fontSize: "31px",
             }}
           >
             {currentHelp.help_title}
@@ -43,12 +43,12 @@ export const HelpLeftPanel: React.FC<HelpLeftPanelProps> = ({ isMobile, currentH
       <Box display="flex" flexDirection="column" justifyContent="space-between" height="100%">
         <Typography
           variant="body1"
-          sx={{ fontWeight: 400, fontSize: "14px" }}
+          sx={{ fontWeight: 400, fontSize: "14.5px" }}
           dangerouslySetInnerHTML={{ __html: currentHelp.upper_description || "" }}
         />
         <Typography
           variant="body1"
-          sx={{ fontWeight: 400, fontSize: "14px" }}
+          sx={{ fontWeight: 400, fontSize: "14.5px" }}
           dangerouslySetInnerHTML={{ __html: currentHelp.downer_description || "" }}
         />
       </Box>

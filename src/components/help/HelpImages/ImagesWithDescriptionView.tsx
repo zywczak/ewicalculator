@@ -40,7 +40,7 @@ const ImagesWithDescriptionView: React.FC<ImagesWithDescriptionViewProps> = ({ i
           <Box
             sx={{
               flexShrink: 0,
-              width: "150px",
+              width: "144px",
               minHeight: `${minHeight}px`,
               display: "flex",
               alignItems: "center",
@@ -81,7 +81,7 @@ const ImagesWithDescriptionView: React.FC<ImagesWithDescriptionViewProps> = ({ i
                   align="center"
                   sx={{
                     fontWeight: 700,
-                    fontSize: "12px",
+                    fontSize: "14px",
                     color: "#000",
                   }}
                 >
@@ -97,7 +97,6 @@ const ImagesWithDescriptionView: React.FC<ImagesWithDescriptionViewProps> = ({ i
                 flex: 1,
                 display: "flex",
                 alignItems: "flex-start",
-                maxHeight: `calc(${minHeight}px + 40px)`,
                 overflow: "auto",
               }}
             >

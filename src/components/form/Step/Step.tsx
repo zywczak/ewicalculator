@@ -10,7 +10,6 @@ interface StepFormProps {
   currentStep: number;
   totalSteps: number;
   parentStep: FormStep;
-  skipStepIds: number[];
   onNext: (
     values: Record<string, JsonValue>,
     triggerStepId?: number,

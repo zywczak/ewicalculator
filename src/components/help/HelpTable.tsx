@@ -35,7 +35,7 @@ const RowHeaderCell = styled(TableCell)({
 const DataCell = styled(TableCell)({
   textAlign: "center",
   border: "1px solid #e0e0e0",
-  fontSize: "0.9rem",
+  fontSize: "14px",
   verticalAlign: "middle",
   padding: CELL_PADDING,
 });
@@ -199,7 +199,7 @@ const HelpTable: React.FC<HelpTableProps> = ({ table }) => {
                             textAlign: "center",
                           }}
                         >
-                          <Typography variant="body1" sx={{ fontWeight: 600, fontSize: "1rem", lineHeight: 'normal' }}>
+                          <Typography variant="body1" sx={{ fontWeight: 600, fontSize: "14px", lineHeight: 'normal' }}>
                             {col.label}
                           </Typography>
                         </Box>
@@ -223,7 +223,7 @@ const HelpTable: React.FC<HelpTableProps> = ({ table }) => {
                       gap: 1,
                     }}
                   >
-                    <Typography variant="body2" sx={{ fontWeight: 500, textAlign: "center" }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "14px", textAlign: "center" }}>
                       {row.label}
                     </Typography>
                   </Box>

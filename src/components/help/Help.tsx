@@ -79,7 +79,7 @@ const Help: React.FC<HelpProps> = ({
         },
       }}
     >
-      <HelpHeader isMobile={isMobile} onClose={onClose} title={currentHelp.help_title} />
+      <HelpHeader isMobile={isMobile} onClose={onClose} />
       <Box
         sx={{
           display: "flex",

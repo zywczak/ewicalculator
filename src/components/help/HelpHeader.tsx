@@ -5,10 +5,9 @@ import CloseIcon from "@mui/icons-material/Close";
 interface HelpHeaderProps {
   isMobile: boolean;
   onClose: () => void;
-  title: string;
 }
 
-export const HelpHeader: React.FC<HelpHeaderProps> = ({ isMobile, onClose, title }) => {
+export const HelpHeader: React.FC<HelpHeaderProps> = ({ isMobile, onClose}) => {
   return isMobile ? (
     <Box
       sx={{
