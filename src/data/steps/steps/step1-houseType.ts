@@ -3,7 +3,7 @@ import { FormStep } from "../types";
 
 export const STEP_1_HOUSE: FormStep = {
     id: 1,
-    step_name: "Type of house",
+    step_name: "Type of House",
     description: "",
     json_key: "house",
     input_type: "radio",

@@ -4,7 +4,7 @@ import { FormStep } from "../types";
 
 export const STEP_4_SYSTEM_TYPE: FormStep = {
     id: 4,
-    step_name: "Insulation or render only?",
+    step_name: "Insulation or Render Only?",
     description: "",
     json_key: "type",
     input_type: "radio",
@@ -19,7 +19,7 @@ export const STEP_4_SYSTEM_TYPE: FormStep = {
     ],
     help: [
     {
-        help_title: "Advantages of insulation",
+        help_title: "Advantages of Insulation",
         upper_description: null,
         downer_description: null,
         images: [],

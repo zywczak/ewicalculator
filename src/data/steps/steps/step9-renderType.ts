@@ -4,7 +4,7 @@ import { FormStep } from "../types";
 
 export const STEP_9_RENDER: FormStep = {
     id: 9,
-    step_name: "Type of the system",
+    step_name: "Type of Decorative Finish",
     description: null,
     json_key: "system",
     input_type: "radio",
@@ -23,7 +23,7 @@ export const STEP_9_RENDER: FormStep = {
     ],
     help: [
     {
-        help_title: "Type of Render",
+        help_title: "Type of Decorative Finish",
         upper_description: null,
         downer_description: null,
         images: [],

@@ -2,8 +2,8 @@ import { FormStep } from "../types";
 
 export const STEP_13_CUSTOMER: FormStep = {
     id: 13,
-    step_name: "Receive <span style='color: #48D858'>your</span> personalised quote!",
-    description: "To get a personalised quote (with generous discount!) please fill in your details below. You will then receive the quote by email within a couple of minutes.",
+    step_name: "Receive <span style='color: #48D858'>Your</span> Personalised Quote!",
+    description: "To get a personalised quote with a generous discount, please fill in your details below. Your quote will be emailed to you within a few minutes.",
     json_key: "customer_details",
     input_type: null,
     placeholder: null,

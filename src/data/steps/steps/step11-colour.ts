@@ -4,7 +4,7 @@ import { FormStep } from "../types";
 
 export const STEP_11_COLOUR: FormStep = {
     id: 11,
-    step_name: "Select colour",
+    step_name: "Select Colour",
     description: null,
     json_key: "colour",
     input_type: "colour",
@@ -31,9 +31,9 @@ export const STEP_11_COLOUR: FormStep = {
     // options: [],
     help: [
     {
-        help_title: "The colours",
+        help_title: "The Colours",
         upper_description: null,
-        downer_description: "<b>This is only preview</b> <br />For best matching or colour find, order one of our samples, or visit our store. <br />We offer 50 most popular colours in stock. <br /><br />For better user experience, we offer render samples: <ul><li>colour chart books</li><li>render sample sleeves</li><li>sample pots with render</li></ul>",
+        downer_description: "<b>This is only preview</b> <br />For accurate colour matching, we recommend ordering one of our samples or visiting our store.<br />Choose from 50 of our most popular colours, all in stock.<br /><br />For a better user experience, we provide render samples:<ul><li>colour chart books</li><li>render sample sleeves</li><li>sample pots with render</li></ul>",
         useColourSamples: true,
         disclaimer:  "Disclaimer: Render colours may appear differently on-screen compared to real life. Therefore, we always recommend that you order a colour sample before making a final decision.",
     }

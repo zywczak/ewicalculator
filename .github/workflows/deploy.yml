@@ -2,7 +2,7 @@ name: Build and Deploy UI App
 
 on:
   pull_request:
-    branches: [ "stage" ]
+    branches: [ "xxx" ]
     types:
       - closed
 

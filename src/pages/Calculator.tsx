@@ -217,7 +217,7 @@ const Calculator: React.FC = () => {
             willChange: "font-size, transform",
           }}
         >
-          Quote smarter.
+          Quote Smarter.
         </Typography>
         <Typography
           sx={{
@@ -228,7 +228,7 @@ const Calculator: React.FC = () => {
             willChange: "font-size, transform",
           }}
         >
-          Use Material Calculator
+          Use Our Material Calculator
         </Typography>
 
 

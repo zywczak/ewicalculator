@@ -3,7 +3,7 @@ import { FormStep } from "../types";
 
 export const STEP_10_GRAIN: FormStep = {
     id: 10,
-    step_name: "Render sizes",
+    step_name: "Render Sizes",
     description: null,
     json_key: "grainsize",
     input_type: "radio",
@@ -21,7 +21,7 @@ export const STEP_10_GRAIN: FormStep = {
     ],
     help: [
     {
-        help_title: "Render sizes",
+        help_title: "Render Sizes",
         upper_description: null,
         downer_description: "<h4>EWI Pro renders are available in a range of grain sizes:</h4><b>Silicone Render</b> – all sizes available<br /><b>Nano Drex Silicone Render</b> – 1mm, 1.5mm<br /><b>Premium Bio Silicone Render</b> – 1mm, 1.5mm<br /><b>Silicone-Silicate Render</b> – 1.5mm only",
         side_description:  "Approximate appearance of each render grain size.",

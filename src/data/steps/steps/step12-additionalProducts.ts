@@ -2,7 +2,7 @@ import { FormStep } from "../types";
 
 export const STEP_12_ADDITIONAL: FormStep = {
     id: 12,
-    step_name: "Additional products",
+    step_name: "Additional Products",
     description: null,
     json_key: "additionalProducts",
     input_type: null,

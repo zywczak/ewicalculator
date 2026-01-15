@@ -61,7 +61,6 @@ export const OPTION_IDS = {
   FIXINGS: {
     PLASTIC: 35,
     METAL: 36,
-    SCREW: 50,
   },
 
   RENDER_TYPE: {

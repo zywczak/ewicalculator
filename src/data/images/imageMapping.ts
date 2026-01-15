@@ -54,15 +54,12 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   // Fourth Layer - Fixings
   { layer: "fourth", image_url: "/media/detachedfixingsmetalthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.METAL, OPTION_IDS.HOUSE.DETACHED] },
   { layer: "fourth", image_url: "/media/detachedfixingsplasticthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.PLASTIC, OPTION_IDS.HOUSE.DETACHED] },
-  { layer: "fourth", image_url: "/media/detachedfixingsscrewthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.SCREW, OPTION_IDS.HOUSE.DETACHED] },
 
   { layer: "fourth", image_url: "/media/semidetachedfixingsmetalthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.METAL, OPTION_IDS.HOUSE.SEMI_DETACHED] },
   { layer: "fourth", image_url: "/media/semidetachedfixingsplasticthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.PLASTIC, OPTION_IDS.HOUSE.SEMI_DETACHED] },
-  { layer: "fourth", image_url: "/media/semidetachedfixingsscrewthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.SCREW, OPTION_IDS.HOUSE.SEMI_DETACHED] },
 
   { layer: "fourth", image_url: "/media/terracedfixingsmetalthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.METAL, OPTION_IDS.HOUSE.TERRACED] },
   { layer: "fourth", image_url: "/media/terracedfixingsplasticthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.PLASTIC, OPTION_IDS.HOUSE.TERRACED] },
-  { layer: "fourth", image_url: "/media/terracedfixingsscrewthick.png", options: [OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, OPTION_IDS.FIXINGS.SCREW, OPTION_IDS.HOUSE.TERRACED] },
   
   // Fifth Layer - Colour masks
   { layer: "fifth", image_url: "/media/terracedmask.png", options: [OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.HOUSE.TERRACED] },

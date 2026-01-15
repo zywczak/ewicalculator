@@ -4,7 +4,7 @@ import { FormStep } from "../types";
 
 export const STEP_6_THICKNESS: FormStep = {
     id: 6,
-    step_name: "Thickness of insulation",
+    step_name: "Thickness of Insulation",
     description: null,
     json_key: "thickness",
     input_type: "radio",
@@ -25,9 +25,9 @@ export const STEP_6_THICKNESS: FormStep = {
     ],
     help: [
     {
-        help_title: "Thickness of insulation",
+        help_title: "Thickness of Insulation",
         upper_description: null,
-        downer_description: `The term U-value is used to define the rate of heat loss through a material. <b>The lower the u-value, the better the insulation product performance.</b><br/><br/>U-value is measured in W/m<sup>2</sup>.K (Watts per metre squared Kelvin) and in the table below you can see the different u-values based on the different insulation materials and thicknesses (based on applying the insulation to a solid brick wall).`,
+        downer_description: "The term U-value is used to define the rate of heat loss through a material. The lower the u-value, the better the insulation product performance.<br /><br />U-value is measured in W/m2.K (Watts per metre squared Kelvin), and in the table below, you can see the different U-values based on the different insulation materials and thicknesses (based on applying the insulation to a solid brick wall).",
         images: [],
         table: HELP_TABLES.thickness
     }

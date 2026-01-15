@@ -3,7 +3,7 @@ import { FormStep } from "../types";
 
 export const STEP_2_SURFACE: FormStep = {
     id: 2,
-    step_name: "What's it going on to?",
+    step_name: "Where Will It Be Installed?",
     description: null,
     json_key: "surfaceMaterial",
     input_type: "radio",
@@ -24,8 +24,8 @@ export const STEP_2_SURFACE: FormStep = {
     ],
     help: [
     {
-        help_title: "What's it going on to?",
-        upper_description: "By letting us know what substrate the EWI Pro materials are being installed on, we can provide you with the correct primer (if required) - typically the primer helps aid adhesion and regulate absorption of the substrate.",
+        help_title: "Where will it be installed?",
+        upper_description: "To ensure the correct primer is supplied (if required), please advise which substrate the EWI Pro materials will be installed on.<br/><br />The primer helps improve adhesion and regulate absorption. ",
         downer_description: null,
         images: [
         { image_name: "stone.jpg", caption: "Stone", image_url: "/media/stone.jpg", description: null },

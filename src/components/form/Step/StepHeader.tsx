@@ -142,7 +142,7 @@ const StepHeader: React.FC<StepHeaderProps> = ({
             timeout={700}
             easing={{ enter: 'ease-in' }}
           >
-            <Box sx={{ width: "236px", textAlign: 'center', mt: '24px', pl: '24px' }}>
+            <Box sx={{ width: "220px", textAlign: 'center', mt: '24px', pl: '24px' }}>
               <img
                 src={address + selectedOptionImage}
                 alt="Selected option"

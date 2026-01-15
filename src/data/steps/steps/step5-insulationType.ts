@@ -4,7 +4,7 @@ import { FormStep } from "../types";
 
 export const STEP_5_INSULATION: FormStep = {
     id: 5,
-    step_name: "Type of insulation",
+    step_name: "Type of Insulation",
     description: null,
     json_key: "insulationType",
     input_type: "radio",
@@ -20,8 +20,8 @@ export const STEP_5_INSULATION: FormStep = {
     ],
     help: [
     {
-        help_title: "Type of insulation",
-        upper_description: "We offer three main types of insulation material - EPS, Mineral Wool (Rockwool) and Kingspan K5, which all have slightly different properties.",
+        help_title: "Type of Insulation",
+        upper_description: "We offer three main insulation materials: EPS, Mineral Wool (Rockwool) and Kingspan K5. Each has slightly different properties.",
         downer_description: null,
         images: [],
         table: HELP_TABLES.insulationType
