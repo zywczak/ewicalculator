@@ -26,6 +26,7 @@ export const STEP_11_COLOUR: FormStep = {
     { id: OPTION_IDS.COLOURS.BLACK, option_value: "Nebraska", json_value: "Nebraska", image: null, option_image: "/media/nebraska.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     { id: OPTION_IDS.COLOURS.BLACK, option_value: "Malta", json_value: "Malta", image: null, option_image: "/media/malta.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     { id: OPTION_IDS.COLOURS.BLACK, option_value: "Alaska", json_value: "Alaska", image: null, option_image: "/media/alaska.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
+    { id: OPTION_IDS.COLOURS.BLACK, option_value: "Glasgow", json_value: "Glasgow", image: null, option_image: "/media/glasgow.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     ],
     // options: [],
     help: [

@@ -244,7 +244,6 @@ const Step: React.FC<StepFormProps> = ({
   currentStep,
   totalSteps,
   parentStep,
-  skipStepIds,
   onNext,
   onPrev,
   onOptionChange,

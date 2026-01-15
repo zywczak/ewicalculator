@@ -2,7 +2,7 @@ name: Test UI Build
 
 on:
   push:
-    branches: [ "feature" ]
+    branches: [ "main" ]
 
   workflow_dispatch:
 

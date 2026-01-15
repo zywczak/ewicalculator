@@ -2,7 +2,7 @@ name: tests (eslint & vitest & sonarqube)
 
 on:
   push:
-    branches: [feature]
+    branches: [main]
 
 jobs:
   lint:
