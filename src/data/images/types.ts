@@ -1,15 +1,20 @@
-export type LayerType = 
-  | "main" 
-  | "second" 
-  | "third" 
-  | "fourth" 
-  | "fifth" 
-  | "sixth" 
-  | "seventh" 
-  | "eighth";
+export interface DefaultHouseImage {
+  houseType: 'detached' | 'semi-detached' | 'terraced';
+  defaultImage: string;
+  outlineImage: string;
+}
 
-export interface StepOptionImage {
-  layer: LayerType;
-  image_url: string;
-  options: number[];
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface HouseOutline {
+  points: Point[];
+  isComplete: boolean;
+}
+
+export interface CustomHouseImage {
+  imageUrl: string;
+  outline: HouseOutline | null;
 }

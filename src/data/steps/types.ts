@@ -57,6 +57,8 @@ export interface FormStep {
   options: FormStepOption[];
   help: HelpSection[];
   conditions: StepCondition[];
+  generateImageWithAI?: boolean; // Czy ten krok powinien generować zdjęcia przez AI
+  aiImagePrompt?: string; // Szablon promptu dla AI
 }
 
 export interface StepsData {

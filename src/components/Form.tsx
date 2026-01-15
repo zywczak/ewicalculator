@@ -25,39 +25,30 @@ interface FormProps {
   selectedOptions: number[];
   setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
   stepsData: StepsData;
+  onCustomImageSelected?: () => void;
+  customHouseImage?: any;
+  onHouseImageChange?: (imageData: any) => void;
 }
-
-const findStepByOptionId = (
-  steps: StepsData["steps"],
-  optionId: number
-) => steps.find(step => step.options?.some(o => o.id === optionId));
-
-const getSelectedColour = (
-  selectedOptions: number[],
-  steps: StepsData["steps"]
-): string => {
-  for (const optionId of selectedOptions) {
-    const step = findStepByOptionId(steps, optionId);
-    if (step?.input_type === "colour") {
-      return step.options?.find(o => o.id === optionId)?.json_value ?? "white";
-    }
-  }
-  return "white";
-};
 
 const renderPreview = (
   isLastStep: boolean,
   isMobile: boolean,
   selectedOptions: number[],
-  stepsData: StepsData
+  onCustomImageSelected?: () => void,
+  currentStep?: number,
+  stepsData?: StepsData,
+  onHouseImageChange?: (imageData: any) => void
 ) => (
   isLastStep
     ? <ResultsTable isMobile={isMobile} />
     : (
       <HousePreview
         selectedOptions={selectedOptions}
-        colour={getSelectedColour(selectedOptions, stepsData.steps)}
         isMobile={isMobile}
+        onCustomImageSelected={onCustomImageSelected}
+        currentStep={currentStep}
+        stepsData={stepsData}
+        onHouseImageChange={onHouseImageChange}
       />
     )
 );
@@ -119,6 +110,9 @@ const Form = ({
   selectedOptions,
   setSelectedOptions,
   stepsData,
+  onCustomImageSelected,
+  customHouseImage,
+  onHouseImageChange,
 }: FormProps) => {
 
   const isFirstStep = currentStep === 0;
@@ -166,7 +160,7 @@ const Form = ({
           zIndex: isMobile ? 2 : "auto",
         }}
       >
-        {renderPreview(isLastStep, isMobile, selectedOptions, stepsData)}
+        {renderPreview(isLastStep, isMobile, selectedOptions, onCustomImageSelected, currentStep, stepsData, onHouseImageChange)}
       </Box>
 
       <Box
@@ -197,6 +191,7 @@ const Form = ({
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
           stepsData={stepsData}
+          customHouseImage={customHouseImage}
         />
       </Box>
 

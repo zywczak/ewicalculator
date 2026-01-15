@@ -12,6 +12,8 @@ export const STEP_5_INSULATION: FormStep = {
     required: true,
     parent: null,
     validation_regex: null,
+    generateImageWithAI: true,
+    aiImagePrompt: "Wygeneruj ocieplenie",
     substeps: [],
     options: [
     { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png" },

@@ -25,6 +25,7 @@ interface StepFormProps {
   selectedOptions?: number[];
   setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
   stepsData: StepsData;
+  customHouseImage?: any;
 }
 
 const getAllStepsRecursive = (steps: FormStep[]): FormStep[] => {
@@ -254,17 +255,25 @@ const Step: React.FC<StepFormProps> = ({
   selectedOptions = [],
   setSelectedOptions,
   stepsData,
+  customHouseImage,
 }) => {
   const isLast = currentStep === totalSteps - 1;
   const allSteps = [parentStep, ...(parentStep.substeps || [])];
   const [jsonValues, setJsonValues] = React.useState<Record<string, JsonValue>>({});
 
   const isStepComplete = React.useMemo(() => {
+    // For step 1 (house type), check if house type is selected AND custom image is uploaded (if required)
+    if (parentStep.id === 1) {
+      const hasHouseOption = values[1] !== undefined && values[1] !== "" && !errors[1];
+      const hasCustomImage = customHouseImage !== null && customHouseImage !== undefined;
+      return hasHouseOption && hasCustomImage;
+    }
+    
     return allSteps.every(step => {
       if (!step.required) return true;
       return values[step.id] !== undefined && values[step.id] !== "" && !errors[step.id];
     });
-  }, [values, errors, parentStep]);
+  }, [values, errors, parentStep, customHouseImage]);
 
   React.useEffect(() => {
     allSteps.forEach(step => {

@@ -37,6 +37,7 @@ const Calculator: React.FC = () => {
 
   const [openHelp, setOpenHelp] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const [customHouseImage, setCustomHouseImage] = useState<any>(null);
 
   const [isStepComplete, setIsStepComplete] = useState(false);
 
@@ -83,6 +84,11 @@ const Calculator: React.FC = () => {
       const filtered = prev.filter(opt => !stepOptions.includes(opt));
       return [...filtered, optionId];
     });
+  };
+
+  const handleCustomImageSelected = () => {
+    // Keep the current house type selection when uploading custom image
+    // Custom image doesn't need a separate option ID
   };
 
   const parentSteps = stepsData.steps
@@ -294,6 +300,9 @@ const Calculator: React.FC = () => {
                 selectedOptions={selectedOptions}
                 setSelectedOptions={setSelectedOptions}
                 stepsData={stepsData}
+                onCustomImageSelected={handleCustomImageSelected}
+                customHouseImage={customHouseImage}
+                onHouseImageChange={setCustomHouseImage}
               />
             </Box>
             {isMobileView ? (
