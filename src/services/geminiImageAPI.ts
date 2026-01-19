@@ -1,7 +1,8 @@
-import { GenerationRequest } from './imageGenerationTypes';
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const HF_TOKEN = import.meta.env.VITE_HF_TOKEN || '';
+// Zmiana na model image-to-image
+const HF_API_URL = 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-refiner-1.0';
+const HF_INPAINT_URL = 'https://api-inference.huggingface.co/models/diffusers/stable-diffusion-xl-1.0-inpainting-0.1';
 
 export interface GeminiImageGenerationResponse {
   success: boolean;
@@ -9,115 +10,175 @@ export interface GeminiImageGenerationResponse {
   error?: string;
 }
 
-class GeminiImageGenerationAPI {
-  private readonly apiKey: string;
+interface GenerateImageRequest {
+  baseImageUrl: string;
+  outlineImageUrl: string;
+  selectedOptions: number[];
+  stepId: number;
+  optionId: number;
+  prompt: string;
+  productImageUrl?: string;
+}
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-  }
+interface GenerateImageResponse {
+  success: boolean;
+  imageUrl?: string;
+  error?: string;
+}
 
-  async generateImage(request: GenerationRequest): Promise<GeminiImageGenerationResponse> {
+export const geminiImageAPI = {
+  generateImage: async (request: GenerateImageRequest): Promise<GenerateImageResponse> => {
     try {
-      if (!this.apiKey) {
-        console.error('Gemini API key is not configured');
+      console.log('Calling Hugging Face Image-to-Image API with request:', {
+        ...request,
+        baseImageUrl: request.baseImageUrl.substring(0, 50) + '...',
+        outlineImageUrl: request.outlineImageUrl ? 'provided' : 'none',
+        productImageUrl: request.productImageUrl ? 'provided' : 'none'
+      });
+
+      if (!HF_TOKEN) {
+        console.error('HF_TOKEN is not configured');
         return {
           success: false,
-          error: 'API key not configured'
+          error: 'Hugging Face token not configured'
         };
       }
 
-      // Pobierz base64 obrazów
-      const baseImageBase64 = await this.imageUrlToBase64(request.baseImageUrl);
-      const outlineImageBase64 = await this.imageUrlToBase64(request.outlineImageUrl);
+      // Konwertuj base image do blob
+      const baseImageBlob = await urlToBlob(request.baseImageUrl);
+      
+      // Przygotuj prompt
+      let enhancedPrompt = request.prompt;
+      
+      // Dodaj kontekst z produktu
+      if (request.productImageUrl) {
+        enhancedPrompt += ' Use the exact color and texture shown in the reference material sample.';
+      }
 
-      const prompt = this.buildPrompt(request);
+      console.log('Enhanced prompt:', enhancedPrompt);
 
-      const response = await fetch(`${GEMINI_API_URL}?key=${this.apiKey}`, {
+      // Wybierz API w zależności od tego czy mamy outline
+      const apiUrl = request.outlineImageUrl ? HF_INPAINT_URL : HF_API_URL;
+      
+      // Przygotuj FormData dla image-to-image
+      const formData = new FormData();
+      formData.append('inputs', baseImageBlob, 'image.jpg');
+      
+      // Dodaj parametry jako JSON w osobnym polu
+      const parameters = {
+        prompt: enhancedPrompt,
+        negative_prompt: 'blurry, low quality, distorted, unrealistic, cartoon, illustration',
+        num_inference_steps: 30,
+        guidance_scale: 7.5,
+        strength: 0.75, // Jak mocno modyfikować obraz (0-1)
+      };
+
+      // Jeśli mamy outline (inpainting)
+      if (request.outlineImageUrl) {
+        const maskBlob = await urlToBlob(request.outlineImageUrl);
+        formData.append('mask', maskBlob, 'mask.png');
+        parameters.strength = 0.85; // Większa siła dla inpainting
+      }
+
+      console.log('Sending image-to-image request with strength:', parameters.strength);
+
+      // Wywołanie do Hugging Face
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${HF_TOKEN}`,
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: prompt },
-              {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: baseImageBase64
-                }
-              },
-              {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: outlineImageBase64
-                }
-              }
-            ]
-          }],
-          generationConfig: {
-            temperature: 0.4,
-            topK: 32,
-            topP: 1,
-            maxOutputTokens: 4096,
-          }
-        })
+        body: formData
       });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Hugging Face API error:', errorText);
+        
+        // Jeśli model się ładuje, poczekaj i spróbuj ponownie
+        if (errorText.includes('loading')) {
+          console.log('Model is loading, waiting 20 seconds...');
+          await new Promise(resolve => setTimeout(resolve, 20000));
+          
+          // Retry request
+          const retryResponse = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${HF_TOKEN}`,
+            },
+            body: formData
+          });
+          
+          if (!retryResponse.ok) {
+            throw new Error(`Retry failed: ${retryResponse.statusText}`);
+          }
+          
+          const imageBlob = await retryResponse.blob();
+          const generatedImageUrl = await blobToDataUrl(imageBlob);
+          
+          return {
+            success: true,
+            imageUrl: generatedImageUrl
+          };
+        }
+        
         throw new Error(`API request failed: ${response.statusText}`);
       }
 
-      await response.json();
+      // Otrzymany obraz jako blob
+      const imageBlob = await response.blob();
       
-      // Gemini zwraca tekst, możemy potrzebować innego modelu do generowania obrazów
-      // Tutaj zakładam, że używamy Imagen lub podobnego modelu
-      // Na razie zwracam mock response
-      
+      // Konwertuj blob do data URL
+      const generatedImageUrl = await blobToDataUrl(imageBlob);
+
+      console.log('Successfully generated image with image-to-image');
+
       return {
         success: true,
-        imageUrl: request.baseImageUrl // Temporary - replace with actual generated image
+        imageUrl: generatedImageUrl
       };
 
     } catch (error) {
-      console.error('Error generating image with Gemini:', error);
+      console.error('Hugging Face API error:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }
+};
 
-  private buildPrompt(request: GenerationRequest): string {
-    return `${request.prompt}
-    
-Context:
-- Base house image provided
-- Outline/mask image showing the area to modify
-- Step ID: ${request.stepId}
-- Option ID: ${request.optionId}
-
-Please analyze these images and generate a modified version of the house image that incorporates the selected option while maintaining the original house structure and perspective.`;
-  }
-
-  private async imageUrlToBase64(url: string): Promise<string> {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64 = (reader.result as string).split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (error) {
-      console.error('Error converting image to base64:', error);
-      throw error;
-    }
-  }
+async function urlToBlob(url: string): Promise<Blob> {
+  const response = await fetch(url);
+  return await response.blob();
 }
 
-export const geminiImageAPI = new GeminiImageGenerationAPI(GEMINI_API_KEY);
+async function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function imageUrlToBase64(url: string): Promise<string> {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Error converting image to base64:', error);
+    throw error;
+  }
+}

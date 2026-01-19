@@ -11,18 +11,6 @@
 
 Dla każdego typu domu potrzebne są dwa pliki w folderze `public/media/`:
 
-### Detached (Dom wolnostojący)
-- `detacheddefault.jpg` - oryginalne zdjęcie domu
-- `detached-outline.png` - zakreślenie domu (czerwona linia dookoła)
-
-### Semi-detached (Dom bliźniak)
-- `semidetacheddefault.jpg` - oryginalne zdjęcie domu
-- `semidetached-outline.png` - zakreślenie domu (czerwona linia dookoła)
-
-### Terraced (Dom szeregowy)
-- `terraceddefault.jpg` - oryginalne zdjęcie domu
-- `terraced-outline.png` - zakreślenie domu (czerwona linia dookoła)
-
 ## Zakreślenia - wytyczne
 
 Outline images powinny:

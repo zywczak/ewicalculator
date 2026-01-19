@@ -37,7 +37,8 @@ const renderPreview = (
   onCustomImageSelected?: () => void,
   currentStep?: number,
   stepsData?: StepsData,
-  onHouseImageChange?: (imageData: any) => void
+  onHouseImageChange?: (imageData: any) => void,
+  onGeneratingChange?: (isGenerating: boolean) => void
 ) => (
   isLastStep
     ? <ResultsTable isMobile={isMobile} />
@@ -49,6 +50,7 @@ const renderPreview = (
         currentStep={currentStep}
         stepsData={stepsData}
         onHouseImageChange={onHouseImageChange}
+        onGeneratingChange={onGeneratingChange}
       />
     )
 );
@@ -118,12 +120,28 @@ const Form = ({
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
   const [isStepComplete, setIsStepComplete] = React.useState(false);
+  const [canCompleteOutline, setCanCompleteOutline] = React.useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = React.useState(false);
+  const [isDrawingMode, setIsDrawingMode] = React.useState(false);
+  const [outlineCompleted, setOutlineCompleted] = React.useState(false);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
       const handlers = (globalThis as any).__multiStepFormHandlers;
       if (handlers?.isStepComplete !== undefined) {
         setIsStepComplete(handlers.isStepComplete);
+      }
+      
+      // Check if outline can be completed and drawing mode status
+      const housePreviewHandlers = (window as any).__housePreviewHandlers;
+      if (housePreviewHandlers?.canComplete !== undefined) {
+        setCanCompleteOutline(housePreviewHandlers.canComplete);
+      }
+      if (housePreviewHandlers?.isDrawingMode !== undefined) {
+        setIsDrawingMode(housePreviewHandlers.isDrawingMode);
+      }
+      if (housePreviewHandlers?.outlineCompleted !== undefined) {
+        setOutlineCompleted(housePreviewHandlers.outlineCompleted);
       }
     }, 100);
 
@@ -133,6 +151,30 @@ const Form = ({
   const callHandler = (name: "handleNextClick" | "handlePrevClick") => {
     const handlers = (globalThis as any).__multiStepFormHandlers;
     handlers?.[name]?.();
+  };
+
+  const handleCompleteOutline = () => {
+    const housePreviewHandlers = (window as any).__housePreviewHandlers;
+    housePreviewHandlers?.completeOutline?.();
+  };
+
+  // Determine if Next Step should be enabled
+  const canProceedToNextStep = () => {
+    if (!isStepComplete) return false;
+    if (isGeneratingImage) return false;
+    
+    // For first step with custom image, check if it's DETACHED or outline is completed
+    if (isFirstStep && customHouseImage) {
+      // If there was drawing mode initially and outline is not completed, block
+      const housePreviewHandlers = (window as any).__housePreviewHandlers;
+      const needsOutline = housePreviewHandlers?.needsOutline;
+      
+      if (needsOutline && !outlineCompleted) {
+        return false;
+      }
+    }
+    
+    return true;
   };
 
   return (
@@ -147,6 +189,29 @@ const Form = ({
         mr: isMobile ? 0 : "24px",
       }}
     >
+      {/* Drawing instruction text - positioned above preview */}
+      {!isMobile && isFirstStep && isDrawingMode && !outlineCompleted && customHouseImage && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-24px",
+            right: "38px",
+            zIndex: 100,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            color: 'white',
+            textAlign: 'center',
+            width: '600px',
+            padding: '2px 24px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          }}
+        >
+          Mark your house
+        </Box>
+       )}
+
       {/* Preview */}
       <Box
         sx={{
@@ -160,8 +225,35 @@ const Form = ({
           zIndex: isMobile ? 2 : "auto",
         }}
       >
-        {renderPreview(isLastStep, isMobile, selectedOptions, onCustomImageSelected, currentStep, stepsData, onHouseImageChange)}
+        {renderPreview(
+          isLastStep, 
+          isMobile, 
+          selectedOptions, 
+          onCustomImageSelected, 
+          currentStep, 
+          stepsData, 
+          onHouseImageChange,
+          setIsGeneratingImage
+        )}
       </Box>
+
+      {/* Accept button for outline - positioned over preview */}
+      {!isMobile && isFirstStep && canCompleteOutline && !outlineCompleted && (
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-10px",
+            right: "250px",
+            zIndex: 100,
+          }}
+        >
+          <ActionButton
+            onClick={handleCompleteOutline}
+            variant="accept"
+            isMobile={false}
+          />
+        </Box>
+      )}
 
       <Box
         sx={{
@@ -208,7 +300,7 @@ const Form = ({
           {renderActions(
             isFirstStep,
             isLastStep,
-            isStepComplete,
+            canProceedToNextStep(),
             () => callHandler("handleNextClick"),
             () => callHandler("handlePrevClick")
           )}

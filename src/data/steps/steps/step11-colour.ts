@@ -1,4 +1,3 @@
-
 import OPTION_IDS from "../../constants/optionIds";
 import { FormStep } from "../types";
 
@@ -12,12 +11,10 @@ export const STEP_11_COLOUR: FormStep = {
     required: null,
     parent: null,
     validation_regex: null,
+    generateImageWithAI: true,
+    aiImagePrompt: "Change the facade color to {option_value}. Keep the house structure, windows, doors, roof, and architectural details exactly the same. Only change the wall color to match the {option_value} tone. Realistic architectural photography, natural daylight, professional render application.",
     substeps: [],
     options: [
-    // { id: OPTION_IDS.COLOURS.LILAC, option_value: "#C8A2C8", json_value: "#C8A2C8", image: null },
-    // { id: OPTION_IDS.COLOURS.GREY, option_value: "#5B5D74", json_value: "#5B5D74", image: null },
-    // { id: OPTION_IDS.COLOURS.GOLD, option_value: "#D4C279", json_value: "#D4C279", image: null },
-    // { id: OPTION_IDS.COLOURS.BLACK, option_value: "#000000", json_value: "#000000", image: null },
     { id: OPTION_IDS.COLOURS.LILAC, option_value: "Sahara", json_value: "Sahara", image: null, option_image: "/media/sahara.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     { id: OPTION_IDS.COLOURS.GREY, option_value: "Blackpool", json_value: "Blackpool", image: null, option_image: "/media/blackpool.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     { id: OPTION_IDS.COLOURS.GOLD, option_value: "Colorado", json_value: "Colorado", image: null, option_image: "/media/colorado.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
@@ -28,7 +25,6 @@ export const STEP_11_COLOUR: FormStep = {
     { id: OPTION_IDS.COLOURS.BLACK, option_value: "Alaska", json_value: "Alaska", image: null, option_image: "/media/alaska.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     { id: OPTION_IDS.COLOURS.BLACK, option_value: "Glasgow", json_value: "Glasgow", image: null, option_image: "/media/glasgow.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
     ],
-    // options: [],
     help: [
     {
         help_title: "The Colours",
