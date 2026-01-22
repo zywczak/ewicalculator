@@ -18,3 +18,8 @@ export interface CustomHouseImage {
   imageUrl: string;
   outline: HouseOutline | null;
 }
+
+export interface StepOptionImage {
+  image_url: string;
+  options: number[];
+}

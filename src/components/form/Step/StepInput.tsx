@@ -14,6 +14,7 @@ export interface StepInputProps {
   label?: string;
   isMobile?: boolean;
   selectedParentOptionIds?: number[];
+  disabled?: boolean;
 }
 
 const StepInput: React.FC<StepInputProps> = (props) => {

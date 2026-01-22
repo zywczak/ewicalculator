@@ -25,34 +25,54 @@ interface FormProps {
   selectedOptions: number[];
   setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
   stepsData: StepsData;
-  onCustomImageSelected?: () => void;
-  customHouseImage?: any;
-  onHouseImageChange?: (imageData: any) => void;
+  customImage?: string | null;
+  isDrawingMode?: boolean;
+  onOutlineChange?: (points: any[], canComplete: boolean) => void;
+  canCompleteOutline?: boolean;
+  onCustomImageUpload?: (file: File) => void;
+  onAcceptOutline?: () => void;
+  onRemoveCustomImage?: () => void;
+  onColourSelection?: (colourValue: string, optionId: number) => void;
+  isGeneratingImage?: boolean;
+  generatedImage?: string | null;
 }
 
-const renderPreview = (
-  isLastStep: boolean,
-  isMobile: boolean,
-  selectedOptions: number[],
-  onCustomImageSelected?: () => void,
-  currentStep?: number,
-  stepsData?: StepsData,
-  onHouseImageChange?: (imageData: any) => void,
-  onGeneratingChange?: (isGenerating: boolean) => void
-) => (
+const renderPreview = ({
+  isLastStep,
+  isMobile,
+  selectedOptions,
+  customImage,
+  isDrawingMode,
+  onOutlineChange,
+  generatedImage,
+  isGeneratingImage,
+  currentStep,
+  onRemoveCustomImage
+}: {
+  isLastStep: boolean;
+  isMobile: boolean;
+  selectedOptions: number[];
+  customImage?: string | null;
+  isDrawingMode?: boolean;
+  onOutlineChange?: (points: any[], canComplete: boolean) => void;
+  generatedImage?: string | null;
+  isGeneratingImage?: boolean;
+  currentStep?: number;
+  onRemoveCustomImage?: () => void;
+}) => (
   isLastStep
     ? <ResultsTable isMobile={isMobile} />
-    : (
-      <HousePreview
-        selectedOptions={selectedOptions}
+    : <HousePreview 
+        selectedOptions={selectedOptions} 
         isMobile={isMobile}
-        onCustomImageSelected={onCustomImageSelected}
+        customImage={customImage}
+        isDrawingMode={isDrawingMode}
+        onOutlineChange={onOutlineChange}
+        generatedImage={generatedImage}
+        isGeneratingImage={isGeneratingImage}
         currentStep={currentStep}
-        stepsData={stepsData}
-        onHouseImageChange={onHouseImageChange}
-        onGeneratingChange={onGeneratingChange}
+        onResetToDefault={onRemoveCustomImage}
       />
-    )
 );
 
 const renderActions = (
@@ -112,36 +132,27 @@ const Form = ({
   selectedOptions,
   setSelectedOptions,
   stepsData,
-  onCustomImageSelected,
-  customHouseImage,
-  onHouseImageChange,
+  customImage,
+  isDrawingMode,
+  onOutlineChange,
+  canCompleteOutline,
+  onCustomImageUpload,
+  onAcceptOutline,
+  onRemoveCustomImage,
+  onColourSelection,
+  isGeneratingImage,
+  generatedImage,
 }: FormProps) => {
 
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
   const [isStepComplete, setIsStepComplete] = React.useState(false);
-  const [canCompleteOutline, setCanCompleteOutline] = React.useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = React.useState(false);
-  const [isDrawingMode, setIsDrawingMode] = React.useState(false);
-  const [outlineCompleted, setOutlineCompleted] = React.useState(false);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
       const handlers = (globalThis as any).__multiStepFormHandlers;
       if (handlers?.isStepComplete !== undefined) {
         setIsStepComplete(handlers.isStepComplete);
-      }
-      
-      // Check if outline can be completed and drawing mode status
-      const housePreviewHandlers = (window as any).__housePreviewHandlers;
-      if (housePreviewHandlers?.canComplete !== undefined) {
-        setCanCompleteOutline(housePreviewHandlers.canComplete);
-      }
-      if (housePreviewHandlers?.isDrawingMode !== undefined) {
-        setIsDrawingMode(housePreviewHandlers.isDrawingMode);
-      }
-      if (housePreviewHandlers?.outlineCompleted !== undefined) {
-        setOutlineCompleted(housePreviewHandlers.outlineCompleted);
       }
     }, 100);
 
@@ -153,28 +164,18 @@ const Form = ({
     handlers?.[name]?.();
   };
 
-  const handleCompleteOutline = () => {
-    const housePreviewHandlers = (window as any).__housePreviewHandlers;
-    housePreviewHandlers?.completeOutline?.();
+  const isColourStep = currentStep === 10; // Step 11 has index 10
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
-  // Determine if Next Step should be enabled
-  const canProceedToNextStep = () => {
-    if (!isStepComplete) return false;
-    if (isGeneratingImage) return false;
-    
-    // For first step with custom image, check if it's DETACHED or outline is completed
-    if (isFirstStep && customHouseImage) {
-      // If there was drawing mode initially and outline is not completed, block
-      const housePreviewHandlers = (window as any).__housePreviewHandlers;
-      const needsOutline = housePreviewHandlers?.needsOutline;
-      
-      if (needsOutline && !outlineCompleted) {
-        return false;
-      }
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && onCustomImageUpload) {
+      onCustomImageUpload(file);
     }
-    
-    return true;
   };
 
   return (
@@ -189,29 +190,6 @@ const Form = ({
         mr: isMobile ? 0 : "24px",
       }}
     >
-      {/* Drawing instruction text - positioned above preview */}
-      {!isMobile && isFirstStep && isDrawingMode && !outlineCompleted && customHouseImage && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "-24px",
-            right: "38px",
-            zIndex: 100,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            color: 'white',
-            textAlign: 'center',
-            width: '600px',
-            padding: '2px 24px',
-            borderRadius: '12px',
-            fontSize: '16px',
-            fontWeight: 500,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          }}
-        >
-          Mark your house
-        </Box>
-       )}
-
       {/* Preview */}
       <Box
         sx={{
@@ -225,35 +203,19 @@ const Form = ({
           zIndex: isMobile ? 2 : "auto",
         }}
       >
-        {renderPreview(
+        {renderPreview({
           isLastStep, 
           isMobile, 
-          selectedOptions, 
-          onCustomImageSelected, 
-          currentStep, 
-          stepsData, 
-          onHouseImageChange,
-          setIsGeneratingImage
-        )}
+          selectedOptions,
+          customImage,
+          isDrawingMode,
+          onOutlineChange,
+          generatedImage,
+          isGeneratingImage,
+          currentStep,
+          onRemoveCustomImage
+        })}
       </Box>
-
-      {/* Accept button for outline - positioned over preview */}
-      {!isMobile && isFirstStep && canCompleteOutline && !outlineCompleted && (
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: "-10px",
-            right: "250px",
-            zIndex: 100,
-          }}
-        >
-          <ActionButton
-            onClick={handleCompleteOutline}
-            variant="accept"
-            isMobile={false}
-          />
-        </Box>
-      )}
 
       <Box
         sx={{
@@ -283,7 +245,8 @@ const Form = ({
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
           stepsData={stepsData}
-          customHouseImage={customHouseImage}
+          isDrawingMode={isDrawingMode}
+          onColourSelection={onColourSelection}
         />
       </Box>
 
@@ -300,12 +263,78 @@ const Form = ({
           {renderActions(
             isFirstStep,
             isLastStep,
-            canProceedToNextStep(),
+            isStepComplete,
             () => callHandler("handleNextClick"),
             () => callHandler("handlePrevClick")
           )}
         </Box>
       )}
+
+      {!isMobile && isColourStep && !customImage && (
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-10px",
+            right: "288px",
+            zIndex: 10,
+          }}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+
+          <ActionButton
+            variant="uploadHouse"
+            onClick={handleUploadClick}
+          />
+        </Box>
+      )}
+
+       {/* Drawing instruction text - positioned above preview */}
+      {!isMobile && isColourStep && isDrawingMode && isDrawingMode && customImage && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-24px",
+            right: "38px",
+            zIndex: 100,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            color: 'white',
+            textAlign: 'center',
+            width: '600px',
+            padding: '2px 24px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          }}
+        >
+          Mark your house
+        </Box>
+       )}
+
+      {/* Accept outline button - pokazuje się od razu po wstawieniu zdjęcia, disabled póki nie narysowano */}
+{!isMobile && isColourStep && customImage && isDrawingMode && (
+  <Box
+    sx={{
+      position: "absolute",
+      bottom: "-10px",
+      right: "288px",
+      zIndex: 10,
+    }}
+  >
+    <ActionButton
+      variant="accept"
+      onClick={onAcceptOutline ?? (() => {})}
+      disabled={!canCompleteOutline}
+      isMobile={false}
+    />
+  </Box>
+)}
     </Box>
   );
 };

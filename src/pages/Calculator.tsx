@@ -12,6 +12,10 @@ import ResponsiveCalculatorWrapper from "../components/FormWrapper";
 import { STEPS_DATA} from "../data/steps/stepsData";
 import { StepsData } from "../data/steps/types";
 import Help from "../components/help/Help";
+import { geminiImageAPI } from "../services/geminiImageAPI";
+import { imageGenerationService } from "../services/imageGenerationService";
+import { findBestMatchingImage } from "../data/images/utils";
+import address from "../api/adress";
 
 const Calculator: React.FC = () => {
   const [stepsData] = useState<StepsData>(STEPS_DATA);
@@ -37,7 +41,15 @@ const Calculator: React.FC = () => {
 
   const [openHelp, setOpenHelp] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const [customHouseImage, setCustomHouseImage] = useState<any>(null);
+
+  // Custom image states
+  const [customImage, setCustomImage] = useState<string | null>(null);
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [outlinePoints, setOutlinePoints] = useState<any[]>([]);
+  const [canCompleteOutline, setCanCompleteOutline] = useState(false);
+  const [outlineMask, setOutlineMask] = useState<string | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
 
   const [isStepComplete, setIsStepComplete] = useState(false);
 
@@ -86,9 +98,162 @@ const Calculator: React.FC = () => {
     });
   };
 
-  const handleCustomImageSelected = () => {
-    // Keep the current house type selection when uploading custom image
-    // Custom image doesn't need a separate option ID
+  const handleCustomImageUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCustomImage(reader.result as string);
+      
+      // Reset colour selection (step 11) when switching to custom image
+      setValues(prev => {
+        const newValues = { ...prev };
+        delete newValues[11];
+        return newValues;
+      });
+      
+      // Check if we need drawing mode (semi-detached or terraced)
+      const houseType = selectedOptions.find(opt => 
+        opt === 1 || opt === 2 || opt === 3 // TERRACED (1), SEMI_DETACHED (2), DETACHED (3)
+      );
+      
+      // Enable drawing mode ONLY for semi-detached (2) and terraced (1)
+      // DETACHED (3) does NOT need drawing mode
+      if (houseType === 1 || houseType === 2) {
+        setIsDrawingMode(true);
+      } else {
+        setIsDrawingMode(false);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleOutlineChange = (points: any[], canComplete: boolean) => {
+    setOutlinePoints(points);
+    setCanCompleteOutline(canComplete);
+  };
+
+  const handleAcceptOutline = () => {
+    // Create and save the outline mask using a dynamically sized canvas
+    if (customImage && outlinePoints.length >= 3) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        
+        if (ctx) {
+          // Fill background black (areas not to change)
+          ctx.fillStyle = 'black';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Fill outline area white (areas to change)
+          ctx.fillStyle = 'white';
+          ctx.beginPath();
+          ctx.moveTo(outlinePoints[0].x, outlinePoints[0].y);
+          outlinePoints.forEach(point => {
+            ctx.lineTo(point.x, point.y);
+          });
+          ctx.closePath();
+          ctx.fill();
+
+          const mask = canvas.toDataURL();
+          setOutlineMask(mask);
+          console.log("Outline mask created and saved");
+        }
+      };
+      img.src = customImage;
+    }
+    
+    setIsDrawingMode(false);
+    console.log("Outline accepted:", outlinePoints);
+  };
+
+  const handleRemoveCustomImage = () => {
+    setCustomImage(null);
+    setGeneratedImage(null);
+    setIsDrawingMode(false);
+    setOutlinePoints([]);
+    setCanCompleteOutline(false);
+    setOutlineMask(null);
+    
+    // Reset colour selection (step 11) when switching back to default image
+    setValues(prev => {
+      const newValues = { ...prev };
+      delete newValues[11];
+      return newValues;
+    });
+  };
+
+  const handleColourSelection = async (colourValue: string, optionId: number) => {
+    console.log("Colour selected:", colourValue, "Option ID:", optionId);
+    
+    // Check if we already have a generated image for this colour
+    const cached = imageGenerationService.getGeneratedImage(11, optionId);
+    if (cached) {
+      console.log("Using cached image for colour:", colourValue);
+      setGeneratedImage(cached.imageUrl);
+      return;
+    }
+
+    setIsGeneratingImage(true);
+
+    try {
+      // Get base image
+      let baseImageUrl: string;
+      
+      if (customImage) {
+        // Use custom uploaded image
+        baseImageUrl = customImage;
+      } else {
+        // Use default predefined image
+        const predefImage = findBestMatchingImage(selectedOptions);
+        baseImageUrl = predefImage ? address + predefImage : '';
+      }
+
+      if (!baseImageUrl) {
+        console.error("No base image available");
+        setIsGeneratingImage(false);
+        return;
+      }
+
+      // Get step data for prompt
+      const step11 = stepsData.steps.find(s => s.id === 11);
+      const promptTemplate = step11?.aiImagePrompt || "Change the facade color to {option_value}";
+      const prompt = promptTemplate.replace('{option_value}', colourValue);
+
+      console.log("Generating image with prompt:", prompt);
+      console.log("Base image:", baseImageUrl.substring(0, 50));
+      console.log("Using outline mask:", outlineMask ? "Yes" : "No");
+
+      // Call AI API
+      const result = await geminiImageAPI.generateImage({
+        baseImageUrl,
+        outlineImageUrl: outlineMask || '',
+        selectedOptions,
+        stepId: 11,
+        optionId,
+        prompt
+      });
+
+      if (result.success && result.imageUrl) {
+        console.log("Image generated successfully");
+        setGeneratedImage(result.imageUrl);
+        
+        // Cache the generated image
+        imageGenerationService.saveGeneratedImage({
+          stepId: 11,
+          optionId,
+          imageUrl: result.imageUrl,
+          timestamp: Date.now()
+        });
+      } else {
+        console.error("Image generation failed:", result.error);
+      }
+    } catch (error) {
+      console.error("Error generating image:", error);
+    } finally {
+      setIsGeneratingImage(false);
+    }
   };
 
   const parentSteps = stepsData.steps
@@ -300,9 +465,16 @@ const Calculator: React.FC = () => {
                 selectedOptions={selectedOptions}
                 setSelectedOptions={setSelectedOptions}
                 stepsData={stepsData}
-                onCustomImageSelected={handleCustomImageSelected}
-                customHouseImage={customHouseImage}
-                onHouseImageChange={setCustomHouseImage}
+                customImage={customImage}
+                isDrawingMode={isDrawingMode}
+                onOutlineChange={handleOutlineChange}
+                canCompleteOutline={canCompleteOutline}
+                onCustomImageUpload={handleCustomImageUpload}
+                onAcceptOutline={handleAcceptOutline}
+                onRemoveCustomImage={handleRemoveCustomImage}
+                onColourSelection={handleColourSelection}
+                isGeneratingImage={isGeneratingImage}
+                generatedImage={generatedImage}
               />
             </Box>
             {isMobileView ? (

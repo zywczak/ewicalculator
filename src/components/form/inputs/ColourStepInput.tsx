@@ -12,6 +12,7 @@ const ColourStepInput: React.FC<StepInputProps> = ({
   value,
   onChange,
   isMobile = false,
+  disabled = false
 }) => {
   const [page, setPage] = useState(0);
   const colourOptions = step.options || [];
@@ -92,20 +93,21 @@ const ColourStepInput: React.FC<StepInputProps> = ({
             <Box
               key={opt.id}
               onClick={() => {
-                if (opt.json_value) {
+                if (opt.json_value && !disabled) {
                   handleSelect(opt.id, opt.json_value);
                 }
               }}
               sx={{
+                cursor: disabled ? "not-allowed" : "pointer",
+                opacity: disabled ? 0.5 : 1,
                 height: isMobile ? "auto" : "48px",
                 width: isMobile ? "auto" : "73px",
                 aspectRatio: "73/48",
                 borderRadius: "12px",
-                cursor: "pointer",
                 position: "relative",
                 overflow: "hidden",
                 transition: "all 0.2s ease-in-out",
-                "&:hover": { transform: "scale(1.03)" },
+                "&:hover": disabled ? {} : { transform: "scale(1.03)" },
               }}
             >
               {opt.option_image && (
