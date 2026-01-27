@@ -1,149 +1,102 @@
-import React, { useState } from "react";
-import { Box, Typography, IconButton } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import { StepInputProps } from "../Step/StepInput";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-import address from "../../../api/adress";
+import { ColorOption, fetchColorsOnce } from "../../../data/colorCache";
+import { STEP_11_COLOUR } from '../../../data/steps/steps/step11-colour';
+import OPTION_IDS from '../../../data/constants/optionIds';
 
 const ITEMS_PER_PAGE = 18;
 
+const BRICK_SLIPS_OPTION_ID = OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
+const BRICK_SLIPS_COLORS = STEP_11_COLOUR.options.map(opt => ({
+  id: opt.id,
+  colour_code: opt.option_value,
+  photo_uri: opt.image ?? "", // ensure photo_uri is always a string
+}));
+
 const ColourStepInput: React.FC<StepInputProps> = ({
-  step,
   value,
   onChange,
   isMobile = false,
-  disabled = false
+  selectedParentOptionIds = [],
 }) => {
   const [page, setPage] = useState(0);
-  const colourOptions = step.options || [];
+  const [colors, setColors] = useState<ColorOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const totalPages = Math.ceil(colourOptions.length / ITEMS_PER_PAGE);
+  useEffect(() => {
+    // If selected options include brick slips, use static colors
+    const isBrickSlips = selectedParentOptionIds.includes(BRICK_SLIPS_OPTION_ID);
+    if (isBrickSlips) {
+      setColors(BRICK_SLIPS_COLORS);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    // Otherwise, fetch colors from endpoint
+    const loadColors = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const colorData = await fetchColorsOnce();
+        setColors(colorData);
+        if (colorData.length === 0) setError("Nie znaleziono kolorów z obrazkiem");
+      } catch (err: any) {
+        console.error("Error fetching colors:", err);
+        setError(err.response?.data?.message || err.message || "Błąd pobierania kolorów");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadColors();
+  }, [selectedParentOptionIds]);
+
+  const totalPages = Math.ceil(colors.length / ITEMS_PER_PAGE);
   const startIndex = page * ITEMS_PER_PAGE;
-  const currentPageOptions = colourOptions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const currentPageColors = colors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleSelect = (optionId: number, colour: string) => {
-    onChange(colour, optionId);
+  const handleSelect = (colorId: number, colorCode: string) => {
+    onChange(colorCode, colorId);
   };
 
-  const nextPage = () => setPage((prev) => Math.min(prev + 1, totalPages - 1));
-  const prevPage = () => setPage((prev) => Math.max(prev - 1, 0));
+  const nextPage = () => setPage(prev => Math.min(prev + 1, totalPages - 1));
+  const prevPage = () => setPage(prev => Math.max(prev - 1, 0));
+
+  if (loading) return <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px", display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={40} /></Box>;
+  if (error) return <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px", py: 4 }}><Typography color="error" textAlign="center">{error}</Typography></Box>;
 
   return (
     <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px" }}>
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ mb: 3 }}
-
-      >
+      <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: "12px" }}>
         <Typography sx={{ fontSize: "16px", fontWeight: 700, color: "#333" }}>
           Page <span style={{ color: "#333" }}>{page + 1}</span>
           <span style={{ color: "#aaa" }}>/{totalPages}</span>
         </Typography>
-
         <Box sx={{ flexGrow: 1, height: "1px", backgroundColor: "#ccc", mx: "10px" }} />
-
         <Box display="flex" alignItems="center" gap={"32px"}>
-          <IconButton
-            onClick={prevPage}
-            disabled={page === 0}
-            sx={{
-              backgroundColor: "#c4c4c4",
-              height: "30px",
-              width: "30px",
-              "&:hover": { backgroundColor: "#D0D0D0" },
-              "&.Mui-disabled": {
-                backgroundColor: "#E0E0E0",
-                color: "#aaa",
-              }
-            }}
-          >
+          <IconButton onClick={prevPage} disabled={page === 0} sx={{ backgroundColor: "#c4c4c4", height: "30px", width: "30px", "&:hover": { backgroundColor: "#D0D0D0" }, "&.Mui-disabled": { backgroundColor: "#E0E0E0", color: "#aaa" } }}>
             <ArrowBackRoundedIcon sx={{ fontSize: 18, color: "#fff", "&.Mui-disabled": { color: "#aaa" } }} />
           </IconButton>
-          <IconButton
-            onClick={nextPage}
-            disabled={page === totalPages - 1}
-            sx={{
-              backgroundColor: "#c4c4c4",
-              height: "30px",
-              width: "30px",
-              "&:hover": { backgroundColor: "#D0D0D0" },
-              "&.Mui-disabled": {
-                backgroundColor: "#e0e0e0ff",
-                color: "#aaa",
-              }
-            }}
-          >
+          <IconButton onClick={nextPage} disabled={page === totalPages - 1} sx={{ backgroundColor: "#c4c4c4", height: "30px", width: "30px", "&:hover": { backgroundColor: "#D0D0D0" }, "&.Mui-disabled": { backgroundColor: "#e0e0e0ff", color: "#aaa" } }}>
             <ArrowForwardRoundedIcon sx={{ fontSize: 18, color: "#fff", "&.Mui-disabled": { color: "#aaa" } }} />
           </IconButton>
         </Box>
-
       </Box>
 
-      <Box
-        display="grid"
-        gridTemplateColumns={isMobile ? "repeat(4, 1fr)" : "repeat(3, 1fr)"}
-        gap={"8px"}
-      >
-        {currentPageOptions.map((opt) => {
-          const isSelected = value === opt.json_value;
-
+      <Box display="grid" gridTemplateColumns={isMobile ? "repeat(4, 1fr)" : "repeat(3, 1fr)"} gap={"8px"}>
+        {currentPageColors.map(color => {
+          const isSelected = value === color.colour_code;
           return (
-            <Box
-              key={opt.id}
-              onClick={() => {
-                if (opt.json_value && !disabled) {
-                  handleSelect(opt.id, opt.json_value);
-                }
-              }}
-              sx={{
-                cursor: disabled ? "not-allowed" : "pointer",
-                opacity: disabled ? 0.5 : 1,
-                height: isMobile ? "auto" : "48px",
-                width: isMobile ? "auto" : "73px",
-                aspectRatio: "73/48",
-                borderRadius: "12px",
-                position: "relative",
-                overflow: "hidden",
-                transition: "all 0.2s ease-in-out",
-                "&:hover": disabled ? {} : { transform: "scale(1.03)" },
-              }}
-            >
-              {opt.option_image && (
-                <img
-                  src={address + opt.option_image}
-                  alt={opt.option_value}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    borderRadius: "12px",
-                  }}
-                />
-              )}
+            <Box key={color.id} onClick={() => handleSelect(color.id, color.colour_code)}
+              sx={{ height: isMobile ? "auto" : "45px", width: isMobile ? "auto" : "73px", aspectRatio: "73/48", borderRadius: "12px", cursor: "pointer", position: "relative", overflow: "hidden", transition: "all 0.2s ease-in-out", "&:hover": { transform: "scale(1.03)" } }}>
+              <img src={color.photo_uri} alt={color.colour_code} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
               {isSelected && (
-                <Box
-                  sx={{
-                    position: "absolute",
-                    borderRadius: "12px",
-                    inset: 0,
-                    backgroundColor: "#3333339d",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    m: "4px",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      color: "#fff",
-                      fontWeight: 600,
-                      fontSize: "12px",
-                      textAlign: "center",
-                    }}
-                  >
-                    {opt.option_value}
+                <Box sx={{ position: "absolute", borderRadius: "10px", inset: 0, backgroundColor: "#3333339d", display: "flex", alignItems: "center", justifyContent: "center", m: "4px" }}>
+                  <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: "12px", textAlign: "center" }}>
+                    {color.colour_code.split('-').pop() || color.colour_code}
                   </Typography>
                 </Box>
               )}

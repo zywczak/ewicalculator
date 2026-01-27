@@ -16,6 +16,7 @@ import { geminiImageAPI } from "../services/geminiImageAPI";
 import { imageGenerationService } from "../services/imageGenerationService";
 import { findBestMatchingImage } from "../data/images/utils";
 import address from "../api/adress";
+import OPTION_IDS from '../data/constants/optionIds';
 
 const Calculator: React.FC = () => {
   const [stepsData] = useState<StepsData>(STEPS_DATA);
@@ -96,6 +97,17 @@ const Calculator: React.FC = () => {
       const filtered = prev.filter(opt => !stepOptions.includes(opt));
       return [...filtered, optionId];
     });
+
+    // Resetuj kolor Brick Slips jeśli zmieniono typ tynku na inny niż Brick Slips
+    if (stepId === 9) { // 9 = render type
+      if (optionId !== OPTION_IDS.RENDER_TYPE.BRICK_SLIPS) {
+        setValues(prev => {
+          const newValues = { ...prev };
+          delete newValues[11];
+          return newValues;
+        });
+      }
+    }
   };
 
   const handleCustomImageUpload = (file: File) => {
@@ -442,13 +454,18 @@ const Calculator: React.FC = () => {
                   setOpenHelp(true);
                 }}
                 isMobile={isMobileView}
-                selectedOptionImage={
-                  (() => {
-                    const stepValue = values[parentStep.id];
-                    const selectedOption = parentStep.options?.find(o => o.option_value === stepValue);
-                    return selectedOption?.image || null;
-                  })()
-                }
+                selectedOptionImage={(() => {
+                  const stepValue = values[parentStep.id];
+                  // Najpierw statyczne
+                  const staticOpt = parentStep.options?.find?.(o => o.option_value === stepValue);
+                  if (staticOpt?.image) return staticOpt.image;
+                  // Potem dynamiczne (z cache, bo fetchColorsOnce jest async)
+                  if (parentStep.id === 11 && (globalThis as any).__colorCache) {
+                    const apiOpt = (globalThis as any).__colorCache?.find?.((c: any) => c.colour_code === stepValue);
+                    return apiOpt?.photo_uri ?? null;
+                  }
+                  return null;
+                })()}
               />
               <FormBoard
                 currentStep={currentStep}
@@ -532,6 +549,8 @@ const Calculator: React.FC = () => {
               helpSections={parentStep.help || []}
               isMobile={isMobileView}
               container={cardRef.current}
+              selectedOptions={selectedOptions}
+              OPTION_IDS={OPTION_IDS}
             />
           </Card>
         </Box>

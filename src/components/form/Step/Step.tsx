@@ -474,6 +474,7 @@ const Step: React.FC<StepFormProps> = ({
           value={values[parentStep.id] || ""}
           onChange={(val, optionId) => handleChange(parentStep.id, val, optionId)}
           isMobile={isMobile}
+          selectedParentOptionIds={selectedOptions}
           disabled={!!isDrawingMode}
         />
       ) : (

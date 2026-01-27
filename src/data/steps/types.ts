@@ -34,6 +34,7 @@ export interface HelpSection {
   side_description?: string;
   disclaimer?: string;
   useColourSamples?: boolean;
+  useOptionColours?: boolean;
 }
 
 export interface StepCondition {

@@ -12,6 +12,8 @@ interface HelpProps {
   helpSections: HelpSection[];
   isMobile?: boolean;
   container?: HTMLElement | null;
+  selectedOptions?: number[];
+  OPTION_IDS?: any;
 }
 
 const Help: React.FC<HelpProps> = ({
@@ -20,9 +22,17 @@ const Help: React.FC<HelpProps> = ({
   helpSections,
   isMobile = false,
   container,
+  selectedOptions = [],
+  OPTION_IDS,
 }) => {
   if (helpSections.length === 0) return null;
-  const currentHelp = helpSections[0];
+  let currentHelp = helpSections[0];
+  // Sprawdź czy to krok colour i czy wybrano Brick Slips
+  const isColourStep = helpSections.length > 1 && helpSections[1]?.help_title?.toLowerCase().includes("brick slip");
+  const BRICK_SLIPS_ID = OPTION_IDS?.RENDER_TYPE?.BRICK_SLIPS;
+  if (isColourStep && Array.isArray(selectedOptions) && BRICK_SLIPS_ID && selectedOptions.includes(BRICK_SLIPS_ID)) {
+    currentHelp = helpSections[1];
+  }
 
   return (
     <Dialog
