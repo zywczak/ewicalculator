@@ -12,7 +12,7 @@ import ResponsiveCalculatorWrapper from "../components/FormWrapper";
 import { STEPS_DATA} from "../data/steps/stepsData";
 import { StepsData } from "../data/steps/types";
 import Help from "../components/help/Help";
-import { geminiImageAPI } from "../services/geminiImageAPI";
+import { imageApi } from "../services/imageApi";
 import { imageGenerationService } from "../services/imageGenerationService";
 import { findBestMatchingImage } from "../data/images/utils";
 import address from "../api/adress";
@@ -26,6 +26,17 @@ const Calculator: React.FC = () => {
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 705);
   const [isSmallerTitle, setIsSmallerTitle] = useState(window.innerWidth <= 900);
   const [targetStepToReach, setTargetStepToReach] = useState<number | null>(null);
+
+  // Fetch color data and trigger preloading IMMEDIATELY on mount
+  useEffect(() => {
+    // Start fetching and preloading colors as soon as component mounts
+    import('../data/colorCache').then(({ initializeColorPreloading }) => {
+      initializeColorPreloading();
+      console.log('Color preloading initialized');
+    }).catch(err => {
+      console.error('Failed to initialize color preloading:', err);
+    });
+  }, []); // Empty dependency array - runs once on mount
 
   useEffect(() => {
     const handleResize = () => {
@@ -210,6 +221,9 @@ const Calculator: React.FC = () => {
     setIsGeneratingImage(true);
 
     try {
+      // Simulate 10s generation delay
+      await new Promise(resolve => setTimeout(resolve, 10000));
+
       // Get base image
       let baseImageUrl: string;
       
@@ -228,39 +242,67 @@ const Calculator: React.FC = () => {
         return;
       }
 
-      // Get step data for prompt
-      const step11 = stepsData.steps.find(s => s.id === 11);
-      const promptTemplate = step11?.aiImagePrompt || "Change the facade color to {option_value}";
-      const prompt = promptTemplate.replace('{option_value}', colourValue);
+      // // Get step data for prompt
+      // const step11 = stepsData.steps.find(s => s.id === 11);
+      // const promptTemplate = step11?.aiImagePrompt || "Change the facade color to {option_value}";
+      // const prompt = promptTemplate.replace('{option_value}', colourValue);
 
-      console.log("Generating image with prompt:", prompt);
-      console.log("Base image:", baseImageUrl.substring(0, 50));
-      console.log("Using outline mask:", outlineMask ? "Yes" : "No");
+      // console.log("Generating image with prompt:", prompt);
+      // console.log("Base image:", baseImageUrl.substring(0, 50));
+      // console.log("Using outline mask:", outlineMask ? "Yes" : "No");
 
-      // Call AI API
-      const result = await geminiImageAPI.generateImage({
-        baseImageUrl,
-        outlineImageUrl: outlineMask || '',
-        selectedOptions,
-        stepId: 11,
-        optionId,
-        prompt
+      // // Call AI API
+      // const result = await imageApi.generateImage({
+      //   imageUrl: baseImageUrl,
+      //   prompt
+      // });
+
+
+      // if (result.success && result.imageUrl) {
+      //   console.log("Image generated successfully");
+      //   setGeneratedImage(result.imageUrl);
+        
+      //   // Cache the generated image
+      //   imageGenerationService.saveGeneratedImage({
+      //     stepId: 11,
+      //     optionId,
+      //     imageUrl: result.imageUrl,
+      //     timestamp: Date.now()
+      //   });
+      // } else {
+      //   console.error("Image generation failed:", result.error);
+      // }
+      // Simulate image generation by overlaying text
+      const simulatedImageUrl = await new Promise<string>((resolve) => {
+        const img = new globalThis.Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            ctx.font = 'bold 48px Arial';
+            ctx.fillStyle = 'rgba(255,0,0,0.7)';
+            ctx.textAlign = 'center';
+            ctx.fillText('Wygenerowano: ' + colourValue, canvas.width / 2, canvas.height / 2);
+            resolve(canvas.toDataURL());
+          } else {
+            resolve(baseImageUrl);
+          }
+        };
+        img.onerror = () => resolve(baseImageUrl);
+        img.src = baseImageUrl;
       });
 
-      if (result.success && result.imageUrl) {
-        console.log("Image generated successfully");
-        setGeneratedImage(result.imageUrl);
-        
-        // Cache the generated image
-        imageGenerationService.saveGeneratedImage({
-          stepId: 11,
-          optionId,
-          imageUrl: result.imageUrl,
-          timestamp: Date.now()
-        });
-      } else {
-        console.error("Image generation failed:", result.error);
-      }
+      setGeneratedImage(simulatedImageUrl);
+      imageGenerationService.saveGeneratedImage({
+        stepId: 11,
+        optionId,
+        imageUrl: simulatedImageUrl,
+        timestamp: Date.now()
+      });
     } catch (error) {
       console.error("Error generating image:", error);
     } finally {

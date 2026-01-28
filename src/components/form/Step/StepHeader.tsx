@@ -139,8 +139,10 @@ const StepHeader: React.FC<StepHeaderProps> = ({
             direction="left"
             in={!!selectedOptionImage}
             key={selectedOptionImage}
-            timeout={700}
+            timeout={600}
             easing={{ enter: 'ease-in' }}
+            appear={true}
+            mountOnEnter={false}
           >
             <Box sx={{ width: "100%", height: "100%", textAlign: 'center', p: 0, m: 0 }}>
               <img

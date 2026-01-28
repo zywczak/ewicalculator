@@ -25,7 +25,7 @@ const SingleImageView: React.FC<SingleImageViewProps> = ({ image, isMobile = fal
       <Box
         sx={{
           width: "100%",
-          height: "100%",
+          height: isMobile ? "100%" : "475px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -36,13 +36,11 @@ const SingleImageView: React.FC<SingleImageViewProps> = ({ image, isMobile = fal
           src={address + image.image_url}
           alt={image.caption || ""}
           style={{
-            maxWidth: "100%",
-            maxHeight: "100%",
-            height: "auto",
-            width: "auto",
-            display: "block",
-            objectFit: "scale-down",
-            borderRadius: "20px",
+             width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              display: "block",
+              borderRadius: "20px",
           }}
         />
 

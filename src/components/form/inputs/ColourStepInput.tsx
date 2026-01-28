@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import { StepInputProps } from "../Step/StepInput";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-import { ColorOption, fetchColorsOnce } from "../../../data/colorCache";
+import { ColorOption, fetchColorsOnce, getPreloadedImageUrl } from "../../../data/colorCache";
 import { STEP_11_COLOUR } from '../../../data/steps/steps/step11-colour';
 import OPTION_IDS from '../../../data/constants/optionIds';
 
@@ -13,7 +13,7 @@ const BRICK_SLIPS_OPTION_ID = OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
 const BRICK_SLIPS_COLORS = STEP_11_COLOUR.options.map(opt => ({
   id: opt.id,
   colour_code: opt.option_value,
-  photo_uri: opt.image ?? "", // ensure photo_uri is always a string
+  photo_uri: opt.image ?? "",
 }));
 
 const ColourStepInput: React.FC<StepInputProps> = ({
@@ -28,7 +28,6 @@ const ColourStepInput: React.FC<StepInputProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // If selected options include brick slips, use static colors
     const isBrickSlips = selectedParentOptionIds.includes(BRICK_SLIPS_OPTION_ID);
     if (isBrickSlips) {
       setColors(BRICK_SLIPS_COLORS);
@@ -36,22 +35,23 @@ const ColourStepInput: React.FC<StepInputProps> = ({
       setError(null);
       return;
     }
-    // Otherwise, fetch colors from endpoint
-    const loadColors = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const colorData = await fetchColorsOnce();
-        setColors(colorData);
-        if (colorData.length === 0) setError("Nie znaleziono kolorów z obrazkiem");
-      } catch (err: any) {
-        console.error("Error fetching colors:", err);
-        setError(err.response?.data?.message || err.message || "Błąd pobierania kolorów");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadColors();
+    
+    let isMounted = true;
+    setLoading(true);
+    setError(null);
+    
+    fetchColorsOnce().then((colorData) => {
+      if (!isMounted) return;
+      setColors(colorData);
+      setLoading(false);
+      if (colorData.length === 0) setError("Nie znaleziono kolorów z obrazkiem");
+    }).catch((err) => {
+      if (!isMounted) return;
+      setError(err?.message || "Błąd pobierania kolorów");
+      setLoading(false);
+    });
+    
+    return () => { isMounted = false; };
   }, [selectedParentOptionIds]);
 
   const totalPages = Math.ceil(colors.length / ITEMS_PER_PAGE);
@@ -65,8 +65,21 @@ const ColourStepInput: React.FC<StepInputProps> = ({
   const nextPage = () => setPage(prev => Math.min(prev + 1, totalPages - 1));
   const prevPage = () => setPage(prev => Math.max(prev - 1, 0));
 
-  if (loading) return <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px", display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={40} /></Box>;
-  if (error) return <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px", py: 4 }}><Typography color="error" textAlign="center">{error}</Typography></Box>;
+  if (loading) {
+    return (
+      <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px", display: "flex", justifyContent: "center", py: 4 }}>
+        <CircularProgress size={40} />
+      </Box>
+    );
+  }
+  
+  if (error) {
+    return (
+      <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px", py: 4 }}>
+        <Typography color="error" textAlign="center">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px" }}>
@@ -89,13 +102,55 @@ const ColourStepInput: React.FC<StepInputProps> = ({
       <Box display="grid" gridTemplateColumns={isMobile ? "repeat(4, 1fr)" : "repeat(3, 1fr)"} gap={"8px"}>
         {currentPageColors.map(color => {
           const isSelected = value === color.colour_code;
+          const imageUrl = getPreloadedImageUrl(color.photo_uri);
+          
           return (
-            <Box key={color.id} onClick={() => handleSelect(color.id, color.colour_code)}
-              sx={{ height: isMobile ? "auto" : "45px", width: isMobile ? "auto" : "73px", aspectRatio: "73/48", borderRadius: "12px", cursor: "pointer", position: "relative", overflow: "hidden", transition: "all 0.2s ease-in-out", "&:hover": { transform: "scale(1.03)" } }}>
-              <img src={color.photo_uri} alt={color.colour_code} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} loading="lazy" />
+            <Box 
+              key={color.id} 
+              onClick={() => handleSelect(color.id, color.colour_code)}
+              sx={{ 
+                height: isMobile ? "auto" : "45px", 
+                width: isMobile ? "auto" : "73px", 
+                aspectRatio: "73/48", 
+                borderRadius: "12px", 
+                cursor: "pointer", 
+                position: "relative", 
+                overflow: "hidden", 
+                transition: "transform 0.15s ease-in-out",
+                willChange: "transform",
+                "&:hover": { transform: "scale(1.03)" } 
+              }}
+            >
+              <img 
+                src={imageUrl}
+                alt={color.colour_code} 
+                style={{ 
+                  width: "100%", 
+                  height: "100%", 
+                  objectFit: "cover", 
+                  display: "block",
+                  imageRendering: "crisp-edges"
+                }} 
+                loading="eager"
+                decoding="async"
+              />
               {isSelected && (
-                <Box sx={{ position: "absolute", borderRadius: "10px", inset: 0, backgroundColor: "#3333339d", display: "flex", alignItems: "center", justifyContent: "center", m: "4px" }}>
-                  <Typography sx={{ color: "#fff", fontWeight: 600, fontSize: "12px", textAlign: "center" }}>
+                <Box sx={{ 
+                  position: "absolute", 
+                  borderRadius: "10px", 
+                  inset: 0, 
+                  backgroundColor: "#3333339d", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center", 
+                  my: "4px" 
+                }}>
+                  <Typography sx={{ 
+                    color: "#fff", 
+                    fontWeight: 600, 
+                    fontSize: "12px", 
+                    textAlign: "center" 
+                  }}>
                     {color.colour_code.split('-').pop() || color.colour_code}
                   </Typography>
                 </Box>
