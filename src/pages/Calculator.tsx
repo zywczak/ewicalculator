@@ -489,6 +489,7 @@ const Calculator: React.FC = () => {
               <StepHeader
                 stepIndex={currentStep + 1}
                 stepName={parentStep.step_name}
+                image={parentStep.image}
                 description={parentStep.description}
                 maxSteps={parentSteps.length}
                 helpAvailable={!!parentStep.help?.length}

@@ -13,6 +13,7 @@ export const STEP_11_COLOUR: FormStep = {
     validation_regex: null,
     generateImageWithAI: true,
     aiImagePrompt: "Change the facade color to {option_value}. Only change the wall color to match the {option_value} tone. Realistic architectural photography, natural daylight, professional render application.",
+    image: "/media/paint_palette.gif",
     substeps: [],
     options: [
     { id: OPTION_IDS.COLOURS.SAHARA, option_value: "Sahara", json_value: "Sahara", image: "/media/sahara.png", option_image: "/media/sahara.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS] },
