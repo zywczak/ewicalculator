@@ -2,8 +2,11 @@ import React from "react";
 import { Box } from "@mui/material";
 import { STEP_11_COLOUR } from "../../data/steps/steps/step11-colour";
 
+interface HelpBrickColoursProps {
+  isMobile?: boolean;
+}
 
-const HelpBrickColours: React.FC = () => {
+const HelpBrickColours: React.FC<HelpBrickColoursProps> = ({ isMobile }) => {
   const options = STEP_11_COLOUR.options;
   if (!options || options.length === 0) {
     return (
@@ -14,7 +17,13 @@ const HelpBrickColours: React.FC = () => {
   }
 
   return (
-    <Box display="grid" gridTemplateColumns="repeat(7, 1fr)" gap="8px">
+    <Box
+      display={isMobile ? "flex" : "grid"}
+      flexWrap={isMobile ? "wrap" : undefined}
+      justifyContent={isMobile ? "center" : undefined}
+      gridTemplateColumns={isMobile ? undefined : "repeat(7, 1fr)"}
+      gap="8px"
+    >
       {options.map(option => (
         <Box
           key={option.id}

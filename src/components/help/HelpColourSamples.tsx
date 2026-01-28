@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import { ColorOption, fetchColorsOnce, getPreloadedImageUrl } from "../../data/colorCache";
 
-const HelpColourSamples: React.FC = () => {
+interface HHelpColourSamplesProps {
+  isMobile?: boolean;
+}
+
+const HelpColourSamples: React.FC<HHelpColourSamplesProps> = ({ isMobile }) => {
   const [colors, setColors] = useState<ColorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -44,13 +48,19 @@ const HelpColourSamples: React.FC = () => {
   if (colors.length === 0) {
     return (
       <Box display="flex" justifyContent="center" py={3}>
-        Brak kolorów do wyświetlenia
+        No colours to display
       </Box>
     );
   }
 
   return (
-    <Box display="grid" gridTemplateColumns="repeat(7, 1fr)" gap="8px">
+    <Box
+      display={isMobile ? "flex" : "grid"}
+      flexWrap={isMobile ? "wrap" : undefined}
+      justifyContent={isMobile ? "center" : undefined}
+      gridTemplateColumns={isMobile ? undefined : "repeat(7, 1fr)"}
+      gap="8px"
+    >
       {colors.map(color => {
         const imageUrl = getPreloadedImageUrl(color.photo_uri);
         

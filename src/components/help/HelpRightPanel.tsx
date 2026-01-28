@@ -60,11 +60,11 @@ export const HelpRightPanel: React.FC<HelpRightPanelProps> = ({ isMobile, curren
             <HelpTable table={currentHelp.table} />
           </Box>
         )}
-        {currentHelp.useColourSamples && <HelpColourSamples />}
-        {currentHelp.useOptionColours && <HelpBrickColours />}
+        {currentHelp.useColourSamples && <HelpColourSamples isMobile={isMobile} />}
+        {currentHelp.useOptionColours && <HelpBrickColours isMobile={isMobile} />}
       </Box>
       {currentHelp.disclaimer && (
-        <Box sx={{ pt: "12px" }}>
+        <Box sx={{ pt: "12px", textAlign: "center" }}>
           <Typography
             sx={{
               fontSize: "10px",
