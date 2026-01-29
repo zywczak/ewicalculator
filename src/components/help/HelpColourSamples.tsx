@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import { ColorOption, fetchColorsOnce, getPreloadedImageUrl } from "../../data/colorCache";
 
-interface HHelpColourSamplesProps {
+interface HelpColourSamplesProps {
   isMobile?: boolean;
 }
 
-const HelpColourSamples: React.FC<HHelpColourSamplesProps> = ({ isMobile }) => {
+const HelpColourSamples: React.FC<HelpColourSamplesProps> = ({ isMobile }) => {
   const [colors, setColors] = useState<ColorOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,6 +70,7 @@ const HelpColourSamples: React.FC<HHelpColourSamplesProps> = ({ isMobile }) => {
             width: "95px",
             aspectRatio: "73 / 48",
             borderRadius: "10px",
+            backgroundColor: "#f0f0f0",
             position: "relative",
             overflow: "hidden",
             cursor: "default",
