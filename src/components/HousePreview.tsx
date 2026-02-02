@@ -20,6 +20,7 @@ interface HousePreviewProps {
   isGeneratingImage?: boolean;
   currentStep?: number;
   onResetToDefault?: () => void;
+  compositeImage?: string | null;
 }
 
 const HousePreview: React.FC<HousePreviewProps> = ({
@@ -31,7 +32,8 @@ const HousePreview: React.FC<HousePreviewProps> = ({
   generatedImage = null,
   isGeneratingImage = false,
   currentStep = 0,
-  onResetToDefault
+  onResetToDefault,
+  compositeImage = null,
 }) => {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [outlinePoints, setOutlinePoints] = useState<Point[]>([]);
@@ -41,13 +43,18 @@ const HousePreview: React.FC<HousePreviewProps> = ({
   const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    console.log("HousePreview useEffect:", { currentStep, customImage, generatedImage, selectedOptions });
+    console.log("HousePreview useEffect:", { currentStep, customImage, generatedImage, compositeImage, selectedOptions });
     // Before step 11 (index 10): only show predefined images
     // From step 11 onwards (index 10+): priority: generated image > custom image > predefined image
     if (currentStep >= 10) {
       if (generatedImage) {
         console.log("Setting generatedImage:", generatedImage);
         setCurrentImage(generatedImage);
+        setOutlinePoints([]); // Clear old outline when new image loads
+      } else if (compositeImage) {
+        // Show composite image with red overlay after outline is accepted
+        console.log("Setting compositeImage:", compositeImage);
+        setCurrentImage(compositeImage);
         setOutlinePoints([]); // Clear old outline when new image loads
       } else if (customImage) {
         console.log("Setting customImage:", customImage);
@@ -75,7 +82,7 @@ const HousePreview: React.FC<HousePreviewProps> = ({
         setCurrentImage(null);
       }
     }
-  }, [selectedOptions, customImage, generatedImage, currentStep]);
+  }, [selectedOptions, customImage, generatedImage, compositeImage, currentStep]);
 
   // Drawing logic for outline
   useEffect(() => {
@@ -209,7 +216,7 @@ const HousePreview: React.FC<HousePreviewProps> = ({
               height: "100%",
               margin: 0,
               borderRadius: isMobile ? 2 : 3,
-              objectFit: currentStep >= 10 && (customImage || generatedImage) ? "cover" : "contain",
+              objectFit: "cover",
               transition: "opacity 0.4s ease-in-out",
               filter: isGeneratingImage ? "blur(8px)" : "none",
             }}
@@ -263,7 +270,7 @@ const HousePreview: React.FC<HousePreviewProps> = ({
             height: "100%",
             margin: 0,
             borderRadius: isMobile ? 2 : 3,
-            objectFit: "contain",
+            objectFit: "cover",
           }}
         />
       )}

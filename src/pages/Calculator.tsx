@@ -12,11 +12,89 @@ import ResponsiveCalculatorWrapper from "../components/FormWrapper";
 import { STEPS_DATA} from "../data/steps/stepsData";
 import { StepsData } from "../data/steps/types";
 import Help from "../components/help/Help";
-import { imageApi } from "../services/imageApi";
-import { imageGenerationService } from "../services/imageGenerationService";
-import { findBestMatchingImage } from "../data/images/utils";
+import { findBestMatchingImage, findFileToSend } from "../data/images/utils";
 import address from "../api/adress";
 import OPTION_IDS from '../data/constants/optionIds';
+
+// Simple cache for generated images
+const generatedImageCache = new Map<string, { imageUrl: string; timestamp: number }>();
+
+const getCacheKey = (stepId: number, optionId: number, selectedOptions: number[]) => {
+  // Include house type and surface material in cache key
+  const houseType = selectedOptions.find(opt => 
+    opt === OPTION_IDS.HOUSE.DETACHED || 
+    opt === OPTION_IDS.HOUSE.SEMI_DETACHED || 
+    opt === OPTION_IDS.HOUSE.TERRACED
+  ) || 0;
+  
+  const surface = selectedOptions.find(opt => 
+    Object.values(OPTION_IDS.SURFACE).includes(opt)
+  ) || 0;
+  
+  return `${stepId}-${optionId}-${houseType}-${surface}`;
+};
+
+// Utility function to compress image
+const compressImage = async (blob: Blob, maxWidth: number = 1920, quality: number = 0.8): Promise<Blob> => {
+  const ONE_MB = 1024 * 1024; // 1MB in bytes
+  
+  // Skip compression if file is smaller than 1MB
+  if (blob.size < ONE_MB) {
+    console.log(`Image size ${(blob.size / 1024).toFixed(2)}KB - skipping compression (< 1MB)`);
+    return blob;
+  }
+  
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(blob);
+    
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      
+      // Calculate new dimensions
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      
+      // Create canvas and compress
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'));
+        return;
+      }
+      
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      canvas.toBlob(
+        (compressedBlob) => {
+          if (compressedBlob) {
+            console.log(`Image compressed: ${(blob.size / 1024).toFixed(2)}KB -> ${(compressedBlob.size / 1024).toFixed(2)}KB`);
+            resolve(compressedBlob);
+          } else {
+            reject(new Error('Compression failed'));
+          }
+        },
+        'image/jpeg',
+        quality
+      );
+    };
+    
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to load image'));
+    };
+    
+    img.src = url;
+  });
+};
 
 const Calculator: React.FC = () => {
   const [stepsData] = useState<StepsData>(STEPS_DATA);
@@ -59,9 +137,10 @@ const Calculator: React.FC = () => {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [outlinePoints, setOutlinePoints] = useState<any[]>([]);
   const [canCompleteOutline, setCanCompleteOutline] = useState(false);
-  const [outlineMask, setOutlineMask] = useState<string | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+
+  const [compositeImage, setCompositeImage] = useState<string | null>(null);
 
   const [isStepComplete, setIsStepComplete] = useState(false);
 
@@ -109,6 +188,20 @@ const Calculator: React.FC = () => {
       return [...filtered, optionId];
     });
 
+    // Clear cache and generated image when house type changes (step 1)
+    if (stepId === 1) {
+      generatedImageCache.clear();
+      setGeneratedImage(null);
+      console.log("House type changed - cleared AI generated images cache");
+    }
+
+    // Clear cache and generated image when surface material changes (step 2)
+    if (stepId === 2) {
+      generatedImageCache.clear();
+      setGeneratedImage(null);
+      console.log("Surface material changed - cleared AI generated images cache");
+    }
+
     // Resetuj kolor Brick Slips jeśli zmieniono typ tynku na inny niż Brick Slips
     if (stepId === 9) { // 9 = render type
       if (optionId !== OPTION_IDS.RENDER_TYPE.BRICK_SLIPS) {
@@ -125,6 +218,16 @@ const Calculator: React.FC = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       setCustomImage(reader.result as string);
+      
+      // Clear all generated images and cache when uploading new custom image
+      setGeneratedImage(null);
+      setCompositeImage(null);
+      setOutlinePoints([]);
+      sessionStorage.removeItem('compositeHouseImage');
+      
+      // Clear the entire cache - all AI generated images from previous custom image
+      generatedImageCache.clear();
+      console.log("New custom image uploaded - cleared all AI generated images and cache");
       
       // Reset colour selection (step 11) when switching to custom image
       setValues(prev => {
@@ -155,7 +258,6 @@ const Calculator: React.FC = () => {
   };
 
   const handleAcceptOutline = () => {
-    // Create and save the outline mask using a dynamically sized canvas
     if (customImage && outlinePoints.length >= 3) {
       const img = new Image();
       img.onload = () => {
@@ -165,23 +267,23 @@ const Calculator: React.FC = () => {
         const ctx = canvas.getContext('2d');
         
         if (ctx) {
-          // Fill background black (areas not to change)
           ctx.fillStyle = 'black';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-          // Fill outline area white (areas to change)
           ctx.fillStyle = 'white';
           ctx.beginPath();
-          ctx.moveTo(outlinePoints[0].x, outlinePoints[0].y);
+          ctx.moveTo(outlinePoints[0].x * img.width, outlinePoints[0].y * img.height);
           outlinePoints.forEach(point => {
-            ctx.lineTo(point.x, point.y);
+            ctx.lineTo(point.x * img.width, point.y * img.height);
           });
           ctx.closePath();
           ctx.fill();
 
           const mask = canvas.toDataURL();
-          setOutlineMask(mask);
           console.log("Outline mask created and saved");
+
+          // Create composite image (custom image + red overlay)
+          createCompositeImage(customImage, mask);
         }
       };
       img.src = customImage;
@@ -197,7 +299,9 @@ const Calculator: React.FC = () => {
     setIsDrawingMode(false);
     setOutlinePoints([]);
     setCanCompleteOutline(false);
-    setOutlineMask(null);
+    setCompositeImage(null);
+    
+    sessionStorage.removeItem('compositeHouseImage');
     
     // Reset colour selection (step 11) when switching back to default image
     setValues(prev => {
@@ -209,11 +313,10 @@ const Calculator: React.FC = () => {
 
   const handleColourSelection = async (colourValue: string, optionId: number) => {
     console.log("Colour selected:", colourValue, "Option ID:", optionId);
-    
-    // Check if we already have a generated image for this colour
-    const cached = imageGenerationService.getGeneratedImage(11, optionId);
+
+    const cacheKey = getCacheKey(11, optionId, selectedOptions);
+    const cached = generatedImageCache.get(cacheKey);
     if (cached) {
-      console.log("Using cached image for colour:", colourValue);
       setGeneratedImage(cached.imageUrl);
       return;
     }
@@ -221,88 +324,112 @@ const Calculator: React.FC = () => {
     setIsGeneratingImage(true);
 
     try {
-      // Simulate 10s generation delay
-      await new Promise(resolve => setTimeout(resolve, 10000));
-
-      // Get base image
       let baseImageUrl: string;
-      
-      if (customImage) {
-        // Use custom uploaded image
+      let imageToSend: Blob;
+
+      // Use composite image if available (has red overlay showing area to change)
+      if (compositeImage) {
+        console.log("Using composite image from session storage");
+        const compositeFromSession = sessionStorage.getItem('compositeHouseImage');
+        baseImageUrl = compositeFromSession || compositeImage;
+        
+        const response = await fetch(baseImageUrl);
+        imageToSend = await response.blob();
+      } else if (customImage) {
+        console.log("Using custom image without mask");
         baseImageUrl = customImage;
+        const response = await fetch(baseImageUrl);
+        imageToSend = await response.blob();
       } else {
-        // Use default predefined image
         const predefImage = findBestMatchingImage(selectedOptions);
         baseImageUrl = predefImage ? address + predefImage : '';
-      }
-
-      if (!baseImageUrl) {
-        console.error("No base image available");
-        setIsGeneratingImage(false);
-        return;
-      }
-
-      // // Get step data for prompt
-      // const step11 = stepsData.steps.find(s => s.id === 11);
-      // const promptTemplate = step11?.aiImagePrompt || "Change the facade color to {option_value}";
-      // const prompt = promptTemplate.replace('{option_value}', colourValue);
-
-      // console.log("Generating image with prompt:", prompt);
-      // console.log("Base image:", baseImageUrl.substring(0, 50));
-      // console.log("Using outline mask:", outlineMask ? "Yes" : "No");
-
-      // // Call AI API
-      // const result = await imageApi.generateImage({
-      //   imageUrl: baseImageUrl,
-      //   prompt
-      // });
-
-
-      // if (result.success && result.imageUrl) {
-      //   console.log("Image generated successfully");
-      //   setGeneratedImage(result.imageUrl);
         
-      //   // Cache the generated image
-      //   imageGenerationService.saveGeneratedImage({
-      //     stepId: 11,
-      //     optionId,
-      //     imageUrl: result.imageUrl,
-      //     timestamp: Date.now()
-      //   });
-      // } else {
-      //   console.error("Image generation failed:", result.error);
-      // }
-      // Simulate image generation by overlaying text
-      const simulatedImageUrl = await new Promise<string>((resolve) => {
-        const img = new globalThis.Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            ctx.font = 'bold 48px Arial';
-            ctx.fillStyle = 'rgba(255,0,0,0.7)';
-            ctx.textAlign = 'center';
-            ctx.fillText('Wygenerowano: ' + colourValue, canvas.width / 2, canvas.height / 2);
-            resolve(canvas.toDataURL());
-          } else {
-            resolve(baseImageUrl);
-          }
-        };
-        img.onerror = () => resolve(baseImageUrl);
-        img.src = baseImageUrl;
-      });
+        if (!baseImageUrl) {
+          console.error("No base image available");
+          return;
+        }
 
-      setGeneratedImage(simulatedImageUrl);
-      imageGenerationService.saveGeneratedImage({
-        stepId: 11,
-        optionId,
-        imageUrl: simulatedImageUrl,
+        const imageResponse = await fetch(baseImageUrl);
+        imageToSend = await imageResponse.blob();
+      }
+
+      // Compress image before sending to reduce payload size
+      console.log(`Original image size: ${(imageToSend.size / 1024).toFixed(2)}KB`);
+      imageToSend = await compressImage(imageToSend, 1920, 0.85);
+
+      const formData = new FormData();
+      let fileToSend: Blob = imageToSend;
+      let fileName = "house.jpg";
+      
+      // If user didn't upload custom image, use house-type specific file
+      if (!customImage && !compositeImage) {
+        const fileUrl = findFileToSend(selectedOptions);
+        if (fileUrl) {
+          console.log("Using file for AI:", fileUrl);
+          try {
+            const fileResponse = await fetch(address + fileUrl);
+            let fileBlob = await fileResponse.blob();
+            
+            // Compress file
+            console.log(`Original file size: ${(fileBlob.size / 1024).toFixed(2)}KB`);
+            fileBlob = await compressImage(fileBlob, 1920, 0.9);
+            
+            // Send this file to AI
+            fileToSend = fileBlob;
+            fileName = fileUrl.includes("default") ? "default.jpg" : "mask.png";
+            formData.append("file", fileBlob, fileName);
+          } catch (error) {
+            console.warn("Failed to load file, using base image:", error);
+            formData.append("file", imageToSend, "house.jpg");
+          }
+        } else {
+          // No file found, send base image
+          formData.append("file", imageToSend, "house.jpg");
+        }
+      } else {
+        // Custom image - send the user's image
+        formData.append("file", imageToSend, "house.jpg");
+      }
+      
+      console.log(`Sending ${fileName} (${(fileToSend.size / 1024).toFixed(2)}KB) to AI`);
+      
+      formData.append("mode", "STRICT");
+
+      const isBrickSlips = selectedOptions.includes(OPTION_IDS.RENDER_TYPE.BRICK_SLIPS);
+      if (isBrickSlips) {
+        formData.append("material", "BRICK_SLIP");
+        formData.append("colour_code", colourValue);
+      } else {
+        formData.append("material", "RENDER");
+        formData.append("colour_code", colourValue);
+      }
+      console.log("FormData prepared with colour code:", colourValue);
+
+      const response = await fetch(
+        "https://veen-e.ewipro.com:7443/aidriver/edit_house",
+        {
+          method: "POST",
+          headers: {
+            Authorization: "51e904be14b69f404b782149c16681c3"
+          },
+          body: formData
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("AI generation failed");
+      }
+
+      const resultBlob = await response.blob();
+      const generatedImageUrl = URL.createObjectURL(resultBlob);
+
+      setGeneratedImage(generatedImageUrl);
+
+      generatedImageCache.set(cacheKey, {
+        imageUrl: generatedImageUrl,
         timestamp: Date.now()
       });
+
     } catch (error) {
       console.error("Error generating image:", error);
     } finally {
@@ -400,6 +527,26 @@ const Calculator: React.FC = () => {
       }
       return newSet;
     });
+
+    // Reset house preview and colour selection when moving away from step 11 (colour step)
+    const colourStepIndex = parentSteps.findIndex(s => s.id === 11);
+    if (currentStep === colourStepIndex) {
+      // Reset colour value for step 11 (works for both Render and Brick Slips)
+      setValues(prev => {
+        const newValues = { ...prev };
+        delete newValues[11];
+        return newValues;
+      });
+
+      // Reset generated image to custom or default preview
+      if (customImage) {
+        setGeneratedImage(customImage);
+      } else {
+        const predefImage = findBestMatchingImage(selectedOptions);
+        setGeneratedImage(predefImage ? address + predefImage : null);
+      }
+    }
+
     setCurrentStep(newPrevStep);
   };
 
@@ -426,6 +573,79 @@ const Calculator: React.FC = () => {
     if (handlers?.handlePrevClick) {
       handlers.handlePrevClick();
     }
+  };
+
+  const createCompositeImage = (baseImage: string, mask: string) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) return;
+
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Draw base image
+      ctx.drawImage(img, 0, 0);
+
+      // Load and draw mask
+      const maskImg = new Image();
+      maskImg.onload = () => {
+        // Get mask data to find white areas
+        const maskCanvas = document.createElement('canvas');
+        maskCanvas.width = img.width;
+        maskCanvas.height = img.height;
+        const maskCtx = maskCanvas.getContext('2d');
+        
+        if (maskCtx) {
+          maskCtx.drawImage(maskImg, 0, 0, img.width, img.height);
+          const maskData = maskCtx.getImageData(0, 0, img.width, img.height);
+          
+          // Draw BRIGHT RED overlay on white areas (areas to change)
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.7)'; // Bright red with 70% opacity
+          ctx.strokeStyle = 'rgba(255, 0, 0, 1.0)'; // Solid red border
+          ctx.lineWidth = 5;
+          
+          // Find contours and fill
+          for (let y = 0; y < img.height; y++) {
+            for (let x = 0; x < img.width; x++) {
+              const index = (y * img.width + x) * 4;
+              // If pixel is white in mask (area to change)
+              if (maskData.data[index] > 200) {
+                ctx.fillRect(x, y, 1, 1);
+              }
+            }
+          }
+          
+          // Draw outline of the mask area with thick red line
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.beginPath();
+          // Convert outline points to canvas coordinates
+          outlinePoints.forEach((point, index) => {
+            const x = point.x * img.width;
+            const y = point.y * img.height;
+            if (index === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          });
+          ctx.closePath();
+          ctx.stroke();
+
+          const composite = canvas.toDataURL('image/png');
+          setCompositeImage(composite);
+          
+          // Save to session storage
+          sessionStorage.setItem('compositeHouseImage', composite);
+          
+          console.log("Composite image created with RED overlay - this will be sent to AI");
+        }
+      };
+      maskImg.src = mask;
+    };
+    img.src = baseImage;
   };
 
   return (
@@ -535,6 +755,7 @@ const Calculator: React.FC = () => {
                 onColourSelection={handleColourSelection}
                 isGeneratingImage={isGeneratingImage}
                 generatedImage={generatedImage}
+                compositeImage={compositeImage}
               />
             </Box>
             {isMobileView ? (

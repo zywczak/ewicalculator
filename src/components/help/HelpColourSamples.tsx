@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Box, CircularProgress } from "@mui/material";
-import { ColorOption, fetchColorsOnce, getPreloadedImageUrl } from "../../data/colorCache";
+import { ColorOption, fetchColorsOnce } from "../../data/colorCache";
 
 interface HelpColourSamplesProps {
   isMobile?: boolean;
@@ -62,8 +62,6 @@ const HelpColourSamples: React.FC<HelpColourSamplesProps> = ({ isMobile }) => {
       gap="8px"
     >
       {colors.map(color => {
-        const imageUrl = getPreloadedImageUrl(color.photo_uri);
-        
         return (
           <Box key={color.id} sx={{
             height: "62px",
@@ -80,7 +78,7 @@ const HelpColourSamples: React.FC<HelpColourSamplesProps> = ({ isMobile }) => {
             "&:hover .hover-label": { opacity: 1 },
           }}>
             <img 
-              src={imageUrl}
+              src={color.photo_uri}
               alt={color.colour_code} 
               style={{ 
                 width: "100%", 

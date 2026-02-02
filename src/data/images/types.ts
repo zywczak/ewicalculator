@@ -22,4 +22,5 @@ export interface CustomHouseImage {
 export interface StepOptionImage {
   image_url: string;
   options: number[];
+  mask_url?: string; // Optional mask showing which area to change
 }

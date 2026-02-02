@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, CircularProgress } from "@mui/material";
 import { StepInputProps } from "../Step/StepInput";
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-import { ColorOption, fetchColorsOnce, getPreloadedImageUrl } from "../../../data/colorCache";
+import { ColorOption, fetchColorsOnce } from "../../../data/colorCache";
 import { STEP_11_COLOUR } from '../../../data/steps/steps/step11-colour';
 import OPTION_IDS from '../../../data/constants/optionIds';
 
@@ -13,6 +13,7 @@ const BRICK_SLIPS_OPTION_ID = OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
 const BRICK_SLIPS_COLORS = STEP_11_COLOUR.options.map(opt => ({
   id: opt.id,
   colour_code: opt.option_value,
+  json_value: opt.json_value,
   photo_uri: opt.image ?? "",
 }));
 
@@ -58,8 +59,13 @@ const ColourStepInput: React.FC<StepInputProps> = ({
   const startIndex = page * ITEMS_PER_PAGE;
   const currentPageColors = colors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleSelect = (colorId: number, colorCode: string) => {
-    onChange(colorCode, colorId);
+  const handleSelect = (colorId: number, colorCode: string, jsonValue?: string) => {
+    const isBrickSlips = selectedParentOptionIds.includes(BRICK_SLIPS_OPTION_ID);
+    if (isBrickSlips && jsonValue) {
+      onChange(jsonValue, colorId);
+    } else {
+      onChange(colorCode, colorId);
+    }
   };
 
   const nextPage = () => setPage(prev => Math.min(prev + 1, totalPages - 1));
@@ -101,13 +107,12 @@ const ColourStepInput: React.FC<StepInputProps> = ({
 
       <Box display="grid" gridTemplateColumns={isMobile ? "repeat(4, 1fr)" : "repeat(3, 1fr)"} gap={"8px"}>
         {currentPageColors.map(color => {
-          const isSelected = value === color.colour_code;
-          const imageUrl = getPreloadedImageUrl(color.photo_uri);
-          
+          const isSelected = value === color.colour_code || value === color.json_value;
+
           return (
             <Box 
               key={color.id} 
-              onClick={() => handleSelect(color.id, color.colour_code)}
+              onClick={() => handleSelect(color.id, color.colour_code, color.json_value)}
               sx={{ 
                 height: isMobile ? "auto" : "45px", 
                 width: isMobile ? "auto" : "73px", 
@@ -123,7 +128,7 @@ const ColourStepInput: React.FC<StepInputProps> = ({
               }}
             >
               <img 
-                src={imageUrl}
+                src={color.photo_uri}
                 alt={color.colour_code} 
                 style={{ 
                   width: "100%", 
