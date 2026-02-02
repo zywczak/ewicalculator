@@ -2,11 +2,13 @@ import React from "react";
 import { Button } from "@mui/material";
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 interface ActionButtonProps {
   onClick: () => void;
   isMobile?: boolean;
-  variant?: "next" | "prev" | "send" | "nextStep";
+  variant?: "next" | "prev" | "send" | "nextStep" | "accept" | "uploadHouse";
   disabled?: boolean;
 }
 
@@ -16,21 +18,57 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   disabled = false,
   isMobile = false,
 }) => {
-  const isNext = variant === "next";
-  const isPrev = variant === "prev";
-  const isSend = variant === "send";
-  const isNextStep = variant === "nextStep";
-
   const getButtonWidth = () => {
     if (isMobile) return "100%";
-    if (isNextStep) return "212px";
+    if (variant === "nextStep") return "212px";
     return "100px";
+  };
+
+  const getStartIcon = () => {
+    switch (variant) {
+      case "prev":
+        return <ArrowCircleLeftOutlinedIcon sx={{ fontSize: 20 }} />;
+      case "accept":
+        return <CheckCircleIcon sx={{ fontSize: 20 }} />;
+      case "uploadHouse":
+        return <UploadFileIcon sx={{ fontSize: 20 }} />;
+      default:
+        return undefined;
+    }
+  };
+
+  const getEndIcon = () => {
+    if (variant === "next" || variant === "nextStep") {
+      return <ArrowCircleRightOutlinedIcon sx={{ fontSize: 20 }} />;
+    }
+    return undefined;
+  };
+
+  const getLabel = () => {
+    switch (variant) {
+      case "prev":
+        return "Prev";
+      case "next":
+        return "Next";
+      case "send":
+        return "Send";
+      case "nextStep":
+        return "Next step";
+      case "accept":
+        return "Accept";
+      case "uploadHouse":
+        return "Upload";
+      default:
+        return "";
+    }
   };
 
   return (
     <Button
       onClick={onClick}
       disabled={disabled}
+      startIcon={getStartIcon()}
+      endIcon={getEndIcon()}
       sx={{
         backgroundColor: disabled ? "#BDBDBD" : "#48D858",
         width: getButtonWidth(),
@@ -47,19 +85,8 @@ const ActionButton: React.FC<ActionButtonProps> = ({
           opacity: 0.7,
         },
       }}
-      startIcon={
-        isPrev ? <ArrowCircleLeftOutlinedIcon sx={{ fontSize: 20 }} /> : undefined
-      }
-      endIcon={
-        isNext || isNextStep
-          ? <ArrowCircleRightOutlinedIcon sx={{ fontSize: 20 }} />
-          : undefined
-      }
     >
-      {isPrev && "Prev"}
-      {isNext && "Next"}
-      {isSend && "Send"}
-      {isNextStep && "Next step"}
+      {getLabel()}
     </Button>
   );
 };

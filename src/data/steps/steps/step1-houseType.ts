@@ -11,6 +11,7 @@ export const STEP_1_HOUSE: FormStep = {
     required: true,
     parent: null,
     validation_regex: null,
+    image: "/media/house.gif",
     substeps: [],
     options: [
     { id: OPTION_IDS.HOUSE.DETACHED, option_value: "Detached", json_value: "1", image: null },

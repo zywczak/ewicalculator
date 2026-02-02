@@ -34,6 +34,7 @@ export interface HelpSection {
   side_description?: string;
   disclaimer?: string;
   useColourSamples?: boolean;
+  useOptionColours?: boolean;
 }
 
 export interface StepCondition {
@@ -57,6 +58,9 @@ export interface FormStep {
   options: FormStepOption[];
   help: HelpSection[];
   conditions: StepCondition[];
+  image?: string | null; // Obrazek reprezentujący krok
+  generateImageWithAI?: boolean; // Czy ten krok powinien generować zdjęcia przez AI
+  aiImagePrompt?: string; // Szablon promptu dla AI
 }
 
 export interface StepsData {

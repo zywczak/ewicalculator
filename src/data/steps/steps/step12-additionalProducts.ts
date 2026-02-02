@@ -9,6 +9,7 @@ export const STEP_12_ADDITIONAL: FormStep = {
     placeholder: null,
     required: null,
     parent: null,
+    image: "/media/add.gif",
     validation_regex: null,
     substeps: [
     {

@@ -2,6 +2,7 @@ import React from "react";
 import { Box, Divider, Typography } from "@mui/material";
 import StepInput from "./StepInput";
 import SubStep from "./SubStep";
+import ColourStepInput from "../inputs/ColourStepInput";
 import { FormStep, StepsData } from "../../../data/steps/types";
 
 type JsonValue = string | number | Record<string, any>;
@@ -25,6 +26,8 @@ interface StepFormProps {
   selectedOptions?: number[];
   setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
   stepsData: StepsData;
+  isDrawingMode?: boolean;
+  onColourSelection?: (colourValue: string, optionId: number) => void;
 }
 
 const getAllStepsRecursive = (steps: FormStep[]): FormStep[] => {
@@ -254,17 +257,30 @@ const Step: React.FC<StepFormProps> = ({
   selectedOptions = [],
   setSelectedOptions,
   stepsData,
+  isDrawingMode,
+  onColourSelection,
 }) => {
   const isLast = currentStep === totalSteps - 1;
   const allSteps = [parentStep, ...(parentStep.substeps || [])];
   const [jsonValues, setJsonValues] = React.useState<Record<string, JsonValue>>({});
 
   const isStepComplete = React.useMemo(() => {
+    // Block completion ONLY for step 11 (select colour) if in drawing mode
+    if (isDrawingMode && parentStep.id === 11) {
+      return false;
+    }
+    
+    // For step 1 (house type), check if house type is selected
+    if (parentStep.id === 1) {
+      const hasHouseOption = values[1] !== undefined && values[1] !== "" && !errors[1];
+      return hasHouseOption;
+    }
+    
     return allSteps.every(step => {
       if (!step.required) return true;
       return values[step.id] !== undefined && values[step.id] !== "" && !errors[step.id];
     });
-  }, [values, errors, parentStep]);
+  }, [values, errors, parentStep, isDrawingMode]);
 
   React.useEffect(() => {
     allSteps.forEach(step => {
@@ -313,6 +329,11 @@ const Step: React.FC<StepFormProps> = ({
     }
 
     if (optionId !== undefined) onOptionChange(optionId, stepId);
+    
+    // If step 11 (colour) and we have onColourSelection, trigger image generation
+    if (stepId === 11 && optionId !== undefined && value && onColourSelection) {
+      onColourSelection(String(value), optionId);
+    }
   };
 
   const handleNextClick = () => {
@@ -447,16 +468,27 @@ const Step: React.FC<StepFormProps> = ({
           <Divider sx={{ mb: "24px", ml: "24px", mr: "20px", color: "#D0DBE0" }} />
         </>
       )}
-      <StepInput
-        step={parentStep}
-        value={values[parentStep.id] || ""}
-        onChange={(val, optionId) => handleChange(parentStep.id, val, optionId)}
-        onErrorChange={(hasError) =>
-          setErrors(prev => ({ ...prev, [parentStep.id]: hasError }))
-        }
-        isMobile={isMobile}
-        selectedParentOptionIds={selectedOptions}
-      />
+      {parentStep.id === 11 ? (
+        <ColourStepInput
+          step={parentStep}
+          value={values[parentStep.id] || ""}
+          onChange={(val, optionId) => handleChange(parentStep.id, val, optionId)}
+          isMobile={isMobile}
+          selectedParentOptionIds={selectedOptions}
+          disabled={!!isDrawingMode}
+        />
+      ) : (
+        <StepInput
+          step={parentStep}
+          value={values[parentStep.id] || ""}
+          onChange={(val, optionId) => handleChange(parentStep.id, val, optionId)}
+          onErrorChange={(hasError) =>
+            setErrors(prev => ({ ...prev, [parentStep.id]: hasError }))
+          }
+          isMobile={isMobile}
+          selectedParentOptionIds={selectedOptions}
+        />
+      )}
 
       {visibleSubsteps.map((sub) => {
         const value = values[sub.id] || "";

@@ -12,7 +12,7 @@ export const HelpLeftPanel: React.FC<HelpLeftPanelProps> = ({ isMobile, currentH
     <Box
       sx={{
         pl: isMobile ? "16px" : "32px",
-        pr: isMobile ? "16px" : "24px",
+        pr: isMobile ? "16px" : "20px",
         pb: isMobile ? "28px" : 0,
         pt: "10px",
         flex: isMobile ? "0 0 auto" : "0 0 327px",

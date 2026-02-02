@@ -47,10 +47,15 @@ export const OPTION_IDS = {
   },
 
   COLOURS: {
-    LILAC: 45,
-    GREY: 46,
-    GOLD: 47,
-    BLACK: 48,
+    SAHARA: 45,
+    BLACKPOOL: 46,
+    COLORADO: 47,
+    CORDOBA: 48,
+    CORSICA: 49,
+    NEBRASKA: 50,
+    MALTA: 51,
+    ALASKA: 52,
+    GLASGOW: 53,
   },
 
   STARTER_TRACKS: {

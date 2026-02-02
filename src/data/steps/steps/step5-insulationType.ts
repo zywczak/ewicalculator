@@ -12,11 +12,13 @@ export const STEP_5_INSULATION: FormStep = {
     required: true,
     parent: null,
     validation_regex: null,
+    generateImageWithAI: true,
+    aiImagePrompt: "Apply {option_value} insulation material to the house facade walls. Keep the house structure, windows, doors, and roof exactly the same. Only modify the wall texture to show professional {option_value} insulation installation. Realistic architectural photo, natural lighting.",
     substeps: [],
     options: [
-    { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png" },
-    { id: OPTION_IDS.INSULATION.EPS, option_value: "EPS", json_value: "EPS", image: "/media/eps.png" },
-    { id: OPTION_IDS.INSULATION.WOOL, option_value: "Mineral wool", json_value: "Wool", image: "/media/mineralwool.png" }
+    { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png", option_image: "/media/kingspan.png" },
+    { id: OPTION_IDS.INSULATION.EPS, option_value: "EPS", json_value: "EPS", image: "/media/eps.png", option_image: "/media/eps.png" },
+    { id: OPTION_IDS.INSULATION.WOOL, option_value: "Mineral wool", json_value: "Wool", image: "/media/mineralwool.png", option_image: "/media/mineralwool.png" }
     ],
     help: [
     {

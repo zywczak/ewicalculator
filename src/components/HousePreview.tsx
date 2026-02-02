@@ -1,50 +1,171 @@
-import React, { useEffect, useState } from "react";
-import { Box } from "@mui/material";
+﻿import React, { useEffect, useState, useRef } from "react";
+import { Box, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import defaultImage from "../assets/default.png";
-import { LayerType } from "../data/images/types";
-import { LAYER_Z_INDEX } from "../data/images/constants";
-import { buildOverlayImages } from "../data/images/utils";
+import { findBestMatchingImage } from "../data/images/utils";
 import address from "../api/adress";
 
-interface OverlayImages {
-  main: string | null;
-  second: string | null;
-  third: string | null;
-  fourth: string | null;
-  fifth: string | null;
-  sixth: string | null;
-  seventh: string | null;
-  eighth: string | null;
+interface Point {
+  x: number;
+  y: number;
 }
 
 interface HousePreviewProps {
   selectedOptions: number[];
-  colour: string;
   isMobile?: boolean;
+  customImage?: string | null;
+  isDrawingMode?: boolean;
+  onOutlineChange?: (points: Point[], canComplete: boolean) => void;
+  generatedImage?: string | null;
+  isGeneratingImage?: boolean;
+  currentStep?: number;
+  onResetToDefault?: () => void;
+  compositeImage?: string | null;
 }
 
 const HousePreview: React.FC<HousePreviewProps> = ({
   selectedOptions,
-  colour,
-  isMobile = false
+  isMobile = false,
+  customImage = null,
+  isDrawingMode = false,
+  onOutlineChange,
+  generatedImage = null,
+  isGeneratingImage = false,
+  currentStep = 0,
+  onResetToDefault,
+  compositeImage = null,
 }) => {
-  const [overlayImages, setOverlayImages] = useState<OverlayImages>({
-    main: null,
-    second: null,
-    third: null,
-    fourth: null,
-    fifth: null,
-    sixth: null,
-    seventh: null,
-    eighth: null,
-  });
+  const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [outlinePoints, setOutlinePoints] = useState<Point[]>([]);
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
-    const newOverlays = buildOverlayImages(selectedOptions);
-    console.log("Selected Options:", selectedOptions);
-    console.log("Colour:", colour);
-    setOverlayImages(newOverlays);
-  }, [selectedOptions, colour]);
+    console.log("HousePreview useEffect:", { currentStep, customImage, generatedImage, compositeImage, selectedOptions });
+    // Before step 11 (index 10): only show predefined images
+    // From step 11 onwards (index 10+): priority: generated image > custom image > predefined image
+    if (currentStep >= 10) {
+      if (generatedImage) {
+        console.log("Setting generatedImage:", generatedImage);
+        setCurrentImage(generatedImage);
+        setOutlinePoints([]); // Clear old outline when new image loads
+      } else if (compositeImage) {
+        // Show composite image with red overlay after outline is accepted
+        console.log("Setting compositeImage:", compositeImage);
+        setCurrentImage(compositeImage);
+        setOutlinePoints([]); // Clear old outline when new image loads
+      } else if (customImage) {
+        console.log("Setting customImage:", customImage);
+        setCurrentImage(customImage);
+        setOutlinePoints([]); // Clear old outline when new image loads
+      } else {
+        // Find predefined image
+        const imageUrl = findBestMatchingImage(selectedOptions);
+        console.log("Selected Options:", selectedOptions);
+        console.log("Found Image:", imageUrl);
+        if (imageUrl) {
+          setCurrentImage(address + imageUrl);
+        } else {
+          setCurrentImage(null);
+        }
+      }
+    } else {
+      // Before step 11: always show predefined image
+      const imageUrl = findBestMatchingImage(selectedOptions);
+      console.log("Selected Options:", selectedOptions);
+      console.log("Found Image:", imageUrl);
+      if (imageUrl) {
+        setCurrentImage(address + imageUrl);
+      } else {
+        setCurrentImage(null);
+      }
+    }
+  }, [selectedOptions, customImage, generatedImage, compositeImage, currentStep]);
+
+  // Drawing logic for outline
+  useEffect(() => {
+    if (!isDrawingMode || !canvasRef.current || !imageRef.current) {
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Set canvas size to match image displayed size
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+
+    // Draw outline
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (outlinePoints.length > 0) {
+      ctx.strokeStyle = '#ff0000';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      
+      outlinePoints.forEach((point, index) => {
+        const x = point.x * canvas.width;
+        const y = point.y * canvas.height;
+        
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+
+      ctx.stroke();
+
+      // Fill if enough points
+      if (outlinePoints.length >= 10) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        ctx.fill();
+      }
+    }
+  }, [outlinePoints, isDrawingMode]);
+
+  const handleCanvasMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawingMode || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+
+    setIsDrawing(true);
+    setOutlinePoints([{ x, y }]);
+    
+    if (onOutlineChange) {
+      onOutlineChange([{ x, y }], false);
+    }
+  };
+
+  const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawingMode || !canvasRef.current || !isDrawing) return;
+
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+
+    const newPoints = [...outlinePoints, { x, y }];
+    setOutlinePoints(newPoints);
+    
+    if (onOutlineChange) {
+      onOutlineChange(newPoints, newPoints.length >= 10);
+    }
+  };
+
+  const handleCanvasMouseUp = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+    }
+  };
 
   return (
     <Box
@@ -62,61 +183,94 @@ const HousePreview: React.FC<HousePreviewProps> = ({
         aspectRatio: isMobile ? "4/3" : undefined,
       }}
     >
-      <Box
-        component="img"
-        src={defaultImage}
-        alt="default"
-        sx={{
-          width: "100%",
-          height: "100%",
-          margin: 0,
-          borderRadius: isMobile ? 2 : 3,
-          objectFit: "contain",
-          zIndex: 0,
-        }}
-      />
-
-      {(Object.keys(overlayImages) as LayerType[])
-        .filter((layer) => overlayImages[layer] !== null)
-        .map((layer) => (
+      {currentImage ? (
+        <>
+          {/* Przycisk X do usuwania custom/generated obrazu - tylko w kroku wyboru koloru */}
+          {(customImage || generatedImage) && onResetToDefault && currentStep === 10 && (
+            <IconButton
+              onClick={onResetToDefault}
+              sx={{
+                position: "absolute",
+                top: 8,
+                left: 8,
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                color: "#333",
+                zIndex: 100,
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 1)",
+                  color: "#d32f2f",
+                },
+                boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          )}
           <Box
-            key={layer}
+            ref={imageRef}
             component="img"
-            src={address + overlayImages[layer]!}
-            alt={layer}
+            src={currentImage || ""}
+            alt="house preview"
             sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
               width: "100%",
               height: "100%",
-              objectFit: "contain",
+              margin: 0,
+              borderRadius: isMobile ? 2 : 3,
+              objectFit: "cover",
               transition: "opacity 0.4s ease-in-out",
-              opacity: 1,
-              zIndex: LAYER_Z_INDEX[layer],
+              filter: isGeneratingImage ? "blur(8px)" : "none",
             }}
           />
-        ))}
-
-      {overlayImages.fifth && (
+          {isGeneratingImage && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  background: "linear-gradient(90deg, transparent 0%, rgba(33, 150, 243, 0.3) 50%, transparent 100%)",
+                  backgroundSize: "200% 100%",
+                  animation: "scan 2s linear infinite",
+                  pointerEvents: "none",
+                  "@keyframes scan": {
+                    "0%": { backgroundPosition: "200% 0" },
+                    "100%": { backgroundPosition: "-200% 0" }
+                  }
+                }}
+              />
+          )}
+          {isDrawingMode && currentStep === 10 && (
+            <canvas
+              ref={canvasRef}
+              onMouseDown={handleCanvasMouseDown}
+              onMouseMove={handleCanvasMouseMove}
+              onMouseUp={handleCanvasMouseUp}
+              onMouseLeave={handleCanvasMouseUp}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                cursor: 'crosshair',
+                pointerEvents: 'auto',
+                zIndex: 50,
+              }}
+            />
+          )}          
+        </>
+      ) : (
         <Box
+          component="img"
+          src={defaultImage}
+          alt="default"
           sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
             width: "100%",
             height: "100%",
-            zIndex: LAYER_Z_INDEX.fifth,
-            backgroundColor: colour,
-            WebkitMaskImage: `url(${address + overlayImages.fifth})`,
-            WebkitMaskRepeat: "no-repeat",
-            WebkitMaskSize: "contain",
-            WebkitMaskPosition: "center",
-            maskImage: `url(${address + overlayImages.fifth})`,
-            maskRepeat: "no-repeat",
-            maskSize: "contain",
-            maskPosition: "center",
-            transition: "opacity 0.4s ease-in-out",
+            margin: 0,
+            borderRadius: isMobile ? 2 : 3,
+            objectFit: "cover",
           }}
         />
       )}

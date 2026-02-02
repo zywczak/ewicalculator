@@ -25,41 +25,54 @@ interface FormProps {
   selectedOptions: number[];
   setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>;
   stepsData: StepsData;
+  customImage?: string | null;
+  isDrawingMode?: boolean;
+  onOutlineChange?: (points: any[], canComplete: boolean) => void;
+  canCompleteOutline?: boolean;
+  onCustomImageUpload?: (file: File) => void;
+  onAcceptOutline?: () => void;
+  onRemoveCustomImage?: () => void;
+  onColourSelection?: (colourValue: string, optionId: number) => void;
+  isGeneratingImage?: boolean;
+  generatedImage?: string | null;
 }
 
-const findStepByOptionId = (
-  steps: StepsData["steps"],
-  optionId: number
-) => steps.find(step => step.options?.some(o => o.id === optionId));
-
-const getSelectedColour = (
-  selectedOptions: number[],
-  steps: StepsData["steps"]
-): string => {
-  for (const optionId of selectedOptions) {
-    const step = findStepByOptionId(steps, optionId);
-    if (step?.input_type === "colour") {
-      return step.options?.find(o => o.id === optionId)?.json_value ?? "white";
-    }
-  }
-  return "white";
-};
-
-const renderPreview = (
-  isLastStep: boolean,
-  isMobile: boolean,
-  selectedOptions: number[],
-  stepsData: StepsData
-) => (
+const renderPreview = ({
+  isLastStep,
+  isMobile,
+  selectedOptions,
+  customImage,
+  isDrawingMode,
+  onOutlineChange,
+  generatedImage,
+  isGeneratingImage,
+  currentStep,
+  onRemoveCustomImage
+}: {
+  isLastStep: boolean;
+  isMobile: boolean;
+  selectedOptions: number[];
+  customImage?: string | null;
+  isDrawingMode?: boolean;
+  onOutlineChange?: (points: any[], canComplete: boolean) => void;
+  generatedImage?: string | null;
+  isGeneratingImage?: boolean;
+  currentStep?: number;
+  onRemoveCustomImage?: () => void;
+}) => (
   isLastStep
     ? <ResultsTable isMobile={isMobile} />
-    : (
-      <HousePreview
-        selectedOptions={selectedOptions}
-        colour={getSelectedColour(selectedOptions, stepsData.steps)}
+    : <HousePreview 
+        selectedOptions={selectedOptions} 
         isMobile={isMobile}
+        customImage={customImage}
+        isDrawingMode={isDrawingMode}
+        onOutlineChange={onOutlineChange}
+        generatedImage={generatedImage}
+        isGeneratingImage={isGeneratingImage}
+        currentStep={currentStep}
+        onResetToDefault={onRemoveCustomImage}
       />
-    )
 );
 
 const renderActions = (
@@ -119,6 +132,16 @@ const Form = ({
   selectedOptions,
   setSelectedOptions,
   stepsData,
+  customImage,
+  isDrawingMode,
+  onOutlineChange,
+  canCompleteOutline,
+  onCustomImageUpload,
+  onAcceptOutline,
+  onRemoveCustomImage,
+  onColourSelection,
+  isGeneratingImage,
+  generatedImage,
 }: FormProps) => {
 
   const isFirstStep = currentStep === 0;
@@ -139,6 +162,20 @@ const Form = ({
   const callHandler = (name: "handleNextClick" | "handlePrevClick") => {
     const handlers = (globalThis as any).__multiStepFormHandlers;
     handlers?.[name]?.();
+  };
+
+  const isColourStep = currentStep === 10; // Step 11 has index 10
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && onCustomImageUpload) {
+      onCustomImageUpload(file);
+    }
   };
 
   return (
@@ -166,7 +203,18 @@ const Form = ({
           zIndex: isMobile ? 2 : "auto",
         }}
       >
-        {renderPreview(isLastStep, isMobile, selectedOptions, stepsData)}
+        {renderPreview({
+          isLastStep, 
+          isMobile, 
+          selectedOptions,
+          customImage,
+          isDrawingMode,
+          onOutlineChange,
+          generatedImage,
+          isGeneratingImage,
+          currentStep,
+          onRemoveCustomImage
+        })}
       </Box>
 
       <Box
@@ -197,6 +245,8 @@ const Form = ({
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
           stepsData={stepsData}
+          isDrawingMode={isDrawingMode}
+          onColourSelection={onColourSelection}
         />
       </Box>
 
@@ -219,6 +269,72 @@ const Form = ({
           )}
         </Box>
       )}
+
+      {!isMobile && isColourStep && !customImage && (
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-10px",
+            right: "288px",
+            zIndex: 10,
+          }}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+
+          <ActionButton
+            variant="uploadHouse"
+            onClick={handleUploadClick}
+          />
+        </Box>
+      )}
+
+       {/* Drawing instruction text - positioned above preview */}
+      {!isMobile && isColourStep && isDrawingMode && isDrawingMode && customImage && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-24px",
+            right: "38px",
+            zIndex: 100,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            color: 'white',
+            textAlign: 'center',
+            width: '600px',
+            padding: '2px 24px',
+            borderRadius: '12px',
+            fontSize: '16px',
+            fontWeight: 500,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          }}
+        >
+          Mark your house
+        </Box>
+       )}
+
+      {/* Accept outline button - pokazuje się od razu po wstawieniu zdjęcia, disabled póki nie narysowano */}
+{!isMobile && isColourStep && customImage && isDrawingMode && (
+  <Box
+    sx={{
+      position: "absolute",
+      bottom: "-10px",
+      right: "288px",
+      zIndex: 10,
+    }}
+  >
+    <ActionButton
+      variant="accept"
+      onClick={onAcceptOutline ?? (() => {})}
+      disabled={!canCompleteOutline}
+      isMobile={false}
+    />
+  </Box>
+)}
     </Box>
   );
 };

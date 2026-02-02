@@ -12,6 +12,7 @@ export const STEP_6_THICKNESS: FormStep = {
     required: true,
     parent: null,
     validation_regex: null,
+    image: "/media/ruler.gif",
     substeps: [],
     options: [
     { id: OPTION_IDS.THICKNESS["20MM"], option_value: "20 mm", json_value: null, image: null, parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.KINGSPAN] },
