@@ -1,6 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
 import { STEP_11_COLOUR } from "../../data/steps/steps/step11-colour";
+import address from "../../api/adress";
 
 interface HelpBrickColoursProps {
   isMobile?: boolean;
@@ -41,7 +42,7 @@ const HelpBrickColours: React.FC<HelpBrickColoursProps> = ({ isMobile }) => {
           }}
         >
           <img
-            src={option.option_image ?? option.image ?? undefined}
+            src={address + (option.option_image ?? option.image ?? "")}
             alt={option.option_value}
             style={{
               width: "100%",

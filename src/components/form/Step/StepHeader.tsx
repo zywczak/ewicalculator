@@ -139,7 +139,7 @@ const StepHeader: React.FC<StepHeaderProps> = ({
         <Box sx={{ position: 'absolute', left: 0, bottom: 40, width: "212px", height: "200px", overflow: 'hidden', p: 0, m: 0, ml: "24px", display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '20px', zIndex: 2 }}>
           <Box sx={{ width: "100%", height: "100%", textAlign: 'center', p: 0, m: 0 }}>
             <img
-              src={image}
+              src={address + image}
               alt="Step image"
               style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
             />
