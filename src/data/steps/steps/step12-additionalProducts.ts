@@ -16,7 +16,7 @@ export const STEP_12_ADDITIONAL: FormStep = {
         id: 27,
         step_name: "Any levelling coat required (25kg bags)",
         description: null,
-        json_key: "levelling-coat\n",
+        json_key: "levelling-coat",
         input_type: "number",
         placeholder: "no. of bags",
         required: null,

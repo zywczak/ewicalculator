@@ -15,11 +15,11 @@ export const STEP_9_RENDER: FormStep = {
     substeps: [],
 
     options: [
-    { id: OPTION_IDS.RENDER_TYPE.NANO_DREX, option_value: "Nano Drex Silicone", json_value: "6", image: "/media/nanodrex.png" },
-    { id: OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, option_value: "Premium Bio Silicone", json_value: "5", image: "/media/premiumbio.png" },
-    { id: OPTION_IDS.RENDER_TYPE.SILICONE, option_value: "Silicone", json_value: "1", image: "/media/silicone.png" },
-    { id: OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, option_value: "Silicone Silicate", json_value: "2", image: "/media/siliconesilicate.png" },
-    { id: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, option_value: "Brick Slips", json_value: "7", image: "/media/brickslips.png" }
+    { id: OPTION_IDS.RENDER_TYPE.NANO_DREX, option_value: "Nano Drex Silicone", json_value: 6, image: "/media/nanodrex.png" },
+    { id: OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, option_value: "Premium Bio Silicone", json_value: 5, image: "/media/premiumbio.png" },
+    { id: OPTION_IDS.RENDER_TYPE.SILICONE, option_value: "Silicone", json_value: 1, image: "/media/silicone.png" },
+    { id: OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, option_value: "Silicone Silicate", json_value: 2, image: "/media/siliconesilicate.png" },
+    { id: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, option_value: "Brick Slips", json_value: 7, image: "/media/brickslips.png" }
     ],
     help: [
     {

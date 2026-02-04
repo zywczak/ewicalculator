@@ -10,7 +10,7 @@ export type DataType = 'text' | 'number' | 'boolean' | 'scale' | null;
 export interface FormStepOption {
   id: number;
   option_value: string;
-  json_value: string | null;
+  json_value: string | number |null;
   image: string | null;
   parent_option_id?: number[];
   option_image?: string | null;
