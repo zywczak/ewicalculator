@@ -144,6 +144,11 @@ const Calculator: React.FC = () => {
 
   const [isStepComplete, setIsStepComplete] = useState(false);
 
+  // Calculate parent steps early for use in useEffect
+  const parentSteps = stepsData.steps
+    .filter(step => !step.parent)
+    .sort((a, b) => a.id - b.id);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const handlers = (globalThis as any).__multiStepFormHandlers;
@@ -153,6 +158,8 @@ const Calculator: React.FC = () => {
     }, 100);
     return () => clearInterval(interval);
   }, []);
+
+  // Products are now hardcoded, no need to fetch
 
   useEffect(() => {
     if (targetStepToReach === null || targetStepToReach === currentStep) {
@@ -437,10 +444,6 @@ const Calculator: React.FC = () => {
     }
   };
 
-  const parentSteps = stepsData.steps
-    .filter(step => !step.parent)
-    .sort((a, b) => a.id - b.id);
-
   const isStepSkipped = (stepIndex: number, selectedOpts: number[]) => {
     const step = parentSteps[stepIndex];
     return parentSteps
@@ -458,6 +461,13 @@ const Calculator: React.FC = () => {
     triggerStepId?: number,
     selectedOptionId?: number
   ) => {
+    // If on last step and clicking "Send", submit the form instead of navigating
+    const lastStepIndex = parentSteps.length - 1;
+    if (currentStep === lastStepIndex) {
+      submitForm();
+      return;
+    }
+
     let effectiveSelected = selectedOptions;
     if (selectedOptionId !== undefined && triggerStepId !== undefined) {
       const stepOptions = stepsData.steps.find(s => s.id === triggerStepId)?.options?.map(o => o.id) || [];
@@ -574,6 +584,214 @@ const Calculator: React.FC = () => {
       handlers.handlePrevClick();
     }
   };
+
+
+
+  // Submit full form with customer details
+const submitForm = async () => {
+  try {
+
+    // ===========================
+    // MAPOWANIE KROKÓW
+    // ===========================
+
+    const mappedData: Record<string, any> = {};
+
+    stepsData.steps.forEach(step => {
+      if (step.id === 13) return; // customer details osobno
+      if (step.id === 8) return;  // beads&trims osobno - będzie spłaszczone
+      if (step.id === 12) return; // additional products osobno - będzie spłaszczone
+
+      const stepValue = values[step.id];
+
+      if (step.json_key) {
+        if (stepValue === undefined || stepValue === null || stepValue === '') {
+          mappedData[step.json_key] =
+            step.input_type === "number" ? 0 : null;
+        } else {
+          if (step.input_type === "radio") {
+            const selectedOption = step.options?.find(
+              (o: any) => o.option_value === stepValue
+            );
+            mappedData[step.json_key] = selectedOption?.json_value ?? null;
+          } else if (step.input_type === "number") {
+            mappedData[step.json_key] = Number(stepValue);
+          } else if (step.input_type === "colour") {
+            mappedData["colour_code"] = stepValue;
+          } else {
+            mappedData[step.json_key] = stepValue;
+          }
+        }
+      }
+    });
+
+    // ===========================
+    // BEADS & TRIMS - SPŁASZCZENIE
+    // ===========================
+    
+    const beadsStep = stepsData.steps.find(s => s.id === 8);
+    if (beadsStep?.substeps) {
+      beadsStep.substeps.forEach((substep: any) => {
+        
+        // Starter beads - zagnieżdżone
+        if (substep.id === 31 && substep.substeps) {
+          let starterType = null;
+          let starterCount = 0;
+          
+          substep.substeps.forEach((nested: any) => {
+            const nestedVal = values[nested.id];
+            
+            if (nested.id === 17) { // type
+              const opt = nested.options?.find((o: any) => o.option_value === nestedVal);
+              starterType = opt?.json_value ?? null;
+            }
+            else if (nested.id === 18 || nested.id === 32) { // count
+              starterCount = Number(nestedVal) || 0;
+            }
+          });
+          
+          mappedData["starter-tracks"] = starterCount;
+          mappedData["starter-tracks-type"] = starterType;
+        }
+        // Pozostałe beads
+        else {
+          const subVal = values[substep.id];
+          
+          if (substep.json_key === "cornerbeads") {
+            mappedData["corner-beads"] = Number(subVal) || 0;
+          }
+          else if (substep.json_key === "stopbeads") {
+            mappedData["stop-beads"] = Number(subVal) || 0;
+          }
+          else if (substep.json_key === "bellcastbeads") {
+            mappedData["bellcast-beads"] = Number(subVal) || 0;
+          }
+          else if (substep.json_key === "windowreveal") {
+            mappedData["window-reveal"] = Number(subVal) || 0;
+          }
+          else if (substep.json_key === "windowbeads") {
+            mappedData["window-beads"] = Number(subVal) || 0;
+          }
+        }
+      });
+    }
+
+    // ===========================
+    // ADDITIONAL PRODUCTS - SPŁASZCZENIE
+    // ===========================
+    
+    const additionalStep = stepsData.steps.find(s => s.id === 12);
+    if (additionalStep?.substeps) {
+      additionalStep.substeps.forEach((substep: any) => {
+        const subVal = values[substep.id];
+        
+        if (substep.json_key === "levelling-coat") {
+          mappedData["levelling-coat"] = Number(subVal) || 0;
+        }
+        else if (substep.json_key === "fungicidalwash") {
+          mappedData["fungicidal-wash"] = Number(subVal) || 0;
+        }
+        else if (substep.json_key === "bluefilm") {
+          mappedData["blue-film"] = Number(subVal) || 0;
+        }
+        else if (substep.json_key === "orangetape") {
+          mappedData["orange-tape"] = Number(subVal) || 0;
+        }
+      });
+    }
+
+    // ===========================
+    // CUSTOMER DETAILS
+    // ===========================
+
+    const customerDetailsStep = stepsData.steps.find(s => s.id === 13);
+    const customer_details: Record<string, any> = {};
+
+    if (customerDetailsStep?.substeps) {
+      customerDetailsStep.substeps.forEach((substep: any) => {
+        customer_details[substep.json_key] =
+          values[substep.id] || null;
+      });
+    }
+
+    // ===========================
+    // FINAL PAYLOAD (jak w legacy)
+    // ===========================
+
+    const payload = {
+      apiKEY: import.meta.env.VITE_API_KEY,
+      sessionNumber: Date.now(),
+      data: {
+        ...mappedData,
+        customer_details
+      }
+    };
+
+    console.log("Wysyłany payload:", payload);
+
+    // ===========================
+    // REQUEST
+    // ===========================
+
+    const response = await fetch(
+      "https://veen-e.ewipro.com:7443/ewi-calculator/log.php",
+      {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }
+    );
+
+    // HTTP ERROR
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    // JSON PARSE
+    let result;
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error("Invalid JSON from server");
+    }
+
+    console.log("Odpowiedź:", result);
+
+    // ===========================
+    // LOGIKA JAK W STARYM SKRYPCIE
+    // ===========================
+
+    if (result.email_validation === 1) {
+
+      alert("Formularz wysłany poprawnie ✅");
+
+      if (result.quote_id) {
+        const offerLink = `https://offer.ewistore.co.uk/${result.quote_id}/AE`;
+        console.log("Redirect:", offerLink);
+        window.location.href = offerLink;
+      }
+
+    } else {
+
+      alert("Błąd walidacji danych. Sprawdź formularz.");
+      console.warn("Validation error:", result);
+
+    }
+
+  } catch (error: any) {
+
+    console.error("Submit error:", error);
+
+    if (error.message.includes("HTTP")) {
+      alert("Błąd serwera. Spróbuj ponownie później.");
+    } else if (error.message.includes("JSON")) {
+      alert("Niepoprawna odpowiedź z serwera.");
+    } else {
+      alert("Brak połączenia z serwerem.");
+    }
+
+  }
+};
+
 
   const createCompositeImage = (baseImage: string, mask: string) => {
     const canvas = document.createElement('canvas');
@@ -755,7 +973,6 @@ const Calculator: React.FC = () => {
                 onColourSelection={handleColourSelection}
                 isGeneratingImage={isGeneratingImage}
                 generatedImage={generatedImage}
-                compositeImage={compositeImage}
               />
             </Box>
             {isMobileView ? (
