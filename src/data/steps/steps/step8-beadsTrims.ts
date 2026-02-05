@@ -57,7 +57,14 @@ export const STEP_8_BEADS: FormStep = {
             substeps: [],
             options: [],
             help: [],
-            conditions: []
+            conditions: [],
+            product: {
+                productCode: "CMS-800-20",
+                productName: "Premium Aluminium Starter Track",
+                image: "/media/metalstartertrack.png",
+                unitDetail: "2.5m/pc",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-aluminium-starter-track-2-5m/"
+            }
         },
         {
             id: 32,
@@ -72,12 +79,26 @@ export const STEP_8_BEADS: FormStep = {
             substeps: [],
             options: [],
             help: [],
-            conditions: []
+            conditions: [],
+            product: {
+                productCode: "VWS-4206",
+                productName: "Adjustable uPVC Starter Track",
+                image: "/media/plastic-start-bead.png",
+                unitDetail: "2.0m/pc",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/adjustable-upvc-starter-track-2m/"
+            }
         },
         ],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "VWS-4206",
+            productName: "Adjustable uPVC Starter Track",
+            image: "/media/plastic-start-bead.png",
+            unitDetail: "2.0m/pc",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/adjustable-upvc-starter-track-2m/"
+        }
     },
     {
         id: 19,
@@ -92,7 +113,14 @@ export const STEP_8_BEADS: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "LIK-115",
+            productName: "uPVC Render Corner Bead",
+            image: "/media/cornerbead.png",
+            unitDetail: "2.5m/pc",
+            link: "https://ewistore.co.uk/product-category/external-wall-insulation/beading-and-mesh/stop-beads/#454d/brand-categories/m=and&q=LIK-115"
+        }
     },
     {
         id: 20,
@@ -107,7 +135,14 @@ export const STEP_8_BEADS: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "LIK-121",
+            productName: "uPVC Stop Bead with Mesh",
+            image: "/media/stopbead.png",
+            unitDetail: "2.5m/pc",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/upvc-stop-bead-with-mesh-2-5m/"
+        }
     },
     {
         id: 21,
@@ -122,11 +157,18 @@ export const STEP_8_BEADS: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "LIK-566",
+            productName: "Bellcast Bead - 10mm",
+            image: "/media/bellcastbead.png",
+            unitDetail: "2.5m/pc",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/white-bellcast-bead-14mm-single-bead/"
+        }
     },
     {
         id: 22,
-        step_name: "Number of window reveal (2.5m)",
+        step_name: "Number of window reveal (2.6m)",
         description: null,
         json_key: "revealbeads",
         input_type: "number",
@@ -137,7 +179,14 @@ export const STEP_8_BEADS: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "LIK-160",
+            productName: "Window Reveal Bead with Protective Lip & Mesh",
+            image: "/media/windowreveal.png",
+            unitDetail: "2.6m/pc",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/white-window-reveal-bead-with-mesh/"
+        }
     }
     ],
     options: [],

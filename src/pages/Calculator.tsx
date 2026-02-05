@@ -15,6 +15,7 @@ import Help from "../components/help/Help";
 import { findBestMatchingImage, findFileToSend } from "../data/images/utils";
 import address from "../api/adress";
 import OPTION_IDS from '../data/constants/optionIds';
+import { calculateMaterials, CalculatedMaterials } from "../services/materialCalculator";
 
 // Simple cache for generated images
 const generatedImageCache = new Map<string, { imageUrl: string; timestamp: number }>();
@@ -28,7 +29,7 @@ const getCacheKey = (stepId: number, optionId: number, selectedOptions: number[]
   ) || 0;
   
   const surface = selectedOptions.find(opt => 
-    Object.values(OPTION_IDS.SURFACE).includes(opt)
+    Object.values(OPTION_IDS.SURFACE).includes(opt as any)
   ) || 0;
   
   return `${stepId}-${optionId}-${houseType}-${surface}`;
@@ -143,6 +144,7 @@ const Calculator: React.FC = () => {
   const [compositeImage, setCompositeImage] = useState<string | null>(null);
 
   const [isStepComplete, setIsStepComplete] = useState(false);
+  const [calculatedMaterials, setCalculatedMaterials] = useState<CalculatedMaterials | null>(null);
 
   // Calculate parent steps early for use in useEffect
   const parentSteps = stepsData.steps
@@ -158,6 +160,104 @@ const Calculator: React.FC = () => {
     }, 100);
     return () => clearInterval(interval);
   }, []);
+
+  // Calculate materials whenever values or selectedOptions change
+  useEffect(() => {
+    const surfaceArea = Number(values[3]) || 0; // Step 3 - Surface Area
+    const systemType = selectedOptions.find(opt => 
+      opt === OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER || 
+      opt === OPTION_IDS.SYSTEM_TYPE.RENDER_ONLY
+    );
+    const insulationType = selectedOptions.find(opt => 
+      opt === OPTION_IDS.INSULATION.EPS || 
+      opt === OPTION_IDS.INSULATION.WOOL || 
+      opt === OPTION_IDS.INSULATION.KINGSPAN
+    );
+    const thicknessOpt = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.THICKNESS).includes(opt as any)
+    );
+    const renderType = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.RENDER_TYPE).includes(opt as any)
+    );
+    const grainSize = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.GRAINSIZE).includes(opt as any)
+    );
+
+    // Get thickness value from option ID
+    let thickness: number | undefined;
+    if (thicknessOpt) {
+      const thicknessEntry = Object.entries(OPTION_IDS.THICKNESS).find(
+        ([, id]) => id === thicknessOpt
+      );
+      if (thicknessEntry) {
+        thickness = parseInt(thicknessEntry[0].replace('MM', ''));
+      }
+    }
+
+    if (surfaceArea > 0 && systemType) {
+      const calculated = calculateMaterials({
+        surfaceArea,
+        systemType,
+        insulationType,
+        thickness,
+        renderType,
+        grainSize,
+        selectedOptions,
+        values
+      });
+      setCalculatedMaterials(calculated);
+      console.log('Calculated materials:', calculated);
+    }
+  }, [values, selectedOptions]);
+
+  // Calculate materials whenever values or selectedOptions change
+  useEffect(() => {
+    const surfaceArea = Number(values[3]) || 0; // Step 3 - Surface Area
+    const systemType = selectedOptions.find(opt => 
+      opt === OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER || 
+      opt === OPTION_IDS.SYSTEM_TYPE.RENDER_ONLY
+    );
+    const insulationType = selectedOptions.find(opt => 
+      opt === OPTION_IDS.INSULATION.EPS || 
+      opt === OPTION_IDS.INSULATION.WOOL || 
+      opt === OPTION_IDS.INSULATION.KINGSPAN
+    );
+    const thicknessOpt = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.THICKNESS).includes(opt as any)
+    );
+    const renderType = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.RENDER_TYPE).includes(opt as any)
+    );
+    const grainSize = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.GRAINSIZE).includes(opt as any)
+    );
+
+    // Get thickness value from option ID
+    let thickness: number | undefined;
+    if (thicknessOpt) {
+      const thicknessEntry = Object.entries(OPTION_IDS.THICKNESS).find(
+        ([, id]) => id === thicknessOpt
+      );
+      if (thicknessEntry) {
+        thickness = parseInt(thicknessEntry[0].replace('MM', ''));
+      }
+    }
+
+    if (surfaceArea > 0 && systemType) {
+      const calculated = calculateMaterials({
+        surfaceArea,
+        systemType,
+        insulationType,
+        thickness,
+        renderType,
+        grainSize,
+        selectedOptions,
+        values
+      });
+      setCalculatedMaterials(calculated);
+      console.log('Calculated materials:', calculated);
+    }
+  }, [values, selectedOptions]);
 
   // Products are now hardcoded, no need to fetch
 
@@ -320,6 +420,13 @@ const Calculator: React.FC = () => {
 
   const handleColourSelection = async (colourValue: string, optionId: number) => {
     console.log("Colour selected:", colourValue, "Option ID:", optionId);
+
+    // Add colour option to selectedOptions for brick slips
+    setSelectedOptions(prev => {
+      const step11Options = stepsData.steps.find(s => s.id === 11)?.options?.map(o => o.id) || [];
+      const filtered = prev.filter(opt => !step11Options.includes(opt));
+      return [...filtered, optionId];
+    });
 
     const cacheKey = getCacheKey(11, optionId, selectedOptions);
     const cached = generatedImageCache.get(cacheKey);
@@ -521,14 +628,53 @@ const Calculator: React.FC = () => {
       prevStep--;
     }
 
-    const allowedStepIds = new Set<number>(
-      parentSteps
-        .slice(0, Math.max(prevStep + 1, 0))
-        .flatMap(step => step.options?.map(o => o.id) ?? [])
-    );
+    // Collect all allowed option IDs from parent steps AND their substeps
+    const allowedStepIds = new Set<number>();
+    const allowedSteps = parentSteps.slice(0, Math.max(prevStep + 1, 0));
+    
+    const collectOptionIds = (step: any) => {
+      // Add options from current step
+      step.options?.forEach((o: any) => allowedStepIds.add(o.id));
+      
+      // Recursively add options from substeps
+      step.substeps?.forEach((substep: any) => {
+        collectOptionIds(substep);
+      });
+    };
+    
+    allowedSteps.forEach(step => {
+      collectOptionIds(step);
+    });
+    
     setSelectedOptions(prev => prev.filter(optId => allowedStepIds.has(optId)));
 
     const newPrevStep = Math.max(prevStep, 0);
+
+    // Clear values only for steps after the new current step
+    const allowedValueStepIds = new Set<number>();
+    const stepsToKeep = parentSteps.slice(0, newPrevStep + 1);
+    
+    const collectStepIds = (step: any) => {
+      allowedValueStepIds.add(step.id);
+      step.substeps?.forEach((substep: any) => {
+        collectStepIds(substep);
+      });
+    };
+    
+    stepsToKeep.forEach(step => {
+      collectStepIds(step);
+    });
+    
+    setValues(prev => {
+      const newValues: Record<number, string | number> = {};
+      Object.entries(prev).forEach(([key, value]) => {
+        const stepId = parseInt(key);
+        if (allowedValueStepIds.has(stepId)) {
+          newValues[stepId] = value;
+        }
+      });
+      return newValues;
+    });
 
     setCompletedSteps(prev => {
       const newSet = new Set(prev);
@@ -715,6 +861,19 @@ const submitForm = async () => {
     }
 
     // ===========================
+    // CALCULATED MATERIALS (from calculator service)
+    // ===========================
+    const materials = calculatedMaterials ? {
+      insulation_material_units: calculatedMaterials.insulation_material_units,
+      adhesive_units: calculatedMaterials.adhesive_units,
+      mesh_units: calculatedMaterials.mesh_units,
+      fixings_units: calculatedMaterials.fixings_units,
+      primer_units: calculatedMaterials.primer_units,
+      render_units: calculatedMaterials.render_units,
+      ...(calculatedMaterials.paint_units && { paint_units: calculatedMaterials.paint_units })
+    } : {};
+
+    // ===========================
     // FINAL PAYLOAD (jak w legacy)
     // ===========================
 
@@ -723,7 +882,8 @@ const submitForm = async () => {
       sessionNumber: Date.now(),
       data: {
         ...mappedData,
-        customer_details
+        customer_details,
+        materials
       }
     };
 
@@ -973,6 +1133,7 @@ const submitForm = async () => {
                 onColourSelection={handleColourSelection}
                 isGeneratingImage={isGeneratingImage}
                 generatedImage={generatedImage}
+                calculatedMaterials={calculatedMaterials}
               />
             </Box>
             {isMobileView ? (

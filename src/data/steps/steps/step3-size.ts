@@ -12,7 +12,6 @@ export const STEP_3_SIZE: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [],
-    image: "/media/tape_measure.gif",
     help: [
     {
         help_title: "Surface Area",
@@ -23,5 +22,5 @@ export const STEP_3_SIZE: FormStep = {
         ]
     }
     ],
-    conditions: []
+    conditions: [],
 };

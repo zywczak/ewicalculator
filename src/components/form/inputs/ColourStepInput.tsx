@@ -13,7 +13,7 @@ const BRICK_SLIPS_OPTION_ID = OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
 const BRICK_SLIPS_COLORS = STEP_11_COLOUR.options.map(opt => ({
   id: opt.id,
   colour_code: opt.option_value,
-  json_value: opt.json_value,
+  json_value: opt.json_value === null ? "" : opt.json_value,
   photo_uri: opt.image ?? "",
 }));
 
@@ -112,7 +112,7 @@ const ColourStepInput: React.FC<StepInputProps> = ({
           return (
             <Box 
               key={color.id} 
-              onClick={() => handleSelect(color.id, color.colour_code, color.json_value)}
+              onClick={() => handleSelect(color.id, color.colour_code, typeof color.json_value === "undefined" ? undefined : String(color.json_value))}
               sx={{ 
                 height: isMobile ? "auto" : "45px", 
                 width: isMobile ? "auto" : "73px", 
