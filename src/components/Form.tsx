@@ -5,6 +5,7 @@ import ResultsTable from "./ResultsTable";
 import ActionButton from "./form/buttons/actionButton";
 import { FormStep, StepsData } from "../data/steps/types";
 import Step from "./form/Step/Step";
+import { CalculatedMaterials } from "../services/materialCalculator";
 
 interface FormProps {
   currentStep: number;
@@ -35,6 +36,7 @@ interface FormProps {
   onColourSelection?: (colourValue: string, optionId: number) => void;
   isGeneratingImage?: boolean;
   generatedImage?: string | null;
+  calculatedMaterials?: CalculatedMaterials | null;
 }
 
 const renderPreview = ({
@@ -47,7 +49,9 @@ const renderPreview = ({
   generatedImage,
   isGeneratingImage,
   currentStep,
-  onRemoveCustomImage
+  onRemoveCustomImage,
+  calculatedMaterials,
+  stepsData
 }: {
   isLastStep: boolean;
   isMobile: boolean;
@@ -59,9 +63,16 @@ const renderPreview = ({
   isGeneratingImage?: boolean;
   currentStep?: number;
   onRemoveCustomImage?: () => void;
+  calculatedMaterials?: CalculatedMaterials | null;
+  stepsData: StepsData;
 }) => (
   isLastStep
-    ? <ResultsTable isMobile={isMobile} />
+    ? <ResultsTable 
+        isMobile={isMobile} 
+        calculatedMaterials={calculatedMaterials ?? null}
+        selectedOptions={selectedOptions}
+        stepsData={stepsData}
+      />
     : <HousePreview 
         selectedOptions={selectedOptions} 
         isMobile={isMobile}
@@ -142,6 +153,7 @@ const Form = ({
   onColourSelection,
   isGeneratingImage,
   generatedImage,
+  calculatedMaterials,
 }: FormProps) => {
 
   const isFirstStep = currentStep === 0;
@@ -213,7 +225,9 @@ const Form = ({
           generatedImage,
           isGeneratingImage,
           currentStep,
-          onRemoveCustomImage
+          onRemoveCustomImage,
+          calculatedMaterials,
+          stepsData
         })}
       </Box>
 

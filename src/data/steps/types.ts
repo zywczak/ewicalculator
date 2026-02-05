@@ -14,6 +14,10 @@ export interface FormStepOption {
   image: string | null;
   parent_option_id?: number[];
   option_image?: string | null;
+  products?: {
+    [key: string]: ProductInfo | null; // key is material type like "eps", "wool", "kingspan", or "default"
+  };
+  product?: ProductInfo | null;
 }
 
 export interface HelpImage {
@@ -44,8 +48,16 @@ export interface StepCondition {
   show_steps?: number[];
 }
 
+export interface ProductInfo {
+  productCode: string;
+  productName: string;
+  image: string;
+  unitDetail: string;
+  link?: string;
+}
+
 export interface FormStep {
-  id: number; //is also used as step order
+  id: number;
   step_name: string | null;
   description: string | ReactNode | null;
   json_key: string;
@@ -58,9 +70,11 @@ export interface FormStep {
   options: FormStepOption[];
   help: HelpSection[];
   conditions: StepCondition[];
-  image?: string | null; // Obrazek reprezentujący krok
-  generateImageWithAI?: boolean; // Czy ten krok powinien generować zdjęcia przez AI
-  aiImagePrompt?: string; // Szablon promptu dla AI
+  image?: string | null;
+  products?: {
+    [key: string]: ProductInfo;
+  };
+  product?: ProductInfo | null;
 }
 
 export interface StepsData {

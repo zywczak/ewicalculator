@@ -9,7 +9,6 @@ export const STEP_12_ADDITIONAL: FormStep = {
     placeholder: null,
     required: null,
     parent: null,
-    image: "/media/add.gif",
     validation_regex: null,
     substeps: [
     {
@@ -25,7 +24,14 @@ export const STEP_12_ADDITIONAL: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "EWI-260",
+            productName: "Levelling Mortar",
+            image: "/media/levelling_coat.png",
+            unitDetail: "25kg/bag",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/levelling-mortar-for-walls-ewi-260-25kg/"
+        }
     },
     {
         id: 28,
@@ -40,7 +46,14 @@ export const STEP_12_ADDITIONAL: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "EVB-FUN5",
+            productName: "Everbuild - 404 Fungicidal Wash",
+            image: "/media/fungicidal.png",
+            unitDetail: "5l/pcs",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/everbuild-404-fungicidal-wash/"
+        }
     },
     {
         id: 29,
@@ -55,11 +68,18 @@ export const STEP_12_ADDITIONAL: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "STP-PFW-11",
+            productName: "ProGuard Window Protection Film",
+            image: "/media/protection-film.png",
+            unitDetail: "100m/roll",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/proguard-window-protection-film/"
+        }
     },
     {
         id: 30,
-        step_name: "Any orange tape required (100m rolls)",
+        step_name: "Any orange tape required (50m rolls)",
         description: null,
         json_key: "orangetape",
         input_type: "number",
@@ -70,7 +90,14 @@ export const STEP_12_ADDITIONAL: FormStep = {
         substeps: [],
         options: [],
         help: [],
-        conditions: []
+        conditions: [],
+        product: {
+            productCode: "EWS-TAPE-ORA",
+            productName: "Orange Rendering Tape - 48mm x 50m",
+            image: "/media/orange-tape.png",
+            unitDetail: "50m/roll",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/ewi-store-rendering-tape-orange-48mm-x-50m/"
+        }
     }
     ],
     options: [],

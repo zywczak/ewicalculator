@@ -26,5 +26,21 @@ export const STEP_7_FIXINGS: FormStep = {
         ]
     }
     ],
-    conditions: []
+    conditions: [],
+    products: {
+        "plastic": {
+            productCode: "EWI-720",
+            productName: "Plastic Mechanical Fixings (200/box)",
+            image: "/media/fixings-plastic.jpg",
+            unitDetail: "200/box",
+            link: "https://ewistore.co.uk/shop/ewi-720-plastic-mechanical-fixings-200-units-115mm/"
+        },
+        "metal": {
+            productCode: "EWI-730",
+            productName: "Metal Mechanical Fixings (200/box)",
+            image: "/media/fixings-metal.jpg",
+            unitDetail: "200/box",
+            link: "https://ewistore.co.uk/shop/ewi-730-metal-mechanical-fixings-200-units-115mm/"
+        }
+    }
 };
