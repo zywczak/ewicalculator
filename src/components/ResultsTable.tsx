@@ -4,6 +4,7 @@ import { styled } from "@mui/material/styles";
 import { CalculatedMaterials } from "../services/materialCalculator";
 import { getProductForStep, getBrickSlipsAdhesive } from "../services/productResolver";
 import { StepsData } from "../data/steps/types";
+import adress from "../api/adress"
 
 interface Product {
   id: string;
@@ -449,7 +450,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
               >
                 <DataCell sx={{ textAlign: "center", p: 0, pl: "20px" }}>
                   <img
-                    src={item.image}
+                    src={adress + item.image}
                     alt={item.id}
                     style={{
                       width: isMobile ? 40 : 60,
