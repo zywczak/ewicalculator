@@ -118,7 +118,7 @@ const Calculator: React.FC = () => {
       try {
         // Extract apiKEY from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const apiKEY = 51e904be14b69f404b782149c16681c3;
+        const apiKEY = "51e904be14b69f404b782149c16681c3";
 
         if (!apiKEY) {
           setAuthError("You're not authorized to use the EWI Materials Calculator.");
@@ -877,7 +877,7 @@ const Calculator: React.FC = () => {
     try {
       // Get apiKEY from URL or fallback to env
       const urlParams = new URLSearchParams(globalThis.location.search);
-      const apiKEY = 51e904be14b69f404b782149c16681c3;
+      const apiKEY = "51e904be14b69f404b782149c16681c3";
       
       const measurement = values[3] ? Number(values[3]) : 0;
       const url = "https://veen-e.ewipro.com:7443/ewi-calculator/log.php";
@@ -1183,7 +1183,7 @@ const submitForm = async () => {
     // ===========================
 
     const urlParams = new URLSearchParams(globalThis.location.search);
-    const apiKEY = 51e904be14b69f404b782149c16681c3;
+    const apiKEY = "51e904be14b69f404b782149c16681c3";
 
     const payload = {
       apiKEY: apiKEY,
