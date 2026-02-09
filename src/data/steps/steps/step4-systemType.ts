@@ -6,7 +6,7 @@ export const STEP_4_SYSTEM_TYPE: FormStep = {
     id: 4,
     step_name: "Insulation or Render Only?",
     description: "",
-    json_key: "type",
+    json_key: "material",
     input_type: "radio",
     placeholder: null,
     required: true,
@@ -14,8 +14,29 @@ export const STEP_4_SYSTEM_TYPE: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, option_value: "Insulation & Render", json_value: "insulation&render", image: null },
-    { id: OPTION_IDS.SYSTEM_TYPE.RENDER_ONLY, option_value: "Render only", json_value: "render", image: null }
+    { id: OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER, option_value: "Insulation & Render", json_value: 1, image: null },
+    { 
+        id: OPTION_IDS.SYSTEM_TYPE.RENDER_ONLY,
+        option_value: "Render only",
+        json_value: 2,
+        image: null,
+        products: {
+        "adhesive": {
+            productCode: "EWI-225",
+            productName: "Premium Basecoat 25kg",
+            image: "/media/adhesive.png",
+            unitDetail: "25kg/bag",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
+        },
+        "mesh": {
+            productCode: "PXM-165702",
+            productName: "Fibreglass Mesh (165g/m²)",
+            image: "/media/fibreglass-mesh.png",
+            unitDetail: "50 sqm/roll",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/fibreglass-mesh-150g-m2-50m2/"
+        }
+    }
+    }
     ],
     help: [
     {

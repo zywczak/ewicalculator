@@ -17,7 +17,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["20MM"], 
         option_value: "20 mm", 
-        json_value: null, 
+        json_value: 20, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.KINGSPAN],
         products: {
@@ -41,7 +41,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["50MM"], 
         option_value: "50 mm", 
-        json_value: null, 
+        json_value: 50, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.KINGSPAN],
         products: {
@@ -71,7 +71,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["60MM"], 
         option_value: "60 mm", 
-        json_value: null, 
+        json_value: 60, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.KINGSPAN],
         products: {
@@ -89,7 +89,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["70MM"], 
         option_value: "70 mm", 
-        json_value: null, 
+        json_value: 70, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.KINGSPAN],
         products: {
@@ -113,7 +113,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["90MM"], 
         option_value: "90 mm", 
-        json_value: null, 
+        json_value: 90, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.EPS],
         products: {
@@ -131,7 +131,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["100MM"], 
         option_value: "100 mm", 
-        json_value: null, 
+        json_value: 100, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.EPS],
         products: {
@@ -155,7 +155,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["110MM"], 
         option_value: "110 mm", 
-        json_value: null, 
+        json_value: 110, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.WOOL],
         products: {
@@ -173,7 +173,7 @@ export const STEP_6_THICKNESS: FormStep = {
     { 
         id: OPTION_IDS.THICKNESS["150MM"], 
         option_value: "150 mm", 
-        json_value: null, 
+        json_value: 150, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.EPS],
         products: {

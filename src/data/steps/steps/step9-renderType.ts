@@ -28,12 +28,19 @@ export const STEP_9_RENDER: FormStep = {
                 unitDetail: "25kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-render-nano-drex-ewi-077-25kg/"
             },
-            "primer": {
+            "primer-20": {
                 productCode: "EWI-333-20",
-                productName: "Top Coat Primer",
+                productName: "Top Coat Primer - 20kg",
                 image: "/media/primer20.png",
                 unitDetail: "20kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
+            },
+            "primer-7": {
+                productCode: "EWI-333-7",
+                productName: "Top Coat Primer - 7kg",
+                image: "/media/primer7.png",
+                unitDetail: "7kg/bucket",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
             }
         }
     },
@@ -50,12 +57,19 @@ export const STEP_9_RENDER: FormStep = {
                 unitDetail: "25kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-render-premium-bio-ewi-076-25kg/"
             },
-            "primer": {
+            "primer-20": {
                 productCode: "EWI-333-20",
-                productName: "Top Coat Primer",
+                productName: "Top Coat Primer - 20kg",
                 image: "/media/primer20.png",
                 unitDetail: "20kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
+            },
+            "primer-7": {
+                productCode: "EWI-333-7",
+                productName: "Top Coat Primer - 7kg",
+                image: "/media/primer7.png",
+                unitDetail: "7kg/bucket",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
             }
         }
     },
@@ -72,12 +86,19 @@ export const STEP_9_RENDER: FormStep = {
                 unitDetail: "25kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-render-ewi-075-25kg-2-0mm/"
             },
-            "primer": {
+            "primer-20": {
                 productCode: "EWI-333-20",
-                productName: "Top Coat Primer",
+                productName: "Top Coat Primer - 20kg",
                 image: "/media/primer20.png",
                 unitDetail: "20kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
+            },
+            "primer-7": {
+                productCode: "EWI-333-7",
+                productName: "Top Coat Primer - 7kg",
+                image: "/media/primer7.png",
+                unitDetail: "7kg/bucket",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
             }
         }
     },
@@ -94,12 +115,19 @@ export const STEP_9_RENDER: FormStep = {
                 unitDetail: "25kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-silicate-render-ewi-040-25kg/"
             },
-            "primer": {
+            "primer-20": {
                 productCode: "EWI-333-20",
-                productName: "Top Coat Primer",
+                productName: "Top Coat Primer - 20kg",
                 image: "/media/primer20.png",
                 unitDetail: "20kg/bucket",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
+            },
+            "primer-7": {
+                productCode: "EWI-333-7",
+                productName: "Top Coat Primer - 7kg",
+                image: "/media/primer7.png",
+                unitDetail: "7kg/bucket",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
             }
         }
     },

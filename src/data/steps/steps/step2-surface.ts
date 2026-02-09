@@ -13,14 +13,14 @@ export const STEP_2_SURFACE: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.SURFACE.STONE, option_value: "Stone", json_value: "8", image: null },
-    { id: OPTION_IDS.SURFACE.ICF, option_value: "ICF", json_value: "6", image: null },
-    { id: OPTION_IDS.SURFACE.PEBBLEDASH, option_value: "Pebbledash", json_value: "4", image: null },
-    { id: OPTION_IDS.SURFACE.BLOCK, option_value: "Blockwork", json_value: "3", image: null },
-    { id: OPTION_IDS.SURFACE.BRICK, option_value: "Brick", json_value: "1", image: null },
-    { id: OPTION_IDS.SURFACE.PAINTED_BRICK, option_value: "Painted brick", json_value: "2", image: null },
-    { id: OPTION_IDS.SURFACE.SAND_CEMENT, option_value: "Sand & cement render", json_value: "5", image: null },
-    { id: OPTION_IDS.SURFACE.RENDER_CARRIER, option_value: "Render carrier board", json_value: "7", image: null },
+    { id: OPTION_IDS.SURFACE.STONE, option_value: "Stone", json_value: 8, image: null },
+    { id: OPTION_IDS.SURFACE.ICF, option_value: "ICF", json_value: 6, image: null },
+    { id: OPTION_IDS.SURFACE.PEBBLEDASH, option_value: "Pebbledash", json_value: 4, image: null },
+    { id: OPTION_IDS.SURFACE.BLOCK, option_value: "Blockwork", json_value: 3, image: null },
+    { id: OPTION_IDS.SURFACE.BRICK, option_value: "Brick", json_value: 1, image: null },
+    { id: OPTION_IDS.SURFACE.PAINTED_BRICK, option_value: "Painted brick", json_value: 2, image: null },
+    { id: OPTION_IDS.SURFACE.SAND_CEMENT, option_value: "Sand & cement render", json_value: 5, image: null },
+    { id: OPTION_IDS.SURFACE.RENDER_CARRIER, option_value: "Render carrier board", json_value: 7, image: null },
     ],
     help: [
     {
