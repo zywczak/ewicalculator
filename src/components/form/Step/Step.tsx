@@ -55,7 +55,9 @@ const clearNestedValuesRecursive = (
 
 const updateJsonValuesForStep = (
   step: FormStep,
-  valueMap: Record<number, string | number>
+  valueMap: Record<number, string | number>,
+  selectedOptions: number[],
+  allSteps: FormStep[]
 ): Record<string, any> => {
   let result: Record<string, any> = {};
   const stepValue = valueMap[step.id];
@@ -76,7 +78,7 @@ const updateJsonValuesForStep = (
   }
 
   if (step.substeps?.length) {
-    const nested = processSubstepsJson(step.substeps, valueMap);
+    const nested = processSubstepsJson(step.substeps, valueMap, selectedOptions, allSteps);
     
     if (step.json_key) {
       result[step.json_key] = { ...(result[step.json_key]), ...nested };
@@ -90,12 +92,26 @@ const updateJsonValuesForStep = (
 
 const processSubstepsJson = (
   substeps: FormStep[],
-  valueMap: Record<number, string | number>
+  valueMap: Record<number, string | number>,
+  selectedOptions: number[],
+  allSteps: FormStep[]
 ): Record<string, any> => {
   const nested: Record<string, any> = {};
   
   for (const sub of substeps) {
-    const subJson = updateJsonValuesForStep(sub, valueMap);
+    // Check if this substep should be skipped
+    const isSkipped = allSteps.some(step =>
+      step.conditions?.some(cond =>
+        cond.skip_steps.includes(sub.id) &&
+        selectedOptions.includes(cond.trigger_option)
+      )
+    );
+    
+    if (isSkipped) {
+      continue; // Skip this substep
+    }
+    
+    const subJson = updateJsonValuesForStep(sub, valueMap, selectedOptions, allSteps);
     if (sub.json_key && subJson[sub.json_key] !== undefined) {
       nested[sub.json_key] = subJson[sub.json_key];
     } else {
@@ -301,7 +317,8 @@ const Step: React.FC<StepFormProps> = ({
       const newValues = { ...prev, [stepId]: value };
       setJsonValues(prevJson => {
         const updatedJson = { ...prevJson };
-        const stepJson = updateJsonValuesForStep(parentStep, newValues);
+        const allStepsRecursive = getAllStepsRecursive(stepsData.steps);
+        const stepJson = updateJsonValuesForStep(parentStep, newValues, selectedOptions, allStepsRecursive);
         return { ...updatedJson, ...stepJson };
       });
       return newValues;
@@ -359,7 +376,8 @@ const Step: React.FC<StepFormProps> = ({
       });
     }
 
-    const stepJson = updateJsonValuesForStep(parentStep, values);
+    const allStepsRecursive = getAllStepsRecursive(stepsData.steps);
+    const stepJson = updateJsonValuesForStep(parentStep, values, selectedOptions, allStepsRecursive);
     const finalJson = { ...jsonValues, ...stepJson };
 
     console.log("JSON wysyłany do onNext:", finalJson);

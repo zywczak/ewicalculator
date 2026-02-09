@@ -98,6 +98,12 @@ const compressImage = async (blob: Blob, maxWidth: number = 1920, quality: numbe
 };
 
 const Calculator: React.FC = () => {
+  // Authorization states
+  const [isAuthorizing, setIsAuthorizing] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [sessionNumber, setSessionNumber] = useState<number>(0);
+
   const [stepsData] = useState<StepsData>(STEPS_DATA);
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set([]));
@@ -106,8 +112,73 @@ const Calculator: React.FC = () => {
   const [isSmallerTitle, setIsSmallerTitle] = useState(window.innerWidth <= 900);
   const [targetStepToReach, setTargetStepToReach] = useState<number | null>(null);
 
+  // Authorization check - MUST run first before loading calculator
+  useEffect(() => {
+    const checkAuthorization = async () => {
+      try {
+        // Extract apiKEY from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiKEY = urlParams.get('apiKEY') || import.meta.env.VITE_API_KEY;
+
+        if (!apiKEY) {
+          setAuthError("You're not authorized to use the EWI Materials Calculator.");
+          setIsAuthorizing(false);
+          return;
+        }
+
+        console.log('🔐 Checking authorization with apiKEY:', apiKEY);
+
+        // Send GET request to auth.php
+        const response = await fetch(
+          `https://veen-e.ewipro.com:7443/ewi-calculator/auth.php?apiKEY=${apiKEY}`,
+          {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json'
+            }
+          }
+        );
+
+        if (!response.ok) {
+          setAuthError(`Connection problem. Please try again later... - E:${response.status}`);
+          setIsAuthorizing(false);
+          return;
+        }
+
+        const data = await response.json();
+        console.log('🔐 Authorization response:', data);
+
+        if (data.authorized === 1) {
+          // ✅ Authorization successful
+          setIsAuthorized(true);
+                   
+          // Set session number if provided
+          if (data.sessionnumber) {
+            setSessionNumber(data.sessionnumber);
+            console.log('📋 Session number:', data.sessionnumber);
+          }
+          
+          console.log('✅ Authorization successful - loading calculator');
+        } else {
+          // ❌ Not authorized
+          setAuthError("You're not authorized to use the EWI Materials Calculator.");
+        }
+      } catch (error) {
+        console.error('❌ Authorization error:', error);
+        setAuthError('Connection problem. Please try again later... - E:404');
+      } finally {
+        setIsAuthorizing(false);
+      }
+    };
+
+    checkAuthorization();
+  }, []);
+
   // Fetch color data and trigger preloading IMMEDIATELY on mount
   useEffect(() => {
+    // Only initialize if authorized
+    if (!isAuthorized) return;
+    
     // Start fetching and preloading colors as soon as component mounts
     import('../data/colorCache').then(({ initializeColorPreloading }) => {
       initializeColorPreloading();
@@ -115,7 +186,7 @@ const Calculator: React.FC = () => {
     }).catch(err => {
       console.error('Failed to initialize color preloading:', err);
     });
-  }, []); // Empty dependency array - runs once on mount
+  }, [isAuthorized]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -145,6 +216,12 @@ const Calculator: React.FC = () => {
 
   const [isStepComplete, setIsStepComplete] = useState(false);
   const [calculatedMaterials, setCalculatedMaterials] = useState<CalculatedMaterials | null>(null);
+  
+  // LogID state - śledzenie sesji użytkownika (jak w starym kalkulatorze)
+  const [logID, setLogID] = useState<number>(0);
+  
+  // Accumulated JSON data from all steps (built via onNext)
+  const [accumulatedJsonData, setAccumulatedJsonData] = useState<Record<string, any>>({});
 
   // Calculate parent steps early for use in useEffect
   const parentSteps = stepsData.steps
@@ -292,31 +369,225 @@ const Calculator: React.FC = () => {
     setSelectedOptions(prev => {
       const stepOptions = stepsData.steps.find(s => s.id === stepId)?.options?.map(o => o.id) || [];
       const filtered = prev.filter(opt => !stepOptions.includes(opt));
-      return [...filtered, optionId];
+      const newSelected = [...filtered, optionId];
+      
+      // Clear values from steps that will become skipped due to this option change
+      const stepsToSkip: number[] = [];
+      stepsData.steps.forEach(s => {
+        s.conditions?.forEach(cond => {
+          if (cond.trigger_option === optionId) {
+            stepsToSkip.push(...cond.skip_steps);
+          }
+        });
+      });
+      
+      if (stepsToSkip.length > 0) {
+        setValues(prevValues => {
+          const newValues = { ...prevValues };
+          
+          // Clear values for skipped parent steps and their substeps
+          stepsToSkip.forEach(skipStepId => {
+            const skipStep = stepsData.steps.find(s => s.id === skipStepId);
+            if (skipStep) {
+              delete newValues[skipStepId];
+              
+              // Clear all substeps recursively
+              const clearSubsteps = (step: any) => {
+                if (step.substeps) {
+                  step.substeps.forEach((sub: any) => {
+                    delete newValues[sub.id];
+                    clearSubsteps(sub);
+                  });
+                }
+              };
+              clearSubsteps(skipStep);
+            }
+          });
+          
+          return newValues;
+        });
+        
+        // Also clear accumulated JSON data for skipped steps
+        setAccumulatedJsonData(prev => {
+          const newData = { ...prev };
+          
+          stepsToSkip.forEach(skipStepId => {
+            const skipStep = stepsData.steps.find(s => s.id === skipStepId);
+            if (skipStep?.json_key) {
+              delete newData[skipStep.json_key];
+            }
+          });
+          
+          return newData;
+        });
+      }
+      
+      return newSelected;
     });
 
-    // Clear cache and generated image when house type changes (step 1)
-    if (stepId === 1) {
+    // Clear cache and generated image when house type changes (step 1) or surface changes (step 2)
+    if (stepId === 1 || stepId === 2) {
       generatedImageCache.clear();
       setGeneratedImage(null);
-      console.log("House type changed - cleared AI generated images cache");
+      setCompositeImage(null);
+      // Also clear colour selection
+      setValues(prev => {
+        const newValues = { ...prev };
+        delete newValues[11]; // Step 11 is colour
+        return newValues;
+      });
+      // Clear colour option selection
+      setSelectedOptions(prev => {
+        const colourOptions = stepsData.steps.find(s => s.id === 11)?.options?.map(o => o.id) || [];
+        return prev.filter(opt => !colourOptions.includes(opt));
+      });
+      // Clear colour from accumulated JSON
+      setAccumulatedJsonData(prev => {
+        const newData = { ...prev };
+        const colourStep = stepsData.steps.find(s => s.id === 11);
+        if (colourStep?.json_key) {
+          delete newData[colourStep.json_key];
+        }
+        // Also clear colour_code if present
+        delete newData["colour_code"];
+        return newData;
+      });
+      console.log("House type or surface changed - cleared AI generated images cache and colour selection");
     }
 
-    // Clear cache and generated image when surface material changes (step 2)
-    if (stepId === 2) {
-      generatedImageCache.clear();
-      setGeneratedImage(null);
-      console.log("Surface material changed - cleared AI generated images cache");
-    }
-
-    // Resetuj kolor Brick Slips jeśli zmieniono typ tynku na inny niż Brick Slips
-    if (stepId === 9) { // 9 = render type
-      if (optionId !== OPTION_IDS.RENDER_TYPE.BRICK_SLIPS) {
+    // When render type changes (step 9), check if switching between render types and brick slips
+    if (stepId === 9) {
+      const renderTypeOptions = [
+        OPTION_IDS.RENDER_TYPE.NANO_DREX,
+        OPTION_IDS.RENDER_TYPE.PREMIUM_BIO,
+        OPTION_IDS.RENDER_TYPE.SILICONE,
+        OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE
+      ];
+      const brickSlipsOption = OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
+      
+      // Find currently selected render type
+      const currentRenderType = selectedOptions.find(opt => 
+        renderTypeOptions.includes(opt) || opt === brickSlipsOption
+      );
+      
+      // Check if switching between render types group and brick slips
+      const wasRenderType = currentRenderType && renderTypeOptions.includes(currentRenderType);
+      const wasBrickSlips = currentRenderType === brickSlipsOption;
+      const isNowRenderType = renderTypeOptions.includes(optionId);
+      const isNowBrickSlips = optionId === brickSlipsOption;
+      
+      const switchingBetweenGroups = (wasRenderType && isNowBrickSlips) || (wasBrickSlips && isNowRenderType);
+      
+      if (switchingBetweenGroups) {
+        // Reset colour when switching between render types and brick slips
+        generatedImageCache.clear();
+        setGeneratedImage(null);
+        setCompositeImage(null);
         setValues(prev => {
           const newValues = { ...prev };
           delete newValues[11];
           return newValues;
         });
+        setSelectedOptions(prev => {
+          const colourOptions = stepsData.steps.find(s => s.id === 11)?.options?.map(o => o.id) || [];
+          return prev.filter(opt => !colourOptions.includes(opt));
+        });
+        setAccumulatedJsonData(prev => {
+          const newData = { ...prev };
+          const colourStep = stepsData.steps.find(s => s.id === 11);
+          if (colourStep?.json_key) {
+            delete newData[colourStep.json_key];
+          }
+          delete newData["colour_code"];
+          return newData;
+        });
+        console.log("Switched between render types and brick slips - cleared colour selection");
+      }
+    }
+
+    // When render type changes (step 9), check if current grain size is compatible
+    if (stepId === 9) {
+      const grainSizeStep = stepsData.steps.find(s => s.id === 10);
+      const currentGrainSizeValue = values[10];
+      
+      if (grainSizeStep && currentGrainSizeValue !== undefined) {
+        // Find the currently selected grain size option
+        const currentGrainOption = grainSizeStep.options?.find(
+          opt => opt.option_value === currentGrainSizeValue
+        );
+        
+        // Check if this grain size is compatible with the new render type
+        if (currentGrainOption?.parent_option_id) {
+          const isCompatible = currentGrainOption.parent_option_id.includes(optionId);
+          
+          if (!isCompatible) {
+            // Clear grain size selection if not compatible
+            setValues(prev => {
+              const newValues = { ...prev };
+              delete newValues[10];
+              return newValues;
+            });
+            // Clear grain size option from selectedOptions
+            setSelectedOptions(prev => {
+              const grainSizeOptions = grainSizeStep.options?.map(o => o.id) || [];
+              return prev.filter(opt => !grainSizeOptions.includes(opt));
+            });
+            // Clear grain size from accumulated JSON
+            setAccumulatedJsonData(prev => {
+              const newData = { ...prev };
+              if (grainSizeStep.json_key) {
+                delete newData[grainSizeStep.json_key];
+              }
+              return newData;
+            });
+            console.log(`Grain size ${currentGrainSizeValue} not compatible with new render type - cleared`);
+          } else {
+            console.log(`Grain size ${currentGrainSizeValue} is compatible with new render type - kept`);
+          }
+        }
+      }
+    }
+
+    // When insulation type changes (step 5), check if current thickness is compatible
+    if (stepId === 5) {
+      const thicknessStep = stepsData.steps.find(s => s.id === 6);
+      const currentThicknessValue = values[6];
+      
+      if (thicknessStep && currentThicknessValue !== undefined) {
+        // Find the currently selected thickness option
+        const currentThicknessOption = thicknessStep.options?.find(
+          opt => opt.option_value === currentThicknessValue
+        );
+        
+        // Check if this thickness is compatible with the new insulation type
+        if (currentThicknessOption?.parent_option_id) {
+          const isCompatible = currentThicknessOption.parent_option_id.includes(optionId);
+          
+          if (!isCompatible) {
+            // Clear thickness selection if not compatible
+            setValues(prev => {
+              const newValues = { ...prev };
+              delete newValues[6];
+              return newValues;
+            });
+            // Clear thickness option from selectedOptions
+            setSelectedOptions(prev => {
+              const thicknessOptions = thicknessStep.options?.map(o => o.id) || [];
+              return prev.filter(opt => !thicknessOptions.includes(opt));
+            });
+            // Clear thickness from accumulated JSON
+            setAccumulatedJsonData(prev => {
+              const newData = { ...prev };
+              if (thicknessStep.json_key) {
+                delete newData[thicknessStep.json_key];
+              }
+              return newData;
+            });
+            console.log(`Thickness ${currentThicknessValue} not compatible with new insulation type - cleared`);
+          } else {
+            console.log(`Thickness ${currentThicknessValue} is compatible with new insulation type - kept`);
+          }
+        }
       }
     }
   };
@@ -332,7 +603,7 @@ const Calculator: React.FC = () => {
       setOutlinePoints([]);
       sessionStorage.removeItem('compositeHouseImage');
       
-      // Clear the entire cache - all AI generated images from previous custom image
+      // Clear the entire cache - all AI generated images from previous image
       generatedImageCache.clear();
       console.log("New custom image uploaded - cleared all AI generated images and cache");
       
@@ -341,6 +612,23 @@ const Calculator: React.FC = () => {
         const newValues = { ...prev };
         delete newValues[11];
         return newValues;
+      });
+      
+      // Clear colour option selection
+      setSelectedOptions(prev => {
+        const colourOptions = stepsData.steps.find(s => s.id === 11)?.options?.map(o => o.id) || [];
+        return prev.filter(opt => !colourOptions.includes(opt));
+      });
+      
+      // Clear colour from accumulated JSON
+      setAccumulatedJsonData(prev => {
+        const newData = { ...prev };
+        const colourStep = stepsData.steps.find(s => s.id === 11);
+        if (colourStep?.json_key) {
+          delete newData[colourStep.json_key];
+        }
+        delete newData["colour_code"];
+        return newData;
       });
       
       // Check if we need drawing mode (semi-detached or terraced)
@@ -410,11 +698,32 @@ const Calculator: React.FC = () => {
     
     sessionStorage.removeItem('compositeHouseImage');
     
+    // Clear cache when switching back to default image
+    generatedImageCache.clear();
+    console.log("Switched back to default image - cleared AI generated images cache");
+    
     // Reset colour selection (step 11) when switching back to default image
     setValues(prev => {
       const newValues = { ...prev };
       delete newValues[11];
       return newValues;
+    });
+    
+    // Clear colour option selection
+    setSelectedOptions(prev => {
+      const colourOptions = stepsData.steps.find(s => s.id === 11)?.options?.map(o => o.id) || [];
+      return prev.filter(opt => !colourOptions.includes(opt));
+    });
+    
+    // Clear colour from accumulated JSON
+    setAccumulatedJsonData(prev => {
+      const newData = { ...prev };
+      const colourStep = stepsData.steps.find(s => s.id === 11);
+      if (colourStep?.json_key) {
+        delete newData[colourStep.json_key];
+      }
+      delete newData["colour_code"];
+      return newData;
     });
   };
 
@@ -563,11 +872,56 @@ const Calculator: React.FC = () => {
       );
   };
 
+  // Log session - śledzenie postępu użytkownika (jak w starym kalkulatorze, linia ~1586)
+  const logSession = async (lastStep: string) => {
+    try {
+      // Get apiKEY from URL or fallback to env
+      const urlParams = new URLSearchParams(globalThis.location.search);
+      const apiKEY = urlParams.get('apiKEY') || import.meta.env.VITE_API_KEY;
+      
+      const measurement = values[3] ? Number(values[3]) : 0;
+      const url = "https://veen-e.ewipro.com:7443/ewi-calculator/log.php";
+      
+      // Build params for regular steps
+      let params = apiKEY ? `?apiKEY=${apiKEY}` : "";
+      if (measurement > 0) params += `&measurement=${measurement}`;
+      params += "&justLogCalculation=1";
+      if (logID !== 0) params += `&logID=${logID}&lastStep=${lastStep}`;
+      
+      console.log("📤 [logSession]", { lastStep, logID, measurement, url: url + params });
+      
+      const response = await fetch(url + params, {
+        method: "GET",
+        headers: { "Accept": "application/json" }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log("📥 [logSession] Response:", data);
+        
+        if (data.logID) {
+          setLogID(data.logID);
+          console.log("✅ logID:", data.logID);
+        }
+      }
+    } catch (error) {
+      console.error("❌ [logSession]", error);
+    }
+  };
+
   const handleNext = (
     values?: Record<string, string | number | Record<string, any>>,
     triggerStepId?: number,
     selectedOptionId?: number
   ) => {
+    // Accumulate JSON data from this step
+    if (values) {
+      setAccumulatedJsonData(prev => ({
+        ...prev,
+        ...values
+      }));
+    }
+    
     // If on last step and clicking "Send", submit the form instead of navigating
     const lastStepIndex = parentSteps.length - 1;
     if (currentStep === lastStepIndex) {
@@ -605,6 +959,12 @@ const Calculator: React.FC = () => {
     }
 
     const newStep = Math.min(nextStep, parentSteps.length - 1);
+    
+    // Log session BEFORE moving to next step (log the step we just completed)
+    const completedStepName = parentSteps[currentStep]?.json_key || `step-${currentStep}`;
+    console.log("🟢 [handleNext] Completed step:", currentStep, completedStepName);
+    logSession(completedStepName);
+    
     setCompletedSteps(prev => new Set([...prev, currentStep]));
     setCurrentStep(newStep);
   };
@@ -612,6 +972,7 @@ const Calculator: React.FC = () => {
   const handlePrev = () => {
     let prevStep = currentStep - 1;
 
+    // Find the previous non-skipped step
     while (prevStep >= 0) {
       const step = parentSteps[prevStep];
 
@@ -628,54 +989,23 @@ const Calculator: React.FC = () => {
       prevStep--;
     }
 
-    // Collect all allowed option IDs from parent steps AND their substeps
-    const allowedStepIds = new Set<number>();
-    const allowedSteps = parentSteps.slice(0, Math.max(prevStep + 1, 0));
-    
-    const collectOptionIds = (step: any) => {
-      // Add options from current step
-      step.options?.forEach((o: any) => allowedStepIds.add(o.id));
-      
-      // Recursively add options from substeps
-      step.substeps?.forEach((substep: any) => {
-        collectOptionIds(substep);
-      });
-    };
-    
-    allowedSteps.forEach(step => {
-      collectOptionIds(step);
-    });
-    
-    setSelectedOptions(prev => prev.filter(optId => allowedStepIds.has(optId)));
-
     const newPrevStep = Math.max(prevStep, 0);
-
-    // Clear values only for steps after the new current step
-    const allowedValueStepIds = new Set<number>();
-    const stepsToKeep = parentSteps.slice(0, newPrevStep + 1);
     
-    const collectStepIds = (step: any) => {
-      allowedValueStepIds.add(step.id);
-      step.substeps?.forEach((substep: any) => {
-        collectStepIds(substep);
-      });
-    };
-    
-    stepsToKeep.forEach(step => {
-      collectStepIds(step);
-    });
-    
-    setValues(prev => {
-      const newValues: Record<number, string | number> = {};
-      Object.entries(prev).forEach(([key, value]) => {
-        const stepId = parseInt(key);
-        if (allowedValueStepIds.has(stepId)) {
-          newValues[stepId] = value;
+    // Clear accumulated JSON data for steps after the new current step
+    setAccumulatedJsonData(prev => {
+      const newData = { ...prev };
+      const stepsToRemove = parentSteps.slice(newPrevStep + 1);
+      
+      stepsToRemove.forEach(step => {
+        if (step.json_key) {
+          delete newData[step.json_key];
         }
       });
-      return newValues;
+      
+      return newData;
     });
 
+    // Mark steps after the new current step as incomplete
     setCompletedSteps(prev => {
       const newSet = new Set(prev);
       for (let i = newPrevStep; i < parentSteps.length; i++) {
@@ -683,25 +1013,6 @@ const Calculator: React.FC = () => {
       }
       return newSet;
     });
-
-    // Reset house preview and colour selection when moving away from step 11 (colour step)
-    const colourStepIndex = parentSteps.findIndex(s => s.id === 11);
-    if (currentStep === colourStepIndex) {
-      // Reset colour value for step 11 (works for both Render and Brick Slips)
-      setValues(prev => {
-        const newValues = { ...prev };
-        delete newValues[11];
-        return newValues;
-      });
-
-      // Reset generated image to custom or default preview
-      if (customImage) {
-        setGeneratedImage(customImage);
-      } else {
-        const predefImage = findBestMatchingImage(selectedOptions);
-        setGeneratedImage(predefImage ? address + predefImage : null);
-      }
-    }
 
     setCurrentStep(newPrevStep);
   };
@@ -735,115 +1046,75 @@ const Calculator: React.FC = () => {
 
   // Submit full form with customer details
 const submitForm = async () => {
+  console.log("🟢 [submitForm] START, logID:", logID);
+  console.log("📦 [submitForm] Using accumulated JSON:", accumulatedJsonData);
+  
   try {
-
-    // ===========================
-    // MAPOWANIE KROKÓW
-    // ===========================
-
-    const mappedData: Record<string, any> = {};
-
-    stepsData.steps.forEach(step => {
-      if (step.id === 13) return; // customer details osobno
-      if (step.id === 8) return;  // beads&trims osobno - będzie spłaszczone
-      if (step.id === 12) return; // additional products osobno - będzie spłaszczone
-
-      const stepValue = values[step.id];
-
-      if (step.json_key) {
-        if (stepValue === undefined || stepValue === null || stepValue === '') {
-          mappedData[step.json_key] =
-            step.input_type === "number" ? 0 : null;
-        } else {
-          if (step.input_type === "radio") {
-            const selectedOption = step.options?.find(
-              (o: any) => o.option_value === stepValue
-            );
-            mappedData[step.json_key] = selectedOption?.json_value ?? null;
-          } else if (step.input_type === "number") {
-            mappedData[step.json_key] = Number(stepValue);
-          } else if (step.input_type === "colour") {
-            mappedData["colour_code"] = stepValue;
-          } else {
-            mappedData[step.json_key] = stepValue;
-          }
-        }
-      }
-    });
-
-    // ===========================
-    // BEADS & TRIMS - SPŁASZCZENIE
-    // ===========================
+    // Build complete data structure first
+    let mappedData = { ...accumulatedJsonData };
     
-    const beadsStep = stepsData.steps.find(s => s.id === 8);
-    if (beadsStep?.substeps) {
-      beadsStep.substeps.forEach((substep: any) => {
-        
-        // Starter beads - zagnieżdżone
-        if (substep.id === 31 && substep.substeps) {
-          let starterType = null;
-          let starterCount = 0;
-          
-          substep.substeps.forEach((nested: any) => {
-            const nestedVal = values[nested.id];
-            
-            if (nested.id === 17) { // type
-              const opt = nested.options?.find((o: any) => o.option_value === nestedVal);
-              starterType = opt?.json_value ?? null;
-            }
-            else if (nested.id === 18 || nested.id === 32) { // count
-              starterCount = Number(nestedVal) || 0;
-            }
-          });
-          
-          mappedData["starter-tracks"] = starterCount;
-          mappedData["starter-tracks-type"] = starterType;
-        }
-        // Pozostałe beads
-        else {
-          const subVal = values[substep.id];
-          
-          if (substep.json_key === "cornerbeads") {
-            mappedData["corner-beads"] = Number(subVal) || 0;
-          }
-          else if (substep.json_key === "stopbeads") {
-            mappedData["stop-beads"] = Number(subVal) || 0;
-          }
-          else if (substep.json_key === "bellcastbeads") {
-            mappedData["bellcast-beads"] = Number(subVal) || 0;
-          }
-          else if (substep.json_key === "windowreveal") {
-            mappedData["window-reveal"] = Number(subVal) || 0;
-          }
-          else if (substep.json_key === "windowbeads") {
-            mappedData["window-beads"] = Number(subVal) || 0;
-          }
-        }
-      });
+    // ===========================
+    // COLOUR - RENAME KEY
+    // ===========================
+    // Step 11 has json_key="colour" but API expects "colour_code"
+    if (mappedData.colour !== undefined) {
+      mappedData["colour_code"] = mappedData.colour;
+      delete mappedData.colour;
     }
-
-    // ===========================
-    // ADDITIONAL PRODUCTS - SPŁASZCZENIE
-    // ===========================
     
-    const additionalStep = stepsData.steps.find(s => s.id === 12);
-    if (additionalStep?.substeps) {
-      additionalStep.substeps.forEach((substep: any) => {
-        const subVal = values[substep.id];
-        
-        if (substep.json_key === "levelling-coat") {
-          mappedData["levelling-coat"] = Number(subVal) || 0;
-        }
-        else if (substep.json_key === "fungicidalwash") {
-          mappedData["fungicidal-wash"] = Number(subVal) || 0;
-        }
-        else if (substep.json_key === "bluefilm") {
-          mappedData["blue-film"] = Number(subVal) || 0;
-        }
-        else if (substep.json_key === "orangetape") {
-          mappedData["orange-tape"] = Number(subVal) || 0;
-        }
+    // ===========================
+    // BEADS & TRIMS - FLATTEN STRUCTURE
+    // ===========================
+    // beadsTrims może być zagnieżdżone { beadsTrims: { startbeads: {...}, cornerbeads: 5, ... } }
+    // Musimy je spłaszczyć do poziomu głównego
+    
+    if (mappedData.beadsTrims && typeof mappedData.beadsTrims === 'object') {
+      const beadsData = mappedData.beadsTrims as Record<string, any>;
+      
+      // Handle startbeads (keep nested structure with type and count)
+      if (beadsData.startbeads && typeof beadsData.startbeads === 'object') {
+        mappedData["startbeads"] = {
+          type: beadsData.startbeads.type || null,
+          count: beadsData.startbeads.count || ''
+        };
+      }
+      
+      // Handle other beads (rename keys)
+      if (beadsData.cornerbeads !== undefined) {
+        mappedData["corner-beads"] = beadsData.cornerbeads;
+      }
+      if (beadsData.stopbeads !== undefined) {
+        mappedData["stop-beads"] = beadsData.stopbeads;
+      }
+      if (beadsData.bellcastbeads !== undefined) {
+        mappedData["bellcast-beads"] = beadsData.bellcastbeads;
+      }
+      if (beadsData.revealbeads !== undefined) {
+        mappedData["window-reveal"] = beadsData.revealbeads;
+      }
+      if (beadsData.windowbeads !== undefined) {
+        mappedData["window-beads"] = beadsData.windowbeads;
+      }
+      
+      // Remove the nested beadsTrims object
+      delete mappedData.beadsTrims;
+    }
+    
+    // ===========================
+    // ADDITIONAL PRODUCTS - FLATTEN STRUCTURE
+    // ===========================
+    // additionalProducts może być { additionalProducts: { "levelling-coat": 5, ... } }
+    // Spłaszczamy do głównego poziomu
+    
+    if (mappedData.additionalProducts && typeof mappedData.additionalProducts === 'object') {
+      const additionalData = mappedData.additionalProducts as Record<string, any>;
+      
+      Object.keys(additionalData).forEach(key => {
+        mappedData[key] = additionalData[key];
       });
+      
+      // Remove the nested additionalProducts object
+      delete mappedData.additionalProducts;
     }
 
     // ===========================
@@ -861,38 +1132,83 @@ const submitForm = async () => {
     }
 
     // ===========================
-    // CALCULATED MATERIALS (from calculator service)
+    // CALCULATED MATERIALS
     // ===========================
     const materials = calculatedMaterials ? {
       insulation_material_units: calculatedMaterials.insulation_material_units,
       adhesive_units: calculatedMaterials.adhesive_units,
       mesh_units: calculatedMaterials.mesh_units,
       fixings_units: calculatedMaterials.fixings_units,
-      primer_units: calculatedMaterials.primer_units,
+      primer_20_units: calculatedMaterials.primer_20_units,
+      primer_7_units: calculatedMaterials.primer_7_units,
       render_units: calculatedMaterials.render_units,
-      ...(calculatedMaterials.paint_units && { paint_units: calculatedMaterials.paint_units })
+      ...(calculatedMaterials.brick_slips_units && { brick_slips_units: calculatedMaterials.brick_slips_units }),
+      ...(calculatedMaterials.brick_slips_adhesive_units && { brick_slips_adhesive_units: calculatedMaterials.brick_slips_adhesive_units })
     } : {};
+
+    // ===========================
+    // CLEAN UP - REMOVE UNDEFINED/NULL/EMPTY VALUES
+    // ===========================
+    // Recursively remove undefined, null, and empty string values (but keep 0)
+    const cleanObject = (obj: any): any => {
+      if (obj === null || obj === undefined) return obj;
+      
+      if (Array.isArray(obj)) {
+        return obj.map(item => cleanObject(item));
+      }
+      
+      if (typeof obj === 'object') {
+        const cleaned: Record<string, any> = {};
+        Object.keys(obj).forEach(key => {
+          const value = obj[key];
+          // Keep value if it's not undefined, null, or empty string
+          // 0 and false are kept
+          if (value !== undefined && value !== null && value !== '') {
+            cleaned[key] = cleanObject(value);
+          }
+        });
+        return cleaned;
+      }
+      
+      return obj;
+    };
+
+    // Clean all three parts separately
+    const cleanedMappedData = cleanObject(mappedData);
+    const cleanedCustomerDetails = cleanObject(customer_details);
+    const cleanedMaterials = cleanObject(materials);
 
     // ===========================
     // FINAL PAYLOAD (jak w legacy)
     // ===========================
 
+    const urlParams = new URLSearchParams(globalThis.location.search);
+    const apiKEY = urlParams.get('apiKEY') || import.meta.env.VITE_API_KEY;
+
     const payload = {
-      apiKEY: import.meta.env.VITE_API_KEY,
-      sessionNumber: Date.now(),
+      apiKEY: apiKEY,
+      sessionNumber: sessionNumber,
+      logID: logID,
       data: {
-        ...mappedData,
-        customer_details,
-        materials
+        ...cleanedMappedData,
+        customer_details: cleanedCustomerDetails,
+        materials: cleanedMaterials
       }
     };
 
-    console.log("Wysyłany payload:", payload);
+    console.log("📤 [submitForm] Wysyłam do backendu:");
+    console.log("   apiKEY:", apiKEY);
+    console.log("   sessionNumber:", sessionNumber || Date.now());
+    console.log("   logID:", logID);
+    console.log("   data.mappedData:", cleanedMappedData);
+    console.log("   data.customer_details:", cleanedCustomerDetails);
+    console.log("   data.materials:", cleanedMaterials);
+    console.log("   Full payload:", JSON.stringify(payload, null, 2));
 
     // ===========================
-    // REQUEST
+    // FINAL POST REQUEST
     // ===========================
-
+    
     const response = await fetch(
       "https://veen-e.ewipro.com:7443/ewi-calculator/log.php",
       {
@@ -901,45 +1217,36 @@ const submitForm = async () => {
       }
     );
 
-    // HTTP ERROR
+    console.log("📥 [submitForm] POST Response:", response.status);
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);
     }
 
-    // JSON PARSE
     let result;
     try {
       result = await response.json();
+      console.log("📥 [submitForm] POST Result:", result);
     } catch {
       throw new Error("Invalid JSON from server");
     }
 
-    console.log("Odpowiedź:", result);
-
-    // ===========================
-    // LOGIKA JAK W STARYM SKRYPCIE
-    // ===========================
-
+    // Walidacja i redirect
     if (result.email_validation === 1) {
-
       alert("Formularz wysłany poprawnie ✅");
 
       if (result.quote_id) {
         const offerLink = `https://offer.ewistore.co.uk/${result.quote_id}/AE`;
-        console.log("Redirect:", offerLink);
-        window.location.href = offerLink;
+        console.log("🟢 Redirect:", offerLink);
+        globalThis.location.href = offerLink;
       }
-
     } else {
-
       alert("Błąd walidacji danych. Sprawdź formularz.");
       console.warn("Validation error:", result);
-
     }
 
   } catch (error: any) {
-
-    console.error("Submit error:", error);
+    console.error("❌ [submitForm]", error);
 
     if (error.message.includes("HTTP")) {
       alert("Błąd serwera. Spróbuj ponownie później.");
@@ -1026,6 +1333,89 @@ const submitForm = async () => {
     img.src = baseImage;
   };
 
+  // Show loading state while checking authorization
+  if (isAuthorizing) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          textAlign: 'center'
+        }}
+      >
+        <Box>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Checking authorization...
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Please wait
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Show error message if not authorized
+  if (!isAuthorized || authError) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          textAlign: 'center',
+          px: 2
+        }}
+      >
+        <Box>
+          <Typography variant="h4" sx={{ mb: 2, color: 'error.main', fontWeight: 600 }}>
+            Access Denied
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            {authError || "You're not authorized to use the EWI Materials Calculator."}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Please contact your administrator for access.
+          </Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  // Loading state while checking authorization
+  if (isAuthorizing) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h5">Loading...</Typography>
+      </Box>
+    );
+  }
+
+  // Unauthorized state - show error message
+  if (!isAuthorized) {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            color: 'error.main',
+            fontWeight: 600,
+            mb: 2
+          }}
+        >
+          {authError}
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Please refresh the page.
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Authorized - render calculator
   return (
     <>
       <Box sx={{ textAlign: "center", py: "16px" }}>

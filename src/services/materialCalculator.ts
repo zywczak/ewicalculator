@@ -6,7 +6,8 @@ export interface CalculatedMaterials {
   adhesive_units: number;
   mesh_units: number;
   fixings_units: number;
-  primer_units: number;
+  primer_20_units: number;
+  primer_7_units: number;
   render_units: number;
   brick_slips_units?: number;
   brick_slips_adhesive_units?: number;
@@ -46,7 +47,8 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
     adhesive_units: 0,
     mesh_units: 0,
     fixings_units: 0,
-    primer_units: 0,
+    primer_20_units: 0,
+    primer_7_units: 0,
     render_units: 0,
     brick_slips_units: 0,
     brick_slips_adhesive_units: 0
@@ -69,14 +71,14 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
         case 100:
         case 110:
         case 120:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool);
-          break;
-        case 140:
-        case 150:
           result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool4);
           break;
-        default:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool);
+        case 140:
+          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool5);
+          break;
+        case 150:
+          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool6);
+          break;
       }
     } else if (insulationType === OPTION_IDS.INSULATION.KINGSPAN) {
       result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.kingspan);
@@ -103,10 +105,22 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
   }
 
   // ===== PRIMER =====
-  result.primer_units = Math.ceil(surfaceArea / CALC_VALUES.primer);
+  // Primer dla wszystkich renderów (NIE dla brick slips)
+  // Доступен dla render only i insulation & render
+  const isBrickSlips = inputs.renderType === OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
+  
+  if (!isBrickSlips) {
+    // Optymalna kombinacja wiader 20kg i 7kg
+    // primer-20 pokrywa 100m², primer-7 pokrywa 35m²
+    result.primer_20_units = Math.floor(surfaceArea / CALC_VALUES["primer-20"]);
+    const remainingArea = surfaceArea - (result.primer_20_units * CALC_VALUES["primer-20"]);
+    result.primer_7_units = remainingArea > 0 ? Math.ceil(remainingArea / CALC_VALUES["primer-7"]) : 0;
+  } else {
+    result.primer_20_units = 0;
+    result.primer_7_units = 0;
+  }
 
   // ===== RENDER / BRICK SLIPS =====
-  const isBrickSlips = inputs.renderType === OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
   
   if (isBrickSlips) {
     // Brick slips: 1 bag per sqm
