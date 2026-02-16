@@ -15,11 +15,11 @@ export const STEP_6_THICKNESS: FormStep = {
     substeps: [],
     options: [
     { 
-        id: OPTION_IDS.THICKNESS["20MM"], 
-        option_value: "20 mm", 
-        json_value: 20, 
+        id: OPTION_IDS.THICKNESS["25MM"], 
+        option_value: "25 mm", 
+        json_value: 25, 
         image: null, 
-        parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.KINGSPAN],
+        parent_option_id: [OPTION_IDS.INSULATION.KINGSPAN],
         products: {
             eps: {
                 productCode: "EPS-020",
@@ -115,7 +115,7 @@ export const STEP_6_THICKNESS: FormStep = {
         option_value: "90 mm", 
         json_value: 90, 
         image: null, 
-        parent_option_id: [OPTION_IDS.INSULATION.EPS],
+        parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.WOOL],
         products: {
             eps: {
                 productCode: "EPS-090",
@@ -133,7 +133,7 @@ export const STEP_6_THICKNESS: FormStep = {
         option_value: "100 mm", 
         json_value: 100, 
         image: null, 
-        parent_option_id: [OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.EPS],
+        parent_option_id: [OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.WOOD_FIBRE],
         products: {
             eps: {
                 productCode: "EPS-100",
@@ -149,6 +149,13 @@ export const STEP_6_THICKNESS: FormStep = {
                 image: "/media/mineralwool.png",
                 unitDetail: "packs",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/rockwool-external-wall-dual-density-slab/"
+            },
+            wood_fibre: {
+                productCode: "STE-PROTECTLDRY",
+                productName: "STEICO protect L dry - Wood Fibre Insulation Board",
+                image: "/media/wood-fibre.png",
+                unitDetail: "sqm",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/steico-protect-l-dry-wood-fibre-insulation-board/"
             }
         }
     },
@@ -167,6 +174,44 @@ export const STEP_6_THICKNESS: FormStep = {
                 image: "/media/mineralwool.png",
                 unitDetail: "packs",
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/rockwool-external-wall-dual-density-slab/"
+            }
+        }
+    },
+    { 
+        id: OPTION_IDS.THICKNESS["120MM"], 
+        option_value: "120 mm", 
+        json_value: 120, 
+        image: null, 
+        parent_option_id: [OPTION_IDS.INSULATION.WOOD_FIBRE],
+        products: {
+            eps: null,
+            kingspan: null,
+            wool: null,
+             wood_fibre: {
+                productCode: "STE-PROTECTLDRY",
+                productName: "STEICO protect L dry - Wood Fibre Insulation Board",
+                image: "/media/wood-fibre.png",
+                unitDetail: "sqm",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/steico-protect-l-dry-wood-fibre-insulation-board/"
+            }
+        }
+    },
+    { 
+        id: OPTION_IDS.THICKNESS["140MM"], 
+        option_value: "140 mm", 
+        json_value: 140, 
+        image: null, 
+        parent_option_id: [OPTION_IDS.INSULATION.WOOD_FIBRE],
+        products: {
+            eps: null,
+            kingspan: null,
+            wool: null,
+             wood_fibre: {
+                productCode: "STE-PROTECTLDRY",
+                productName: "STEICO protect L dry - Wood Fibre Insulation Board",
+                image: "/media/wood-fibre.png",
+                unitDetail: "sqm",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/steico-protect-l-dry-wood-fibre-insulation-board/"
             }
         }
     },
@@ -193,7 +238,45 @@ export const STEP_6_THICKNESS: FormStep = {
                 link: "https://ewistore.co.uk/shop/external-wall-insulation/rockwool-external-wall-dual-density-slab/"
             }
         }
-    }
+    },
+    { 
+        id: OPTION_IDS.THICKNESS["160MM"], 
+        option_value: "160 mm", 
+        json_value: 160, 
+        image: null, 
+        parent_option_id: [OPTION_IDS.INSULATION.WOOD_FIBRE],
+        products: {
+            eps: null,
+            kingspan: null,
+            wool: null,
+             wood_fibre: {
+                productCode: "STE-PROTECTLDRY",
+                productName: "STEICO protect L dry - Wood Fibre Insulation Board",
+                image: "/media/wood-fibre.png",
+                unitDetail: "sqm",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/steico-protect-l-dry-wood-fibre-insulation-board/"
+            }
+        }
+    },
+    { 
+        id: OPTION_IDS.THICKNESS["200MM"], 
+        option_value: "200 mm", 
+        json_value: 200, 
+        image: null, 
+        parent_option_id: [OPTION_IDS.INSULATION.WOOD_FIBRE],
+        products: {
+            eps: null,
+            kingspan: null,
+            wool: null,
+             wood_fibre: {
+                productCode: "STE-PROTECTLDRY",
+                productName: "STEICO protect L dry - Wood Fibre Insulation Board",
+                image: "/media/wood-fibre.png",
+                unitDetail: "sqm",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/steico-protect-l-dry-wood-fibre-insulation-board/"
+            }
+        }
+    },
     ],
     help: [
     {
@@ -204,21 +287,5 @@ export const STEP_6_THICKNESS: FormStep = {
         table: HELP_TABLES.thickness
     }
     ],
-    conditions: [{ trigger_step: 6, trigger_option: OPTION_IDS.THICKNESS["20MM"], skip_steps: [7] }],
-    products: {
-        "adhesive": {
-            productCode: "EWI-225",
-            productName: "Premium Basecoat 25kg",
-            image: "/media/adhesive.png",
-            unitDetail: "25kg/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
-        },
-        "mesh": {
-            productCode: "PXM-165702",
-            productName: "Fibreglass Mesh (165g/m²)",
-            image: "/media/fibreglass-mesh.png",
-            unitDetail: "50 sqm/roll",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/fibreglass-mesh-150g-m2-50m2/"
-        }
-    }
+    conditions: [],
 };

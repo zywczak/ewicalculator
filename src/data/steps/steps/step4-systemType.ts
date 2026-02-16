@@ -21,21 +21,21 @@ export const STEP_4_SYSTEM_TYPE: FormStep = {
         json_value: 2,
         image: null,
         products: {
-        "adhesive": {
-            productCode: "EWI-225",
-            productName: "Premium Basecoat 25kg",
-            image: "/media/adhesive.png",
-            unitDetail: "25kg/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
-        },
-        "mesh": {
-            productCode: "PXM-165702",
-            productName: "Fibreglass Mesh (165g/m²)",
-            image: "/media/fibreglass-mesh.png",
-            unitDetail: "50 sqm/roll",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/fibreglass-mesh-150g-m2-50m2/"
+            "adhesive": {
+                productCode: "EWI-225",
+                productName: "Premium Basecoat 25kg",
+                image: "/media/adhesive.png",
+                unitDetail: "25kg/bag",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
+            },
+            "mesh": {
+                productCode: "PXM-165706",
+                productName: "Orange Fibreglass Mesh (165g/m²)",
+                image: "/media/orange-fibreglass-mesh.png",
+                unitDetail: "50 sqm/roll",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/orange-fibreglass-mesh-50m2/"
+            }
         }
-    }
     }
     ],
     help: [

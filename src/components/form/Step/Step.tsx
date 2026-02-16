@@ -313,12 +313,23 @@ const Step: React.FC<StepFormProps> = ({
   }, [parentStep.id, JSON.stringify(values)]);
 
   const handleChange = (stepId: number, value: string | number, optionId?: number) => {
+    // Calculate new selectedOptions FIRST
+    let newSelectedOptions = selectedOptions;
+    if (optionId !== undefined) {
+      const allStepsRecursive = getAllStepsRecursive([parentStep]);
+      const step = allStepsRecursive.find(s => s.id === stepId);
+      const stepOptions = step?.options?.map(o => o.id) || [];
+      const filtered = selectedOptions.filter(opt => !stepOptions.includes(opt));
+      newSelectedOptions = [...filtered, optionId];
+    }
+
     setValues(prev => {
       const newValues = { ...prev, [stepId]: value };
       setJsonValues(prevJson => {
         const updatedJson = { ...prevJson };
         const allStepsRecursive = getAllStepsRecursive(stepsData.steps);
-        const stepJson = updateJsonValuesForStep(parentStep, newValues, selectedOptions, allStepsRecursive);
+        // Use newSelectedOptions instead of old selectedOptions
+        const stepJson = updateJsonValuesForStep(parentStep, newValues, newSelectedOptions, allStepsRecursive);
         return { ...updatedJson, ...stepJson };
       });
       return newValues;

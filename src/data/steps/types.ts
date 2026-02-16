@@ -13,7 +13,6 @@ export interface FormStepOption {
   json_value: string | number |null;
   image: string | null;
   parent_option_id?: number[];
-  option_image?: string | null;
   products?: {
     [key: string]: ProductInfo | null; // key is material type like "eps", "wool", "kingspan", or "default"
   };
@@ -54,6 +53,12 @@ export interface ProductInfo {
   image: string;
   unitDetail: string;
   link?: string;
+  avaliable_lenght?: number[]; // for fixings, list of available lengths in mm
+
+  itemsPerPack?: number;       // np. 200 sztuk w paczce
+  itemsPerMeter?: number;     // ile sztuk potrzeba na 1 metr
+
+  metersPerPack?: number;     // ile metrów można wykonać z jednej paczki
 }
 
 export interface FormStep {

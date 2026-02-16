@@ -12,6 +12,29 @@ export const STEP_12_ADDITIONAL: FormStep = {
     validation_regex: null,
     substeps: [
     {
+        id: 60,
+        step_name: "Corner brick slips",
+        description: null,
+        json_key: "corner-brick-slips",
+        input_type: "number",
+        placeholder: "no.of meter",
+        required: null,
+        parent: 4,
+        validation_regex: null,
+        substeps: [],
+        image: "/media/corner_brick_slips_placement.png",
+        options: [],
+        help: [],
+        conditions: [],
+        product: {
+            productCode: "ELS-CORNER",
+            productName: "Corner Brick Slip",
+            image: "/media/brick_slip_corners.png",
+            unitDetail: "2lm/box",
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips---cordoba/"
+        }
+    },
+    {
         id: 27,
         step_name: "Any levelling coat required (25kg bags)",
         description: null,
@@ -24,6 +47,7 @@ export const STEP_12_ADDITIONAL: FormStep = {
         substeps: [],
         options: [],
         help: [],
+        image: "/media/levelling_coat.png",
         conditions: [],
         product: {
             productCode: "EWI-260",
@@ -45,6 +69,7 @@ export const STEP_12_ADDITIONAL: FormStep = {
         validation_regex: null,
         substeps: [],
         options: [],
+        image: "/media/fungicidal.png",
         help: [],
         conditions: [],
         product: {
@@ -67,6 +92,7 @@ export const STEP_12_ADDITIONAL: FormStep = {
         validation_regex: null,
         substeps: [],
         options: [],
+        image: "/media/protection-film.png",
         help: [],
         conditions: [],
         product: {
@@ -90,6 +116,7 @@ export const STEP_12_ADDITIONAL: FormStep = {
         substeps: [],
         options: [],
         help: [],
+        image: "/media/orange-tape.png",
         conditions: [],
         product: {
             productCode: "EWS-TAPE-ORA",
@@ -101,6 +128,44 @@ export const STEP_12_ADDITIONAL: FormStep = {
     }
     ],
     options: [],
-    help: [],
+    help: [
+    {
+        help_title: "Additional Products",
+        upper_description: null,
+        downer_description: null,
+        images: [
+         {
+            image_name: "brick_slip_corners.png",
+            caption: "Brick Slip Corners",
+            image_url: "/media/brick_slip_corners.png",
+            description: "Elabrick Brick Slips strongly mimic the look of brickwork. Flexible and durable, these are ideal if you want to recreate brick features internally or externally."
+        },
+        {
+            image_name: "levelling_coat.png",
+            caption: "Levelling Coat",
+            image_url: "/media/levelling_coat.png",
+            description: "Our EWI-260 levelling mortar is used on walls to produce a smooth surface or a scratch coat on which a basecoat or EWI system can be applied."
+        },
+        {
+            image_name: "fungicidal.png",
+            caption: "Fungicidal Wash",
+            image_url: "/media/fungicidal.png",
+            description: "The Everbuild 404 Fungicidal Wash is great when used prior to applying render or EWI systems. It effectively kills mould and other biological growth on internal and external walls, floors and ceilings."
+        },
+        {
+            image_name: "protection-film.png",
+            caption: "Protection Film",
+            image_url: "/media/protection-film.png",
+            description: 'ProGuard Window Protection Film is designed to protect windows from paint, damage, scratches and mortar splashed during construction and decorating work.'
+        },
+        {
+            image_name: "orange-tape.png",
+            caption: "Orange Tape",
+            image_url: "/media/orange-tape.png",
+            description: "EWI Store - Rendering Tape is a premium orange rendering tape offers water resistance and is easy to tear."
+        }
+        ]
+    }
+    ],
     conditions: []
 };

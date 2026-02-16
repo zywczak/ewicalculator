@@ -2,9 +2,8 @@ import React from "react";
 import { Box, Typography } from "@mui/material";
 import HelpImages from "./HelpImages/HelpImages";
 import HelpTable from "./HelpTable";
-import HelpColourSamples from "./HelpColourSamples";
+import HelpColours from "./HelpColours";
 import { HelpSection } from "../../data/steps/types";
-import HelpBrickColours from "./HelpBrickColours";
 
 interface HelpRightPanelProps {
   isMobile: boolean;
@@ -60,8 +59,8 @@ export const HelpRightPanel: React.FC<HelpRightPanelProps> = ({ isMobile, curren
             <HelpTable table={currentHelp.table} />
           </Box>
         )}
-        {currentHelp.useColourSamples && <HelpColourSamples isMobile={isMobile} />}
-        {currentHelp.useOptionColours && <HelpBrickColours isMobile={isMobile} />}
+        {currentHelp.useColourSamples && <HelpColours type="renders" isMobile={isMobile} />}
+        {currentHelp.useOptionColours && <HelpColours type="bricks" isMobile={isMobile} />}
       </Box>
       {currentHelp.disclaimer && (
         <Box sx={{ pt: "12px", textAlign: "center" }}>

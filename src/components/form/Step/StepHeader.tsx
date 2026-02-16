@@ -170,7 +170,7 @@ const StepHeader: React.FC<StepHeaderProps> = ({
       )}
 
       {helpAvailable && !isMobile && (
-        <Box sx={{ position: "absolute", bottom: "-16px", left: "24px" }}>
+        <Box sx={{ position: "absolute", bottom: "-23px", left: "24px" }}>
           <HelpButton helpAvailable={helpAvailable} onHelpClick={onHelpClick} />
         </Box>
       )}

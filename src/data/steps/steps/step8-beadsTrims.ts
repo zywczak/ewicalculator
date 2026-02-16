@@ -50,20 +50,30 @@ export const STEP_8_BEADS: FormStep = {
             description: null,
             json_key: "count",
             input_type: "number",
-            placeholder: null,
+            placeholder: "meters",
             required: null,
             parent: 31,
+            image: "/media/metalstartertrack.png",
             validation_regex: null,
             substeps: [],
             options: [],
             help: [],
             conditions: [],
-            product: {
-                productCode: "CMS-800-20",
-                productName: "Premium Aluminium Starter Track",
-                image: "/media/metalstartertrack.png",
-                unitDetail: "2.5m/pc",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-aluminium-starter-track-2-5m/"
+            products: {
+                "startertrack": {
+                    productCode: "CMS-800-20",
+                    productName: "Premium Aluminium Starter Track",
+                    image: "/media/metalstartertrack.png",
+                    unitDetail: "2.5m/pc",
+                    link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-aluminium-starter-track-2-5m/"
+                },
+                "clip on": {
+                    productCode: "LIK-136",
+                    productName: "Clip-on Profile for Starter Track",
+                    image: "/media/clip_on.png",
+                    unitDetail: "2.5m/pc",
+                    link: "https://ewistore.co.uk/shop/external-wall-insulation/6mm-clip-on-profile/shop/external-wall-insulation/6mm-clip-on-profile-2-5m/-2-5m/"
+                },
             }
         },
         {
@@ -72,9 +82,10 @@ export const STEP_8_BEADS: FormStep = {
             description: null,
             json_key: "count",
             input_type: "number",
-            placeholder: null,
+            placeholder: "meters",
             required: null,
             parent: 31,
+            image: "/media/plastic-start-bead.png",
             validation_regex: null,
             substeps: [],
             options: [],
@@ -92,13 +103,6 @@ export const STEP_8_BEADS: FormStep = {
         options: [],
         help: [],
         conditions: [],
-        product: {
-            productCode: "VWS-4206",
-            productName: "Adjustable uPVC Starter Track",
-            image: "/media/plastic-start-bead.png",
-            unitDetail: "2.0m/pc",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/adjustable-upvc-starter-track-2m/"
-        }
     },
     {
         id: 19,
@@ -106,12 +110,13 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "cornerbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
         options: [],
+        image: "/media/cornerbead.png",
         help: [],
         conditions: [],
         product: {
@@ -119,7 +124,7 @@ export const STEP_8_BEADS: FormStep = {
             productName: "uPVC Render Corner Bead",
             image: "/media/cornerbead.png",
             unitDetail: "2.5m/pc",
-            link: "https://ewistore.co.uk/product-category/external-wall-insulation/beading-and-mesh/stop-beads/#454d/brand-categories/m=and&q=LIK-115"
+            link: "https://ewistore.co.uk/shop/external-wall-insulation/pvc-corner-bead-with-mesh-2-5m/"
         }
     },
     {
@@ -128,12 +133,13 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "stopbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
         options: [],
+        image: "/media/stopbead.png",
         help: [],
         conditions: [],
         product: {
@@ -150,11 +156,12 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "bellcastbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
+        image: "/media/bellcastbead.png",
         options: [],
         help: [],
         conditions: [],
@@ -172,11 +179,12 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "revealbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
+        image: "/media/windowreveal.png",
         options: [],
         help: [],
         conditions: [],

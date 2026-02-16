@@ -12,7 +12,7 @@ import ResponsiveCalculatorWrapper from "../components/FormWrapper";
 import { STEPS_DATA} from "../data/steps/stepsData";
 import { StepsData } from "../data/steps/types";
 import Help from "../components/help/Help";
-import { findBestMatchingImage, findFileToSend } from "../data/images/utils";
+import { findBestMatchingImage } from "../data/images/utils";
 import address from "../api/adress";
 import OPTION_IDS from '../data/constants/optionIds';
 import { calculateMaterials, CalculatedMaterials } from "../services/materialCalculator";
@@ -118,7 +118,7 @@ const Calculator: React.FC = () => {
       try {
         // Extract apiKEY from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const apiKEY = urlParams.get('apiKEY') || import.meta.env.VITE_API_KEY;
+        const apiKEY =  urlParams.get('apiKEY') || import.meta.env.VITE_API_KEY;
 
         if (!apiKEY) {
           setAuthError("You're not authorized to use the EWI Materials Calculator.");
@@ -174,20 +174,6 @@ const Calculator: React.FC = () => {
     checkAuthorization();
   }, []);
 
-  // Fetch color data and trigger preloading IMMEDIATELY on mount
-  useEffect(() => {
-    // Only initialize if authorized
-    if (!isAuthorized) return;
-    
-    // Start fetching and preloading colors as soon as component mounts
-    import('../data/colorCache').then(({ initializeColorPreloading }) => {
-      initializeColorPreloading();
-      console.log('Color preloading initialized');
-    }).catch(err => {
-      console.error('Failed to initialize color preloading:', err);
-    });
-  }, [isAuthorized]);
-
   useEffect(() => {
     const handleResize = () => {
       setIsMobileView(window.innerWidth <= 705);
@@ -211,11 +197,15 @@ const Calculator: React.FC = () => {
   const [canCompleteOutline, setCanCompleteOutline] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [generatedImageBase64, setGeneratedImageBase64] = useState<string | null>(null);
 
   const [compositeImage, setCompositeImage] = useState<string | null>(null);
 
   const [isStepComplete, setIsStepComplete] = useState(false);
   const [calculatedMaterials, setCalculatedMaterials] = useState<CalculatedMaterials | null>(null);
+  
+  // Track focused substep image for display in StepHeader
+  const [focusedSubstepImage, setFocusedSubstepImage] = useState<string | null>(null);
   
   // LogID state - śledzenie sesji użytkownika (jak w starym kalkulatorze)
   const [logID, setLogID] = useState<number>(0);
@@ -238,6 +228,14 @@ const Calculator: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Expose setFocusedSubstepImage to NumberStepInput via window
+  useEffect(() => {
+    (window as any).__setFocusedSubstepImage = setFocusedSubstepImage;
+    return () => {
+      delete (window as any).__setFocusedSubstepImage;
+    };
+  }, []);
+
   // Calculate materials whenever values or selectedOptions change
   useEffect(() => {
     const surfaceArea = Number(values[3]) || 0; // Step 3 - Surface Area
@@ -248,7 +246,8 @@ const Calculator: React.FC = () => {
     const insulationType = selectedOptions.find(opt => 
       opt === OPTION_IDS.INSULATION.EPS || 
       opt === OPTION_IDS.INSULATION.WOOL || 
-      opt === OPTION_IDS.INSULATION.KINGSPAN
+      opt === OPTION_IDS.INSULATION.KINGSPAN ||
+      opt === OPTION_IDS.INSULATION.WOOD_FIBRE
     );
     const thicknessOpt = selectedOptions.find(opt => 
       Object.values(OPTION_IDS.THICKNESS).includes(opt as any)
@@ -258,6 +257,12 @@ const Calculator: React.FC = () => {
     );
     const grainSize = selectedOptions.find(opt => 
       Object.values(OPTION_IDS.GRAINSIZE).includes(opt as any)
+    );
+    const surfaceMaterial = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.SURFACE).includes(opt as any)
+    );
+    const fixingsType = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.FIXINGS).includes(opt as any)
     );
 
     // Get thickness value from option ID
@@ -279,6 +284,8 @@ const Calculator: React.FC = () => {
         thickness,
         renderType,
         grainSize,
+        fixingsType,
+        surfaceMaterial,
         selectedOptions,
         values
       });
@@ -297,7 +304,8 @@ const Calculator: React.FC = () => {
     const insulationType = selectedOptions.find(opt => 
       opt === OPTION_IDS.INSULATION.EPS || 
       opt === OPTION_IDS.INSULATION.WOOL || 
-      opt === OPTION_IDS.INSULATION.KINGSPAN
+      opt === OPTION_IDS.INSULATION.KINGSPAN ||
+      opt === OPTION_IDS.INSULATION.WOOD_FIBRE
     );
     const thicknessOpt = selectedOptions.find(opt => 
       Object.values(OPTION_IDS.THICKNESS).includes(opt as any)
@@ -307,6 +315,12 @@ const Calculator: React.FC = () => {
     );
     const grainSize = selectedOptions.find(opt => 
       Object.values(OPTION_IDS.GRAINSIZE).includes(opt as any)
+    );
+    const surfaceMaterial = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.SURFACE).includes(opt as any)
+    );
+    const fixingsType = selectedOptions.find(opt => 
+      Object.values(OPTION_IDS.FIXINGS).includes(opt as any)
     );
 
     // Get thickness value from option ID
@@ -328,6 +342,8 @@ const Calculator: React.FC = () => {
         thickness,
         renderType,
         grainSize,
+        fixingsType,
+        surfaceMaterial,
         selectedOptions,
         values
       });
@@ -737,6 +753,15 @@ const Calculator: React.FC = () => {
       return [...filtered, optionId];
     });
 
+    // If no custom image, show static preview from STEP_OPTION_IMAGES
+    if (!customImage && !compositeImage) {
+      
+      return;
+    }
+
+    // Only use AI when user uploaded custom image
+    console.log("Custom image detected - generating with AI");
+
     const cacheKey = getCacheKey(11, optionId, selectedOptions);
     const cached = generatedImageCache.get(cacheKey);
     if (cached) {
@@ -758,22 +783,12 @@ const Calculator: React.FC = () => {
         
         const response = await fetch(baseImageUrl);
         imageToSend = await response.blob();
-      } else if (customImage) {
+      } else {
+        // customImage is guaranteed to exist here because of early return above
         console.log("Using custom image without mask");
-        baseImageUrl = customImage;
+        baseImageUrl = customImage!; // Use non-null assertion since we checked above
         const response = await fetch(baseImageUrl);
         imageToSend = await response.blob();
-      } else {
-        const predefImage = findBestMatchingImage(selectedOptions);
-        baseImageUrl = predefImage ? address + predefImage : '';
-        
-        if (!baseImageUrl) {
-          console.error("No base image available");
-          return;
-        }
-
-        const imageResponse = await fetch(baseImageUrl);
-        imageToSend = await imageResponse.blob();
       }
 
       // Compress image before sending to reduce payload size
@@ -781,40 +796,10 @@ const Calculator: React.FC = () => {
       imageToSend = await compressImage(imageToSend, 1920, 0.85);
 
       const formData = new FormData();
-      let fileToSend: Blob = imageToSend;
-      let fileName = "house.jpg";
+      // Custom image - send the user's image
+      formData.append("file", imageToSend, "custom_house.jpg");
       
-      // If user didn't upload custom image, use house-type specific file
-      if (!customImage && !compositeImage) {
-        const fileUrl = findFileToSend(selectedOptions);
-        if (fileUrl) {
-          console.log("Using file for AI:", fileUrl);
-          try {
-            const fileResponse = await fetch(address + fileUrl);
-            let fileBlob = await fileResponse.blob();
-            
-            // Compress file
-            console.log(`Original file size: ${(fileBlob.size / 1024).toFixed(2)}KB`);
-            fileBlob = await compressImage(fileBlob, 1920, 0.9);
-            
-            // Send this file to AI
-            fileToSend = fileBlob;
-            fileName = fileUrl.includes("default") ? "default.jpg" : "mask.png";
-            formData.append("file", fileBlob, fileName);
-          } catch (error) {
-            console.warn("Failed to load file, using base image:", error);
-            formData.append("file", imageToSend, "house.jpg");
-          }
-        } else {
-          // No file found, send base image
-          formData.append("file", imageToSend, "house.jpg");
-        }
-      } else {
-        // Custom image - send the user's image
-        formData.append("file", imageToSend, "house.jpg");
-      }
-      
-      console.log(`Sending ${fileName} (${(fileToSend.size / 1024).toFixed(2)}KB) to AI`);
+      console.log(`Sending custom_house.jpg (${(imageToSend.size / 1024).toFixed(2)}KB) to AI`);
       
       formData.append("mode", "STRICT");
 
@@ -845,6 +830,14 @@ const Calculator: React.FC = () => {
 
       const resultBlob = await response.blob();
       const generatedImageUrl = URL.createObjectURL(resultBlob);
+
+      // Convert blob to base64 for submission
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setGeneratedImageBase64(base64String);
+      };
+      reader.readAsDataURL(resultBlob);
 
       setGeneratedImage(generatedImageUrl);
 
@@ -1118,6 +1111,42 @@ const submitForm = async () => {
     }
 
     // ===========================
+    // FIXINGS MIN LENGTH - CALCULATE REQUIRED LENGTH
+    // ===========================
+    // Calculate minimum required fixing length based on insulation type and thickness
+    if (mappedData.fixings !== undefined && mappedData.insulationType && mappedData.thickness) {
+      const insulationType = mappedData.insulationType; // "EPS" | "Kingspan" | "Wool"
+      const thickness = mappedData.thickness; // number (mm)
+      
+      // Get available lengths from step 7 fixings option
+      const step7 = stepsData.steps.find(s => s.id === 7);
+      const selectedFixingOption = step7?.options?.find(opt => 
+        selectedOptions.includes(opt.id)
+      );
+      
+      if (selectedFixingOption?.product?.avaliable_lenght) {
+        const availableLengths = selectedFixingOption.product.avaliable_lenght;
+        let requiredMinLength: number;
+        
+        if (insulationType === "EPS") {
+          // For EPS: thickness + 20 + 45 = thickness + 65
+          requiredMinLength = thickness + 65;
+        } else {
+          // For Kingspan and Wool: thickness + 45
+          requiredMinLength = thickness + 45;
+        }
+        
+        // Find the smallest available length that is >= required minimum
+        const sortedLengths = [...availableLengths].sort((a, b) => a - b);
+        const selectedLength = sortedLengths.find(length => length >= requiredMinLength);
+        
+        if (selectedLength) {
+          mappedData.fixings_min_length = selectedLength;
+        }
+      }
+    }
+
+    // ===========================
     // CUSTOMER DETAILS
     // ===========================
 
@@ -1139,11 +1168,22 @@ const submitForm = async () => {
       adhesive_units: calculatedMaterials.adhesive_units,
       mesh_units: calculatedMaterials.mesh_units,
       fixings_units: calculatedMaterials.fixings_units,
+      primer_310_units: calculatedMaterials.primer_310_units,
       primer_20_units: calculatedMaterials.primer_20_units,
       primer_7_units: calculatedMaterials.primer_7_units,
       render_units: calculatedMaterials.render_units,
       ...(calculatedMaterials.brick_slips_units && { brick_slips_units: calculatedMaterials.brick_slips_units }),
-      ...(calculatedMaterials.brick_slips_adhesive_units && { brick_slips_adhesive_units: calculatedMaterials.brick_slips_adhesive_units })
+      ...(calculatedMaterials.brick_slips_adhesive_units && { brick_slips_adhesive_units: calculatedMaterials.brick_slips_adhesive_units }),
+      ...(calculatedMaterials.corner_beads && { corner_beads: calculatedMaterials.corner_beads }),
+      ...(calculatedMaterials.stop_beads && { stop_beads: calculatedMaterials.stop_beads }),
+      ...(calculatedMaterials.bellcast_beads && { bellcast_beads: calculatedMaterials.bellcast_beads }),
+      ...(calculatedMaterials.window_reveal && { window_reveal: calculatedMaterials.window_reveal }),
+      ...(calculatedMaterials.starter_tracks && { starter_tracks: calculatedMaterials.starter_tracks }),
+      ...(calculatedMaterials.corner_brick_slips && { corner_brick_slips: calculatedMaterials.corner_brick_slips }),
+      ...(calculatedMaterials.levelling_coat && { levelling_coat: calculatedMaterials.levelling_coat }),
+      ...(calculatedMaterials.fungicidal_wash && { fungicidal_wash: calculatedMaterials.fungicidal_wash }),
+      ...(calculatedMaterials.blue_film && { blue_film: calculatedMaterials.blue_film }),
+      ...(calculatedMaterials.orange_tape && { orange_tape: calculatedMaterials.orange_tape })
     } : {};
 
     // ===========================
@@ -1192,7 +1232,8 @@ const submitForm = async () => {
       data: {
         ...cleanedMappedData,
         customer_details: cleanedCustomerDetails,
-        materials: cleanedMaterials
+        materials: cleanedMaterials,
+        ...(generatedImageBase64 && { photo: generatedImageBase64 })
       }
     };
 
@@ -1203,7 +1244,8 @@ const submitForm = async () => {
     console.log("   data.mappedData:", cleanedMappedData);
     console.log("   data.customer_details:", cleanedCustomerDetails);
     console.log("   data.materials:", cleanedMaterials);
-    console.log("   Full payload:", JSON.stringify(payload, null, 2));
+    console.log("   data.photo:", generatedImageBase64 ? "✅ Included (base64)" : "❌ Not included");
+    console.log("   Full payload (without photo):", JSON.stringify({...payload, data: {...payload.data, photo: generatedImageBase64 ? "[BASE64_DATA]" : undefined}}, null, 2));
 
     // ===========================
     // FINAL POST REQUEST
@@ -1470,7 +1512,7 @@ const submitForm = async () => {
             <Box
               sx={{
                 display: isMobileView ? 'block' : 'flex',
-                alignItems: 'center',
+                al1ignItems: 'center',
                 justifyContent: 'space-between',
               }}
             >
@@ -1486,15 +1528,14 @@ const submitForm = async () => {
                 }}
                 isMobile={isMobileView}
                 selectedOptionImage={(() => {
+                  // Priority 1: Focused substep image (when user is typing in a number input with image)
+                  if (focusedSubstepImage) return focusedSubstepImage;
+                  
+                  // Priority 2: Selected option image
                   const stepValue = values[parentStep.id];
                   // Najpierw statyczne
-                  const staticOpt = parentStep.options?.find?.(o => o.option_value === stepValue);
+                  const staticOpt = parentStep.options?.find?.(o => o.option_value === stepValue || o.json_value === stepValue);
                   if (staticOpt?.image) return staticOpt.image;
-                  // Potem dynamiczne (z cache, bo fetchColorsOnce jest async)
-                  if (parentStep.id === 11 && (globalThis as any).__colorCache) {
-                    const apiOpt = (globalThis as any).__colorCache?.find?.((c: any) => c.colour_code === stepValue);
-                    return apiOpt?.photo_uri ?? null;
-                  }
                   return null;
                 })()}
               />

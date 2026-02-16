@@ -8,6 +8,7 @@ export interface CalculatedMaterials {
   fixings_units: number;
   primer_20_units: number;
   primer_7_units: number;
+  primer_310_units: number;
   render_units: number;
   brick_slips_units?: number;
   brick_slips_adhesive_units?: number;
@@ -17,6 +18,7 @@ export interface CalculatedMaterials {
   bellcast_beads?: number;
   window_reveal?: number;
   starter_tracks?: number;
+  corner_brick_slips?: number;
   levelling_coat?: number;
   fungicidal_wash?: number;
   blue_film?: number;
@@ -31,6 +33,7 @@ interface CalculatorInputs {
   renderType?: number; // OPTION_IDS.RENDER_TYPE
   grainSize?: number; // OPTION_IDS.GRAINSIZE
   fixingsType?: number; // OPTION_IDS.FIXINGS
+  surfaceMaterial?: number; // OPTION_IDS.SURFACE
   selectedOptions: number[];
   values: Record<number, string | number>;
 }
@@ -49,6 +52,7 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
     fixings_units: 0,
     primer_20_units: 0,
     primer_7_units: 0,
+    primer_310_units: 0,
     render_units: 0,
     brick_slips_units: 0,
     brick_slips_adhesive_units: 0
@@ -82,6 +86,8 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
       }
     } else if (insulationType === OPTION_IDS.INSULATION.KINGSPAN) {
       result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.kingspan);
+    } else if (insulationType === OPTION_IDS.INSULATION.WOOD_FIBRE) {
+      result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wood_fibre);
     } else {
       // EPS - direct sqm
       result.insulation_material_units = Math.ceil(surfaceArea);
@@ -99,12 +105,53 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
   // ===== FIXINGS =====
   // Skip fixings if thickness <= 20mm or render only
   if (isInsulationAndRender && thickness && thickness > 20) {
-    result.fixings_units = Math.ceil(surfaceArea / CALC_VALUES.fixings);
+    // Calculate total fixings needed (6 per sqm)
+    const totalFixingsNeeded = surfaceArea * CALC_VALUES.fixings_per_sqm;
+    
+    // Determine box size based on fixing type
+    // Default to metal (100 per box) unless plastic is explicitly selected
+    let fixingsPerBox: number = CALC_VALUES.fixings_box_metal; // default: 100 per box
+    if (inputs.fixingsType === OPTION_IDS.FIXINGS.PLASTIC) {
+      fixingsPerBox = CALC_VALUES.fixings_box_plastic; // 200 per box
+    }
+    // Note: SCREW_METAL also uses 100 per box (same as METAL)
+    
+    result.fixings_units = Math.ceil(totalFixingsNeeded / fixingsPerBox);
+    
+    console.log('[calculateMaterials] Fixings calculation:', {
+      isInsulationAndRender,
+      thickness,
+      surfaceArea,
+      totalFixingsNeeded,
+      fixingsType: inputs.fixingsType,
+      fixingsPerBox,
+      fixings_units: result.fixings_units
+    });
   } else {
     result.fixings_units = 0;
+    console.log('[calculateMaterials] Fixings skipped:', { isInsulationAndRender, thickness, isRenderOnly });
   }
 
   // ===== PRIMER =====
+  // Primer-310 dla wybranych powierzchni (surface material)
+  const surfacesNeedingPrimer310 = [
+    OPTION_IDS.SURFACE.ICF,
+    OPTION_IDS.SURFACE.PEBBLEDASH,
+    OPTION_IDS.SURFACE.BLOCK,
+    OPTION_IDS.SURFACE.BRICK,
+    OPTION_IDS.SURFACE.PAINTED_BRICK,
+    OPTION_IDS.SURFACE.SAND_CEMENT,
+    OPTION_IDS.SURFACE.STONE
+  ];
+  
+  const needsPrimer310 = inputs.surfaceMaterial && (surfacesNeedingPrimer310 as number[]).includes(inputs.surfaceMaterial);
+  
+  if (needsPrimer310) {
+    result.primer_310_units = Math.ceil(surfaceArea / CALC_VALUES["primer-310"]);
+  } else {
+    result.primer_310_units = 0;
+  }
+  
   // Primer dla wszystkich renderów (NIE dla brick slips)
   // Доступен dla render only i insulation & render
   const isBrickSlips = inputs.renderType === OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
@@ -141,17 +188,42 @@ export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterial
   // Note: Mineral render type removed as it doesn't exist in current OPTION_IDS
 
   // ===== BEADS & TRIMS =====
-  // Get values from form (step 8 substeps)
-  if (values[19]) result.corner_beads = Number(values[19]) || 0;
-  if (values[20]) result.stop_beads = Number(values[20]) || 0;
-  if (values[21]) result.bellcast_beads = Number(values[21]) || 0;
-  if (values[22]) result.window_reveal = Number(values[22]) || 0;
+  // Convert meters to pieces (round up)
+  // User provides meters, we divide by length per piece and round up
+  if (values[19]) {
+    const meters = Number(values[19]) || 0;
+    result.corner_beads = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.corner_beads) : 0;
+  }
+  if (values[20]) {
+    const meters = Number(values[20]) || 0;
+    result.stop_beads = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.stop_beads) : 0;
+  }
+  if (values[21]) {
+    const meters = Number(values[21]) || 0;
+    result.bellcast_beads = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.bellcast_beads) : 0;
+  }
+  if (values[22]) {
+    const meters = Number(values[22]) || 0;
+    result.window_reveal = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.window_reveal) : 0;
+  }
   
-  // Starter tracks (from nested substep)
-  if (values[18]) result.starter_tracks = Number(values[18]) || 0;
-  if (values[32]) result.starter_tracks = Number(values[32]) || 0;
+  // Starter tracks (from nested substep) - metal or plastic
+  if (values[18]) {
+    const meters = Number(values[18]) || 0;
+    result.starter_tracks = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.starter_track_metal) : 0;
+  }
+  if (values[32]) {
+    const meters = Number(values[32]) || 0;
+    result.starter_tracks = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.starter_track_plastic) : 0;
+  }
 
   // ===== ADDITIONAL PRODUCTS =====
+  // Corner brick slips - convert meters to boxes (round up)
+  if (values[60]) {
+    const meters = Number(values[60]) || 0;
+    result.corner_brick_slips = meters > 0 ? Math.ceil(meters / CALC_VALUES.additional.corner_brick_slips) : 0;
+  }
+  
   if (values[27]) result.levelling_coat = Number(values[27]) || 0;
   if (values[28]) result.fungicidal_wash = Number(values[28]) || 0;
   if (values[29]) result.blue_film = Number(values[29]) || 0;

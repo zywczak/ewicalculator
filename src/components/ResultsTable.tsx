@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Typography, Table as MuiTable, TableBody, TableRow } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CalculatedMaterials } from "../services/materialCalculator";
-import { getProductForStep, getBrickSlipsAdhesive } from "../services/productResolver";
+import { getProductForStep, getBrickSlipsAdhesive, getAdhesiveProduct, getMeshProduct } from "../services/productResolver";
 import { StepsData } from "../data/steps/types";
 import adress from "../api/adress"
 
@@ -99,11 +99,19 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
   const step9 = stepsData.steps.find(s => s.id === 9);
   const renderOption = step9?.options?.find(opt => selectedOptions.includes(opt.id));
 
+  console.log('[ResultsTable] Calculated Materials:', calculatedMaterials);
+  console.log('[ResultsTable] Fixings units:', calculatedMaterials.fixings_units);
+
   // Main products
   addProduct(calculatedMaterials.insulation_material_units, getProductForStep(5, selectedOptions, stepsData));
-  addProduct(calculatedMaterials.adhesive_units, stepsData.steps.find(s => s.id === 6)?.products?.adhesive);
-  addProduct(calculatedMaterials.mesh_units, getProductForStep(6, selectedOptions, stepsData));
-  addProduct(calculatedMaterials.fixings_units, getProductForStep(7, selectedOptions, stepsData));
+  addProduct(calculatedMaterials.adhesive_units, getAdhesiveProduct(selectedOptions, stepsData));
+  addProduct(calculatedMaterials.mesh_units, getMeshProduct(selectedOptions, stepsData));
+  
+  const fixingsProduct = getProductForStep(7, selectedOptions, stepsData);
+  console.log('[ResultsTable] Fixings product:', fixingsProduct);
+  addProduct(calculatedMaterials.fixings_units, fixingsProduct);
+  
+  addProduct(calculatedMaterials.primer_310_units, getProductForStep(2, selectedOptions, stepsData));
   addProduct(calculatedMaterials.primer_20_units, renderOption?.products?.["primer-20"]);
   addProduct(calculatedMaterials.primer_7_units, renderOption?.products?.["primer-7"]);
   addProduct(calculatedMaterials.render_units, renderOption?.products?.render);
@@ -128,12 +136,32 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
   if (calculatedMaterials.starter_tracks && calculatedMaterials.starter_tracks > 0) {
     const isMetalType = selectedOptions.includes(42); // OPTION_IDS.STARTER_TRACKS.METAL
     const isPlasticType = selectedOptions.includes(43); // OPTION_IDS.STARTER_TRACKS.PLASTIC
-    const starterTrackProduct = isMetalType ? getProductFromSubstep(8, 18) : 
-                                 isPlasticType ? getProductFromSubstep(8, 32) : null;
-    addProduct(calculatedMaterials.starter_tracks, starterTrackProduct);
+    
+    if (isMetalType) {
+      // For metal starter tracks, we need both the starter track and clip-on profile
+      const step8 = stepsData.steps.find(s => s.id === 8);
+      const substep31 = step8?.substeps?.find(s => s.id === 31);
+      const substep18 = substep31?.substeps?.find(s => s.id === 18);
+      
+      if (substep18?.products) {
+        // Add starter track
+        if (substep18.products['startertrack']) {
+          addProduct(calculatedMaterials.starter_tracks, substep18.products['startertrack']);
+        }
+        // Add clip-on profile (same quantity as starter track)
+        if (substep18.products['clip on']) {
+          addProduct(calculatedMaterials.starter_tracks, substep18.products['clip on']);
+        }
+      }
+    } else if (isPlasticType) {
+      // For plastic starter tracks, just one product
+      const starterTrackProduct = getProductFromSubstep(8, 32);
+      addProduct(calculatedMaterials.starter_tracks, starterTrackProduct);
+    }
   }
 
   // Additional products
+  addProduct(calculatedMaterials.corner_brick_slips, getProductFromSubstep(12, 60));
   addProduct(calculatedMaterials.levelling_coat, getProductFromSubstep(12, 27));
   addProduct(calculatedMaterials.fungicidal_wash, getProductFromSubstep(12, 28));
   addProduct(calculatedMaterials.blue_film, getProductFromSubstep(12, 29));
@@ -184,11 +212,11 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
             {products.map((item, index) => (
               <TableRow
                 key={`${item.id}-${index}`}
-                onClick={() => {
-                  if (item.link) {
-                    window.open(item.link, '_blank', 'noopener,noreferrer');
-                  }
-                }}
+                // onClick={() => {
+                //   if (item.link) {
+                //     window.open(item.link, '_blank', 'noopener,noreferrer');
+                //   }
+                // }}
                 sx={{
                   backgroundColor: index % 2 === 1 ? "#F9F9F9" : "transparent",
                   cursor: item.link ? "pointer" : "default",

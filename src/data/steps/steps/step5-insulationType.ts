@@ -14,9 +14,78 @@ export const STEP_5_INSULATION: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png", option_image: "/media/kingspan.png" },
-    { id: OPTION_IDS.INSULATION.EPS, option_value: "EPS", json_value: "EPS", image: "/media/eps.png", option_image: "/media/eps.png" },
-    { id: OPTION_IDS.INSULATION.WOOL, option_value: "Mineral wool", json_value: "Wool", image: "/media/mineralwool.png", option_image: "/media/mineralwool.png" }
+    { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png",
+        products: {
+            "adhesive": {
+                productCode: "EWI-225",
+                productName: "Premium Basecoat 25kg",
+                image: "/media/adhesive.png",
+                unitDetail: "25kg/bag",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
+            },
+            "mesh": {
+                productCode: "PXM-165706",
+                productName: "Orange Fibreglass Mesh (165g/m²)",
+                image: "/media/orange-fibreglass-mesh.png",
+                unitDetail: "50 sqm/roll",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/orange-fibreglass-mesh-50m2/"
+            }
+        }
+     },
+    { id: OPTION_IDS.INSULATION.EPS, option_value: "EPS", json_value: "EPS", image: "/media/eps.png",
+        products: {
+            "adhesive": {
+                productCode: "EWI-220",
+                productName: "EPS Basecoat Adhesive 25kg",
+                image: "/media/eps_adhesive.png",
+                unitDetail: "25kg/bag",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/eps-basecoat-adhesive-ewi-220-25kg/"
+            },
+            "mesh": {
+                productCode: "PXM-165702",
+                productName: "Fibreglass Mesh (165g/m²)",
+                image: "/media/fibreglass-mesh.png",
+                unitDetail: "50 sqm/roll",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/fibreglass-mesh-150g-m2-50m2/"
+            }
+        }
+     },
+    { id: OPTION_IDS.INSULATION.WOOL, option_value: "Mineral wool", json_value: "Wool", image: "/media/mineralwool.png",
+        products: {
+            "adhesive": {
+                productCode: "EWI-225",
+                productName: "Premium Basecoat 25kg",
+                image: "/media/adhesive.png",
+                unitDetail: "25kg/bag",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
+            },
+            "mesh": {
+                productCode: "PXM-165706",
+                productName: "Orange Fibreglass Mesh (165g/m²)",
+                image: "/media/orange-fibreglass-mesh.png",
+                unitDetail: "50 sqm/roll",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/orange-fibreglass-mesh-50m2/"
+            }
+        }
+     },
+     { id: OPTION_IDS.INSULATION.WOOD_FIBRE, option_value: "Wood Fibre", json_value: "Wood Fibre", image: "/media/wood-fibre.png",
+        products: {
+            "adhesive": {
+                productCode: "EWI-225",
+                productName: "Premium Basecoat 25kg",
+                image: "/media/adhesive.png",
+                unitDetail: "25kg/bag",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-basecoat-ewi-225-25kg/"
+            },
+            "mesh": {
+                productCode: "PXM-165706",
+                productName: "Orange Fibreglass Mesh (165g/m²)",
+                image: "/media/orange-fibreglass-mesh.png",
+                unitDetail: "50 sqm/roll",
+                link: "https://ewistore.co.uk/shop/external-wall-insulation/orange-fibreglass-mesh-50m2/"
+            }
+        }
+     }
     ],
     help: [
     {

@@ -137,8 +137,8 @@ export const STEP_9_RENDER: FormStep = {
         json_value: 7,
         image: "/media/brickslips.png",
         product: {
-            productCode: "ELS-15KG",
-            productName: "Elabrick Special Adhesive",
+            productCode: "ELS-15KG-CEMENT-GREY",
+            productName: "Elabrick Special Adhesive - Cement Grey",
             image: "/media/adhecive_brick_slips.png",
             unitDetail: "15kg/bucket",
             link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-special-adhesive-15kg/"
@@ -155,6 +155,10 @@ export const STEP_9_RENDER: FormStep = {
     }
     ],
     conditions: [
-    { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, skip_steps: [10] }
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, skip_steps: [10] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, skip_steps: [60] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.SILICONE, skip_steps: [60] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, skip_steps: [60] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.NANO_DREX, skip_steps: [60] }
     ],
 };
