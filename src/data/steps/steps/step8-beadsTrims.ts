@@ -35,8 +35,8 @@ export const STEP_8_BEADS: FormStep = {
             validation_regex: null,
             substeps: [],
             options: [
-            { id: OPTION_IDS.STARTER_TRACKS.METAL, option_value: "Metal", json_value: 2, image: null },
-            { id: OPTION_IDS.STARTER_TRACKS.PLASTIC, option_value: "Plastic", json_value: 1, image: null }
+            { id: OPTION_IDS.STARTER_TRACKS.METAL, option_value: "Metal", json_value: "metal", image: null },
+            { id: OPTION_IDS.STARTER_TRACKS.PLASTIC, option_value: "Plastic", json_value: "plastic", image: null }
             ],
             help: [],
             conditions: [
@@ -50,21 +50,16 @@ export const STEP_8_BEADS: FormStep = {
             description: null,
             json_key: "count",
             input_type: "number",
-            placeholder: null,
+            placeholder: "meters",
             required: null,
             parent: 31,
+            image: "/media/metalstartertrack.png",
             validation_regex: null,
             substeps: [],
             options: [],
             help: [],
             conditions: [],
-            product: {
-                productCode: "CMS-800-20",
-                productName: "Premium Aluminium Starter Track",
-                image: "/media/metalstartertrack.png",
-                unitDetail: "2.5m/pc",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/premium-aluminium-starter-track-2-5m/"
-            }
+            productCode: ["CMS-800-20", "LIK-136"],
         },
         {
             id: 32,
@@ -72,33 +67,22 @@ export const STEP_8_BEADS: FormStep = {
             description: null,
             json_key: "count",
             input_type: "number",
-            placeholder: null,
+            placeholder: "meters",
             required: null,
             parent: 31,
+            image: "/media/plastic-start-bead.png",
             validation_regex: null,
             substeps: [],
             options: [],
             help: [],
             conditions: [],
-            product: {
-                productCode: "VWS-4206",
-                productName: "Adjustable uPVC Starter Track",
-                image: "/media/plastic-start-bead.png",
-                unitDetail: "2.0m/pc",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/adjustable-upvc-starter-track-2m/"
-            }
+            productCode: ["VWS-4206"],
         },
         ],
         options: [],
         help: [],
         conditions: [],
-        product: {
-            productCode: "VWS-4206",
-            productName: "Adjustable uPVC Starter Track",
-            image: "/media/plastic-start-bead.png",
-            unitDetail: "2.0m/pc",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/adjustable-upvc-starter-track-2m/"
-        }
+        productCode: ["VWS-4206"],
     },
     {
         id: 19,
@@ -106,21 +90,16 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "cornerbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
         options: [],
+        image: "/media/cornerbead.png",
         help: [],
         conditions: [],
-        product: {
-            productCode: "LIK-115",
-            productName: "uPVC Render Corner Bead",
-            image: "/media/cornerbead.png",
-            unitDetail: "2.5m/pc",
-            link: "https://ewistore.co.uk/product-category/external-wall-insulation/beading-and-mesh/stop-beads/#454d/brand-categories/m=and&q=LIK-115"
-        }
+        productCode: ["LIK-115"],
     },
     {
         id: 20,
@@ -128,21 +107,16 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "stopbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
         options: [],
+        image: "/media/stopbead.png",
         help: [],
         conditions: [],
-        product: {
-            productCode: "LIK-121",
-            productName: "uPVC Stop Bead with Mesh",
-            image: "/media/stopbead.png",
-            unitDetail: "2.5m/pc",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/upvc-stop-bead-with-mesh-2-5m/"
-        }
+        productCode: ["LIK-121"],
     },
     {
         id: 21,
@@ -150,21 +124,16 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "bellcastbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
+        image: "/media/bellcastbead.png",
         options: [],
         help: [],
         conditions: [],
-        product: {
-            productCode: "LIK-566",
-            productName: "Bellcast Bead - 10mm",
-            image: "/media/bellcastbead.png",
-            unitDetail: "2.5m/pc",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/white-bellcast-bead-14mm-single-bead/"
-        }
+        productCode: ["LIK-566"],
     },
     {
         id: 22,
@@ -172,21 +141,16 @@ export const STEP_8_BEADS: FormStep = {
         description: null,
         json_key: "revealbeads",
         input_type: "number",
-        placeholder: null,
+        placeholder: "meters",
         required: null,
         parent: 8,
         validation_regex: null,
         substeps: [],
+        image: "/media/windowreveal.png",
         options: [],
         help: [],
         conditions: [],
-        product: {
-            productCode: "LIK-160",
-            productName: "Window Reveal Bead with Protective Lip & Mesh",
-            image: "/media/windowreveal.png",
-            unitDetail: "2.6m/pc",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/white-window-reveal-bead-with-mesh/"
-        }
+        productCode: ["LIK-160"],
     }
     ],
     options: [],
@@ -217,7 +181,7 @@ export const STEP_8_BEADS: FormStep = {
         {
             image_name: "startertrack.png",
             caption: "Starter track",
-            image_url: "/media/startertrack.png",
+            image_url: "/media/plastic-start-bead.png",
             description: "The starter track is installed at the base of insulation systems to protect this area and provide a level guide for building up the insulation."
         },
         {

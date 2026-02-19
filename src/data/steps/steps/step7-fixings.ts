@@ -8,13 +8,23 @@ export const STEP_7_FIXINGS: FormStep = {
     json_key: "fixings",
     input_type: "radio",
     placeholder: null,
-    required: null,
+    required: false,
     parent: null,
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.FIXINGS.PLASTIC, option_value: "Plastic", json_value: 2, image: "/media/plastic fixing.png" },
-    { id: OPTION_IDS.FIXINGS.METAL, option_value: "Metal", json_value: 1, image: "/media/metal fixing.png" },
+    { id: OPTION_IDS.FIXINGS.PLASTIC, option_value: "Plastic", json_value: "plastic", image: "/media/hammer_plastic_fixing.png",
+        parent_option_id: [OPTION_IDS.INSULATION.EPS],
+        productCode: ["WKR-FIXPLUG10"],
+    },
+    { id: OPTION_IDS.FIXINGS.METAL, option_value: "Hammer Metal", json_value: "hammer_metal", image: "/media/metal_hammer_fixing.png",
+        parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.WOOL],
+        productCode: ["ZIEL-ETX-M"],
+     },
+     { id: OPTION_IDS.FIXINGS.SCREW_METAL, option_value: "Screw Metal", json_value: "screw_metal", image: "/media/screw_metal_fixing.png",
+        parent_option_id: [OPTION_IDS.INSULATION.KINGSPAN, OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.WOOD_FIBRE],
+        productCode: ["ZIEL-ETX-MT", "RWL-R-TFIX-8S"],
+     },
     ],
     help: [
     {
@@ -27,20 +37,4 @@ export const STEP_7_FIXINGS: FormStep = {
     }
     ],
     conditions: [],
-    products: {
-        "plastic": {
-            productCode: "EWI-720",
-            productName: "Plastic Mechanical Fixings (200/box)",
-            image: "/media/fixings-plastic.jpg",
-            unitDetail: "200/box",
-            link: "https://ewistore.co.uk/shop/ewi-720-plastic-mechanical-fixings-200-units-115mm/"
-        },
-        "metal": {
-            productCode: "EWI-730",
-            productName: "Metal Mechanical Fixings (200/box)",
-            image: "/media/fixings-metal.jpg",
-            unitDetail: "200/box",
-            link: "https://ewistore.co.uk/shop/ewi-730-metal-mechanical-fixings-200-units-115mm/"
-        }
-    }
 };

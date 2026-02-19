@@ -24,7 +24,7 @@ const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = 
       }
 
       const containerWidth = containerRef.current.offsetWidth;
-      const windowHeight = window.innerHeight;
+      const windowHeight = globalThis.innerHeight;
 
       let newScale = containerWidth / defaultWidth;
 
@@ -39,12 +39,12 @@ const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = 
     };
 
     updateScale();
-    window.addEventListener("resize", updateScale);
+    globalThis.addEventListener("resize", updateScale);
 
     const timeout = setTimeout(updateScale, 100);
 
     return () => {
-      window.removeEventListener("resize", updateScale);
+      globalThis.removeEventListener("resize", updateScale);
       clearTimeout(timeout);
     };
   }, [isMobileView, defaultWidth, defaultHeight]);

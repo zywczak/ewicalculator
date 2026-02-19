@@ -14,9 +14,18 @@ export const STEP_5_INSULATION: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png", option_image: "/media/kingspan.png" },
-    { id: OPTION_IDS.INSULATION.EPS, option_value: "EPS", json_value: "EPS", image: "/media/eps.png", option_image: "/media/eps.png" },
-    { id: OPTION_IDS.INSULATION.WOOL, option_value: "Mineral wool", json_value: "Wool", image: "/media/mineralwool.png", option_image: "/media/mineralwool.png" }
+    { id: OPTION_IDS.INSULATION.KINGSPAN, option_value: "Kingspan k5", json_value: "Kingspan", image: "/media/kingspan.png",
+        productCode: ["EWI-225", "PXM-165706", "KNG-K5"],
+    },
+    { id: OPTION_IDS.INSULATION.EPS, option_value: "EPS", json_value: "EPS", image: "/media/eps.png",
+        productCode: ["EWI-220", "PXM-165702", "SPI-EWIPLUS"],
+     },
+    { id: OPTION_IDS.INSULATION.WOOL, option_value: "Mineral wool", json_value: "Wool", image: "/media/mineralwool.png",
+       productCode: ["EWI-225", "PXM-165706", "ROC-470"],
+     },
+     { id: OPTION_IDS.INSULATION.WOOD_FIBRE, option_value: "Wood Fibre", json_value: "Wood Fibre", image: "/media/wood-fibre.png",
+        productCode: ["EWI-225", "PXM-165706", "STE-PROTECTLDRY"],
+     }
     ],
     help: [
     {

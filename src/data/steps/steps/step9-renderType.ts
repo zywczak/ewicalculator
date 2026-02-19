@@ -18,131 +18,37 @@ export const STEP_9_RENDER: FormStep = {
     { 
         id: OPTION_IDS.RENDER_TYPE.NANO_DREX,
         option_value: "Nano Drex Silicone",
-        json_value: 6,
+        json_value: "nano_drex_silicone",
         image: "/media/nanodrex.png",
-        products: {
-            "render": {
-                productCode: "EWI-077-1.5A",
-                productName: "Nano Drex Silicone Render",
-                image: "/media/nanodrex.png",
-                unitDetail: "25kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-render-nano-drex-ewi-077-25kg/"
-            },
-            "primer-20": {
-                productCode: "EWI-333-20",
-                productName: "Top Coat Primer - 20kg",
-                image: "/media/primer20.png",
-                unitDetail: "20kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
-            },
-            "primer-7": {
-                productCode: "EWI-333-7",
-                productName: "Top Coat Primer - 7kg",
-                image: "/media/primer7.png",
-                unitDetail: "7kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
-            }
-        }
+        productCode: ["EWI-077-1.5A", "EWI-333-20", "EWI-333-7"],
     },
     { 
         id: OPTION_IDS.RENDER_TYPE.PREMIUM_BIO,
         option_value: "Premium Bio Silicone",
-        json_value: 5,
+        json_value: "premium_bio_silicone",
         image: "/media/premiumbio.png",
-        products: {
-            "render": {
-                productCode: "EWI-076",
-                productName: "Premium Bio Silicone Render",
-                image: "/media/premiumbio.png",
-                unitDetail: "25kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-render-premium-bio-ewi-076-25kg/"
-            },
-            "primer-20": {
-                productCode: "EWI-333-20",
-                productName: "Top Coat Primer - 20kg",
-                image: "/media/primer20.png",
-                unitDetail: "20kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
-            },
-            "primer-7": {
-                productCode: "EWI-333-7",
-                productName: "Top Coat Primer - 7kg",
-                image: "/media/primer7.png",
-                unitDetail: "7kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
-            }
-        }
+        productCode: ["EWI-076", "EWI-333-20", "EWI-333-7"],
     },
     { 
         id: OPTION_IDS.RENDER_TYPE.SILICONE,
         option_value: "Silicone",
-        json_value: 1,
+        json_value: "silicone",
         image: "/media/silicone.png",
-        products: {
-            "render": {
-                productCode: "EWI-075",
-                productName: "Silicone Render",
-                image: "/media/silicone.png",
-                unitDetail: "25kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-render-ewi-075-25kg-2-0mm/"
-            },
-            "primer-20": {
-                productCode: "EWI-333-20",
-                productName: "Top Coat Primer - 20kg",
-                image: "/media/primer20.png",
-                unitDetail: "20kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
-            },
-            "primer-7": {
-                productCode: "EWI-333-7",
-                productName: "Top Coat Primer - 7kg",
-                image: "/media/primer7.png",
-                unitDetail: "7kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
-            }
-        }
+        productCode: ["EWI-075", "EWI-333-20", "EWI-333-7"],
     },
     { 
         id: OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE,
         option_value: "Silicone Silicate",
-        json_value: 2,
+        json_value: "silicone_silicate",
         image: "/media/siliconesilicate.png",
-        products: {
-            "render": {
-                productCode: "EWI-040",
-                productName: "Silicone Silicate Render",
-                image: "/media/siliconesilicate.png",
-                unitDetail: "25kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/silicone-silicate-render-ewi-040-25kg/"
-            },
-            "primer-20": {
-                productCode: "EWI-333-20",
-                productName: "Top Coat Primer - 20kg",
-                image: "/media/primer20.png",
-                unitDetail: "20kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-20kg/"
-            },
-            "primer-7": {
-                productCode: "EWI-333-7",
-                productName: "Top Coat Primer - 7kg",
-                image: "/media/primer7.png",
-                unitDetail: "7kg/bucket",
-                link: "https://ewistore.co.uk/shop/external-wall-insulation/top-coat-primer-7kg/"
-            }
-        }
+        productCode: ["EWI-040", "EWI-333-20", "EWI-333-7"],
     },
     { 
         id: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS,
         option_value: "Brick Slips",
-        json_value: 7,
+        json_value: "brick_slips",
         image: "/media/brickslips.png",
-        product: {
-            productCode: "ELS-15KG",
-            productName: "Elabrick Special Adhesive",
-            image: "/media/adhecive_brick_slips.png",
-            unitDetail: "15kg/bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-special-adhesive-15kg/"
-        }
+        productCode: ["ELS-15KG-CEMENT-GREY"],
     }
     ],
     help: [
@@ -155,6 +61,10 @@ export const STEP_9_RENDER: FormStep = {
     }
     ],
     conditions: [
-    { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, skip_steps: [10] }
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.BRICK_SLIPS, skip_steps: [10] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, skip_steps: [60] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.SILICONE, skip_steps: [60] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, skip_steps: [60] },
+        { trigger_step: 9, trigger_option: OPTION_IDS.RENDER_TYPE.NANO_DREX, skip_steps: [60] }
     ],
 };

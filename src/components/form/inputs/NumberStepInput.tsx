@@ -23,12 +23,24 @@ const NumberStepInput: React.FC<StepInputProps> = ({
   };
 
   const handleBlur = () => {
+    // Notify parent that focus is lost
+    if (step.image && (globalThis as any).__setFocusedSubstepImage) {
+      (globalThis as any).__setFocusedSubstepImage(null);
+    }
+    
     if (localValue === "") {
       onChange("");
       return;
     }
     const numericValue = Number(localValue);
     onChange(Math.max(0, numericValue));
+  };
+
+  const handleFocus = () => {
+    // Notify parent that this input is focused and has an image
+    if (step.image && (globalThis as any).__setFocusedSubstepImage) {
+      (globalThis as any).__setFocusedSubstepImage(step.image);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -50,6 +62,7 @@ const NumberStepInput: React.FC<StepInputProps> = ({
       label={isSubstep ? undefined : step.placeholder || "Enter m2"}
       onChange={handleChange}
       onBlur={handleBlur}
+      onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       placeholder={isSubstep ? step.placeholder || "0" : undefined}
 
