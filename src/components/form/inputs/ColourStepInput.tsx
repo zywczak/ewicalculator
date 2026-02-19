@@ -5,6 +5,7 @@
   import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
   import { RENDER_PARENTS, STEP_11_COLOUR } from '../../../data/steps/steps/step11-colour';
   import OPTION_IDS from '../../../data/constants/optionIds';
+import adress from "../../../api/adress";
 
   interface ColorOption {
     id: number;
@@ -117,7 +118,7 @@
                 }}
               >
                 <img 
-                  src={color.photo_uri}
+                  src={adress + color.photo_uri}
                   alt={color.colour_code} 
                   style={{ 
                     width: "100%", 
