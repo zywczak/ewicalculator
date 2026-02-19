@@ -21,7 +21,7 @@ const RENDER_TYPE_IDS = new Set<number>([
 
 const getApiKey = () => {
   const urlParams = new URLSearchParams(globalThis.location.search);
-  return urlParams.get("apiKEY") || import.meta.env.VITE_API_KEY;
+  return urlParams.get("apiKEY") || import.meta.env.VITE_API_KEY || "51e904be14b69f404b782149c16681c3";
 };
 
 const Calculator: React.FC = () => {
