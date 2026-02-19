@@ -286,18 +286,48 @@ const Step: React.FC<StepFormProps> = ({
     if (isDrawingMode && parentStep.id === 11) {
       return false;
     }
-    
+
     // For step 1 (house type), check if house type is selected
     if (parentStep.id === 1) {
       const hasHouseOption = values[1] !== undefined && values[1] !== "" && !errors[1];
       return hasHouseOption;
     }
-    
-    return allSteps.every(step => {
-      if (!step.required) return true;
-      return values[step.id] !== undefined && values[step.id] !== "" && !errors[step.id];
-    });
-  }, [values, errors, parentStep, isDrawingMode]);
+
+    // Determine visibility using global condition helpers and selected options
+    const isStepVisible = (substep: FormStep): boolean => {
+      const { shouldShow, shouldHide } = checkConditionsRecursive(
+        stepsData.steps,
+        substep.id,
+        selectedOptions
+      );
+      if (shouldHide) return false;
+      const hasShowConds = hasShowConditionsRecursive(stepsData.steps, substep.id);
+      if (hasShowConds) return shouldShow;
+      return true;
+    };
+
+    const checkRequiredRecursive = (step: FormStep): boolean => {
+      // If step is visible and required, ensure value exists and there are no errors
+      if (isStepVisible(step) && step.required) {
+        if (values[step.id] === undefined || values[step.id] === "" || errors[step.id]) {
+          return false;
+        }
+      }
+
+      if (!step.substeps?.length) return true;
+
+      for (const sub of step.substeps) {
+        // skip invisible substeps
+        if (!isStepVisible(sub)) continue;
+        if (!checkRequiredRecursive(sub)) return false;
+      }
+
+      return true;
+    };
+
+    // Check parent and all visible nested substeps
+    return checkRequiredRecursive(parentStep);
+  }, [values, errors, parentStep, isDrawingMode, stepsData, selectedOptions]);
 
   React.useEffect(() => {
     allSteps.forEach(step => {

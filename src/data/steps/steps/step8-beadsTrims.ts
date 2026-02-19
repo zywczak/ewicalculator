@@ -30,7 +30,7 @@ export const STEP_8_BEADS: FormStep = {
             json_key: "type",
             input_type: "radio",
             placeholder: null,
-            required: null,
+            required: true,
             parent: 31,
             validation_regex: null,
             substeps: [],

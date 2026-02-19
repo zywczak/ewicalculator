@@ -35,6 +35,7 @@ export const STEP_9_RENDER: FormStep = {
         json_value: "silicone",
         image: "/media/silicone.png",
         productCode: ["EWI-075", "EWI-333-20", "EWI-333-7"],
+        default: true,
     },
     { 
         id: OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE,

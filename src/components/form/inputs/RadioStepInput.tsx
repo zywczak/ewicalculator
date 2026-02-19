@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import Bestseller from "../buttons/bestseller";
 import { StepInputProps } from "../Step/StepInput";
 
 const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSubstep, isMobile = false, selectedParentOptionIds = [] }) => {
@@ -94,6 +95,11 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
             >
               {opt.option_value}
             </Typography>
+            {opt.default && (
+              <Box sx={{ ml: "auto", mr: "20px" }}>
+                <Bestseller />
+              </Box>
+            )}
           </Box>
         );
       })}

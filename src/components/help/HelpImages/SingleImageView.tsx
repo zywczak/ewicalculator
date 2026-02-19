@@ -30,6 +30,7 @@ const SingleImageView: React.FC<SingleImageViewProps> = ({ image, isMobile = fal
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
+          backgroundColor: "#fafafa",
         }}
       >
         <img

@@ -15,7 +15,7 @@ export const STEP_10_GRAIN: FormStep = {
     options: [
     { id: OPTION_IDS.GRAINSIZE["0_5MM"], option_value: "0.5 mm", json_value: 0.5, image: "/media/texture_0_5mm.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.SILICONE] },
     { id: OPTION_IDS.GRAINSIZE["1MM"], option_value: "1 mm", json_value: 1, image: "/media/texture_1mm.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.RENDER_TYPE.SILICONE] },
-    { id: OPTION_IDS.GRAINSIZE["1_5MM"], option_value: "1.5 mm", json_value: 1.5, image: "/media/texture_1_5mm.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.RENDER_TYPE.SILICONE] },
+    { id: OPTION_IDS.GRAINSIZE["1_5MM"], option_value: "1.5 mm", json_value: 1.5, image: "/media/texture_1_5mm.png", default: true, parent_option_id: [OPTION_IDS.RENDER_TYPE.NANO_DREX, OPTION_IDS.RENDER_TYPE.PREMIUM_BIO, OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE, OPTION_IDS.RENDER_TYPE.SILICONE] },
     { id: OPTION_IDS.GRAINSIZE["2MM"], option_value: "2 mm", json_value: 2, image: "/media/texture_2mm.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.SILICONE] },
     { id: OPTION_IDS.GRAINSIZE["3MM"], option_value: "3 mm", json_value: 3, image: "/media/texture_3mm.png", parent_option_id: [OPTION_IDS.RENDER_TYPE.SILICONE] },
     ],

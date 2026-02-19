@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Typography, Table as MuiTable, TableBody, TableRow } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { CalculatedMaterials } from "../services/materialCalculator";
@@ -24,7 +24,7 @@ interface ResultsTableProps {
 type ProductEntry = (typeof products)[number];
 
 const DataCell = styled("td")({
-  padding: "16px 8px",
+  padding: "0 8px",
   borderBottom: "none",
   verticalAlign: "middle",
 });
@@ -118,6 +118,23 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
   calculatedMaterials,
   stepsData
 }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [centerContent, setCenterContent] = useState(false);
+
+  const checkOverflow = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    // If content height is less than or equal to container height -> center
+    const fits = el.scrollHeight <= el.clientHeight;
+    setCenterContent(fits);
+  };
+
+  useEffect(() => {
+    checkOverflow();
+    const onResize = () => checkOverflow();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
   if (!calculatedMaterials || !stepsData) {
     return (
       <Box
@@ -165,9 +182,15 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
       }}
     >
       <Box
+        ref={containerRef}
         sx={{
           height: 450,
-          overflowY: "auto",
+          px: "30px",
+          overflowY: centerContent ? "hidden" : "auto",
+          display: centerContent ? "flex" : "block",
+          alignItems: centerContent ? "center" : "flex-start",
+          justifyContent: centerContent ? "center" : "flex-start",
+          flexDirection: "column",
           scrollbarWidth: "none",
           width: "100%",
           msOverflowStyle: "none",
@@ -178,7 +201,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
       >
         <MuiTable sx={{ borderCollapse: "collapse" }}>
           <colgroup>
-            <col style={{ width: isMobile ? "60px" : "80px" }} />
+            <col style={{ width: isMobile ? "60px" : "80px", height: isMobile ? 40 : 60 }} />
             <col style={{ width: "auto" }} />
             <col style={{ width: isMobile ? "80px" : "120px" }} />
           </colgroup>
@@ -189,6 +212,7 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
                 key={`${item.id}-${index}`}
                 sx={{
                   p: 0,
+                  m: 0,
                   backgroundColor: index % 2 === 1 ? "#F9F9F9" : "transparent",
                   cursor: item.link ? "pointer" : "default",
                   "&:hover": item.link ? {
@@ -196,14 +220,16 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
                   } : {},
                 }}
               >
-                <DataCell sx={{ textAlign: "center", p: 0, pl: "20px" }}>
+                <DataCell sx={{ textAlign: "center", p: 0, height: isMobile ? 40 : 60 }}>
                   <img
                     src={adress + item.image}
                     alt={item.id}
+                    onLoad={() => checkOverflow()}
                     style={{
-                      width: isMobile ? 40 : 60,
-                      height: "auto0px",
+                      width: "100%",
+                      height: "100%",
                       objectFit: "contain",
+                      display: "block",
                     }}
                   />
                 </DataCell>

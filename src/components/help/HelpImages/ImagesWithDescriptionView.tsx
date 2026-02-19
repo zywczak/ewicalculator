@@ -48,6 +48,7 @@ const ImagesWithDescriptionView: React.FC<ImagesWithDescriptionViewProps> = ({ i
               overflow: "hidden",
               position: "relative",
               borderRadius: "20px",
+              backgroundColor: "#fafafa",
             }}
           >
             <img

@@ -12,8 +12,9 @@ export interface FormStepOption {
   option_value: string;
   json_value: string | number |null;
   image: string | null;
+  default?: boolean;
   parent_option_id?: number[];
-  productCode?: string[]; // optional product code to link the option to a product
+  productCode?: string[];
 }
 
 export interface HelpImage {

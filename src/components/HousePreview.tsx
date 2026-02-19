@@ -102,6 +102,7 @@ const HousePreview: React.FC<HousePreviewProps> = ({
       width: isMobile ? "100%" : "600px",
       height: isMobile ? "auto" : "450px",
       aspectRatio: isMobile ? "4/3" : undefined,
+      backgroundColor: "#FFFFFF",
     }}>
       {currentImage ? (
         <>

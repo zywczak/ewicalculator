@@ -48,6 +48,7 @@ export const STEP_6_THICKNESS: FormStep = {
         json_value: 90, 
         image: null, 
         parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.WOOL],
+        default: true,
     },
     { 
         id: OPTION_IDS.THICKNESS["100MM"], 

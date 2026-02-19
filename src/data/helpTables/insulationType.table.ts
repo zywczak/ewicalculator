@@ -39,14 +39,14 @@ export const INSULATION_TYPE_TABLE: SimpleTable = {
     },
     { 
       label: "Breathability", 
-      icon: "/media/flower.jpg", 
+      icon: "/media/flower.png", 
       type: "scale", 
       scale: [1, 3], 
       values: [1, 3, 1, 2] 
     },
     { 
       label: "Recyclable", 
-      icon: "/media/checkmark", 
+      icon: "", 
       type: "boolean", 
       values: [true, true, true, true] 
     },
