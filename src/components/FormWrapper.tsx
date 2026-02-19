@@ -35,6 +35,8 @@ const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = 
         newScale = maxHeight / defaultHeight;
       }
 
+      newScale = Math.min(newScale, 1);
+
       setScale(newScale);
     };
 
