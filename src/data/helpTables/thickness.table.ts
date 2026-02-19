@@ -13,17 +13,17 @@ export const THICKNESS_UVALUE_TABLE: SimpleTable = {
   ],
   
   rows: [
-    { label: "20 mm", type: "text", values: ["0.88 W/m<sup>2</sup>.K", null, "0.72 W/m<sup>2</sup>.K", null] },
+    { label: "25 mm", type: "text", values: [null, null, "0.72 W/m<sup>2</sup>.K", null] },
     { label: "50 mm", type: "text", values: ["0.48 W/m<sup>2</sup>.K", "0.53 W/m<sup>2</sup>.K", "0.33 W/m<sup>2</sup>.K", null] },
     { label: "60 mm", type: "text", values: [null, null, "0.29 W/m<sup>2</sup>.K", null] },
     { label: "70 mm", type: "text", values: ["0.37 W/m<sup>2</sup>.K", null, "0.25 W/m<sup>2</sup>.K", null] },
-    { label: "90 mm", type: "text", values: ["0.30 W/m<sup>2</sup>.K", null, null, null] },
-    { label: "100 mm", type: "text", values: ["0.28 W/m<sup>2</sup>.K", "0.30 W/m<sup>2</sup>.K", null, "3.2 W/m<sup>2</sup>.K"] },
+    { label: "90 mm", type: "text", values: ["0.30 W/m<sup>2</sup>.K", "0.32 W/m<sup>2</sup>.K", null, null] },
+    { label: "100 mm", type: "text", values: ["0.28 W/m<sup>2</sup>.K", "0.30 W/m<sup>2</sup>.K", null, "0.37 W/m<sup>2</sup>.K"] },
     { label: "110 mm", type: "text", values: [null, "0.28 W/m<sup>2</sup>.K", null, null] },
-    { label: "120 mm", type: "text", values: [null, null, null, "2.7 W/m<sup>2</sup>.K"] },
-    { label: "140 mm", type: "text", values: [null, null, null, "2.2 W/m<sup>2</sup>.K"] },
+    { label: "120 mm", type: "text", values: [null, null, null, "0.31 W/m<sup>2</sup>.K"] },
+    { label: "140 mm", type: "text", values: [null, null, null, null] },
     { label: "150 mm", type: "text", values: ["0.19 W/m<sup>2</sup>.K", "0.21 W/m<sup>2</sup>.K", null, null] },
-    { label: "160 mm", type: "text", values: [null, null, null, "1.8 W/m<sup>2</sup>.K"] },
-    { label: "200 mm", type: "text", values: [null, null, null, "1.2 W/m<sup>2</sup>.K"] },
+    { label: "160 mm", type: "text", values: [null, null, null, null] },
+    { label: "200 mm", type: "text", values: [null, null, null, null] },
   ]
 };

@@ -19,7 +19,7 @@ const TextStepInput: React.FC<StepInputProps> = ({
     if (step.validation_regex) {
       const regex = new RegExp(step.validation_regex);
       const valid = regex.test(val);
-      setError(valid ? null : "Niepoprawny format");
+      setError(valid ? null : "Incorrect format");
       onErrorChange?.(!valid);
     } else {
       setError(null);

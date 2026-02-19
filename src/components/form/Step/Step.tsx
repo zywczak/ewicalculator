@@ -64,7 +64,9 @@ const updateJsonValuesForStep = (
 
   if (step.json_key !== undefined) {
     if (step.input_type === "radio") {
-      const selectedOption = step.options?.find(o => o.option_value === stepValue);
+      const selectedOption = step.options?.find(o => 
+        o.option_value === stepValue || o.json_value === stepValue
+      );
       if (selectedOption?.json_value !== undefined) {
         result[step.json_key] = selectedOption.json_value;
       }
@@ -86,7 +88,6 @@ const updateJsonValuesForStep = (
       result = { ...result, ...nested };
     }
   }
-
   return result;
 };
 
@@ -313,6 +314,7 @@ const Step: React.FC<StepFormProps> = ({
   }, [parentStep.id, JSON.stringify(values)]);
 
   const handleChange = (stepId: number, value: string | number, optionId?: number) => {
+    
     // Calculate new selectedOptions FIRST
     let newSelectedOptions = selectedOptions;
     if (optionId !== undefined) {
@@ -380,7 +382,7 @@ const Step: React.FC<StepFormProps> = ({
     if (parentStep.conditions) {
       parentStep.conditions.forEach(cond => {
         const option = parentStep.options?.find(o => o.id === cond.trigger_option);
-        if (option && values[parentStep.id] === option.option_value) {
+        if (values[parentStep.id] === option?.option_value) {
           triggerStepId = cond.trigger_step;
           selectedOptionId = cond.trigger_option;
         }
@@ -390,8 +392,6 @@ const Step: React.FC<StepFormProps> = ({
     const allStepsRecursive = getAllStepsRecursive(stepsData.steps);
     const stepJson = updateJsonValuesForStep(parentStep, values, selectedOptions, allStepsRecursive);
     const finalJson = { ...jsonValues, ...stepJson };
-
-    console.log("JSON wysyłany do onNext:", finalJson);
 
     setJsonValues(finalJson);
     onNext(finalJson, triggerStepId, selectedOptionId);
@@ -411,7 +411,6 @@ const Step: React.FC<StepFormProps> = ({
         });
       }
 
-      console.log("JSON po cofaniu:", updatedJson);
       return updatedJson;
     });
 

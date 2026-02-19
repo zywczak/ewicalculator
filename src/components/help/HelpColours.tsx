@@ -1,6 +1,6 @@
 import React from "react";
 import { Box } from "@mui/material";
-import { STEP_11_COLOUR } from "../../data/steps/steps/step11-colour";
+import { RENDER_PARENTS, STEP_11_COLOUR } from "../../data/steps/steps/step11-colour";
 import OPTION_IDS from "../../data/constants/optionIds";
 import address from "../../api/adress";
 
@@ -10,12 +10,7 @@ interface HelpColoursProps {
 }
 
 const HelpColours: React.FC<HelpColoursProps> = ({ isMobile, type }) => {
-  const RENDER_PARENTS = [
-    OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE,
-    OPTION_IDS.RENDER_TYPE.SILICONE,
-    OPTION_IDS.RENDER_TYPE.NANO_DREX,
-    OPTION_IDS.RENDER_TYPE.PREMIUM_BIO,
-  ];
+
 
   const options = STEP_11_COLOUR.options.filter((option) => {
     if (!option.parent_option_id) return false;
@@ -65,7 +60,7 @@ const HelpColours: React.FC<HelpColoursProps> = ({ isMobile, type }) => {
           }}
         >
           <img
-            src={address + (option.option_image ?? option.image ?? "")}
+            src={address + (option.image ?? "")}
             alt={option.option_value}
             style={{
               width: "100%",

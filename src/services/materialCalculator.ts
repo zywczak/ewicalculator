@@ -1,259 +1,305 @@
-import OPTION_IDS from "../data/constants/optionIds";
-import { CALC_VALUES } from "./calculationConstants";
+import { products } from "../data/products";
+import { FormStep, StepsData } from "../data/steps/types";
 
 export interface CalculatedMaterials {
-  insulation_material_units: number;
-  adhesive_units: number;
-  mesh_units: number;
-  fixings_units: number;
-  primer_20_units: number;
-  primer_7_units: number;
-  primer_310_units: number;
-  render_units: number;
-  brick_slips_units?: number;
-  brick_slips_adhesive_units?: number;
-  paint_units?: number;
-  corner_beads?: number;
-  stop_beads?: number;
-  bellcast_beads?: number;
-  window_reveal?: number;
-  starter_tracks?: number;
-  corner_brick_slips?: number;
-  levelling_coat?: number;
-  fungicidal_wash?: number;
-  blue_film?: number;
-  orange_tape?: number;
+  [key: string]: any;
 }
 
-interface CalculatorInputs {
-  surfaceArea: number;
-  systemType: number; // OPTION_IDS.SYSTEM_TYPE
-  insulationType?: number; // OPTION_IDS.INSULATION
-  thickness?: number;
-  renderType?: number; // OPTION_IDS.RENDER_TYPE
-  grainSize?: number; // OPTION_IDS.GRAINSIZE
-  fixingsType?: number; // OPTION_IDS.FIXINGS
-  surfaceMaterial?: number; // OPTION_IDS.SURFACE
+interface CalculateMaterialsParams {
   selectedOptions: number[];
   values: Record<number, string | number>;
+  stepsData: StepsData;
 }
 
-export const calculateMaterials = (inputs: CalculatorInputs): CalculatedMaterials => {
-  const { surfaceArea, systemType, insulationType, thickness, grainSize, values } = inputs;
-  
-  const isRenderOnly = systemType === OPTION_IDS.SYSTEM_TYPE.RENDER_ONLY;
-  const isInsulationAndRender = systemType === OPTION_IDS.SYSTEM_TYPE.INSULATION_AND_RENDER;
-  
-  // Initialize result
-  const result: CalculatedMaterials = {
-    insulation_material_units: 0,
-    adhesive_units: 0,
-    mesh_units: 0,
-    fixings_units: 0,
-    primer_20_units: 0,
-    primer_7_units: 0,
-    primer_310_units: 0,
-    render_units: 0,
-    brick_slips_units: 0,
-    brick_slips_adhesive_units: 0
-  };
+const roundUp = (value: number) => Math.ceil(value);
 
-  if (surfaceArea <= 0) return result;
+// ── Substep helpers ───────────────────────────────────────────────────────────
 
-  // ===== INSULATION MATERIAL =====
-  if (isInsulationAndRender && insulationType) {
-    if (insulationType === OPTION_IDS.INSULATION.WOOL) {
-      // Wool calculation based on thickness
-      switch (thickness) {
-        case 50:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool2);
-          break;
-        case 70:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool3);
-          break;
-        case 90:
-        case 100:
-        case 110:
-        case 120:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool4);
-          break;
-        case 140:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool5);
-          break;
-        case 150:
-          result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wool6);
-          break;
-      }
-    } else if (insulationType === OPTION_IDS.INSULATION.KINGSPAN) {
-      result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.kingspan);
-    } else if (insulationType === OPTION_IDS.INSULATION.WOOD_FIBRE) {
-      result.insulation_material_units = Math.ceil(surfaceArea / CALC_VALUES.wood_fibre);
-    } else {
-      // EPS - direct sqm
-      result.insulation_material_units = Math.ceil(surfaceArea);
+function collectNumberSubsteps(steps: FormStep[]): FormStep[] {
+  const result: FormStep[] = [];
+  for (const step of steps) {
+    if (step.input_type === "number" && step.productCode && step.productCode.length > 0) {
+      result.push(step);
+    }
+    if (step.substeps?.length) {
+      result.push(...collectNumberSubsteps(step.substeps));
     }
   }
-
-  // ===== ADHESIVE =====
-  result.adhesive_units = Math.ceil(
-    surfaceArea / (isRenderOnly ? CALC_VALUES.adhesive_ro : CALC_VALUES.adhesive)
-  );
-
-  // ===== MESH =====
-  result.mesh_units = Math.ceil((surfaceArea * 1.1) / CALC_VALUES.mesh);
-
-  // ===== FIXINGS =====
-  // Skip fixings if thickness <= 20mm or render only
-  if (isInsulationAndRender && thickness && thickness > 20) {
-    // Calculate total fixings needed (6 per sqm)
-    const totalFixingsNeeded = surfaceArea * CALC_VALUES.fixings_per_sqm;
-    
-    // Determine box size based on fixing type
-    // Default to metal (100 per box) unless plastic is explicitly selected
-    let fixingsPerBox: number = CALC_VALUES.fixings_box_metal; // default: 100 per box
-    if (inputs.fixingsType === OPTION_IDS.FIXINGS.PLASTIC) {
-      fixingsPerBox = CALC_VALUES.fixings_box_plastic; // 200 per box
-    }
-    // Note: SCREW_METAL also uses 100 per box (same as METAL)
-    
-    result.fixings_units = Math.ceil(totalFixingsNeeded / fixingsPerBox);
-    
-    console.log('[calculateMaterials] Fixings calculation:', {
-      isInsulationAndRender,
-      thickness,
-      surfaceArea,
-      totalFixingsNeeded,
-      fixingsType: inputs.fixingsType,
-      fixingsPerBox,
-      fixings_units: result.fixings_units
-    });
-  } else {
-    result.fixings_units = 0;
-    console.log('[calculateMaterials] Fixings skipped:', { isInsulationAndRender, thickness, isRenderOnly });
-  }
-
-  // ===== PRIMER =====
-  // Primer-310 dla wybranych powierzchni (surface material)
-  const surfacesNeedingPrimer310 = [
-    OPTION_IDS.SURFACE.ICF,
-    OPTION_IDS.SURFACE.PEBBLEDASH,
-    OPTION_IDS.SURFACE.BLOCK,
-    OPTION_IDS.SURFACE.BRICK,
-    OPTION_IDS.SURFACE.PAINTED_BRICK,
-    OPTION_IDS.SURFACE.SAND_CEMENT,
-    OPTION_IDS.SURFACE.STONE
-  ];
-  
-  const needsPrimer310 = inputs.surfaceMaterial && (surfacesNeedingPrimer310 as number[]).includes(inputs.surfaceMaterial);
-  
-  if (needsPrimer310) {
-    result.primer_310_units = Math.ceil(surfaceArea / CALC_VALUES["primer-310"]);
-  } else {
-    result.primer_310_units = 0;
-  }
-  
-  // Primer dla wszystkich renderów (NIE dla brick slips)
-  // Доступен dla render only i insulation & render
-  const isBrickSlips = inputs.renderType === OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
-  
-  if (!isBrickSlips) {
-    // Optymalna kombinacja wiader 20kg i 7kg
-    // primer-20 pokrywa 100m², primer-7 pokrywa 35m²
-    result.primer_20_units = Math.floor(surfaceArea / CALC_VALUES["primer-20"]);
-    const remainingArea = surfaceArea - (result.primer_20_units * CALC_VALUES["primer-20"]);
-    result.primer_7_units = remainingArea > 0 ? Math.ceil(remainingArea / CALC_VALUES["primer-7"]) : 0;
-  } else {
-    result.primer_20_units = 0;
-    result.primer_7_units = 0;
-  }
-
-  // ===== RENDER / BRICK SLIPS =====
-  
-  if (isBrickSlips) {
-    // Brick slips: 1 bag per sqm
-    result.brick_slips_units = Math.ceil(surfaceArea / CALC_VALUES.brick_slips);
-    // Brick slips adhesive: 1 bucket per 6 sqm
-    result.brick_slips_adhesive_units = Math.ceil(surfaceArea / CALC_VALUES.brick_slips_adhesive);
-    result.render_units = 0;
-  } else {
-    // Regular render
-    const grainSizeValue = getGrainSizeValue(grainSize);
-    result.render_units = Math.ceil(surfaceArea / CALC_VALUES.render[grainSizeValue]);
-    result.brick_slips_units = 0;
-    result.brick_slips_adhesive_units = 0;
-  }
-
-  // ===== PAINT =====
-  // Paint is calculated separately if needed based on render type
-  // Note: Mineral render type removed as it doesn't exist in current OPTION_IDS
-
-  // ===== BEADS & TRIMS =====
-  // Convert meters to pieces (round up)
-  // User provides meters, we divide by length per piece and round up
-  if (values[19]) {
-    const meters = Number(values[19]) || 0;
-    result.corner_beads = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.corner_beads) : 0;
-  }
-  if (values[20]) {
-    const meters = Number(values[20]) || 0;
-    result.stop_beads = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.stop_beads) : 0;
-  }
-  if (values[21]) {
-    const meters = Number(values[21]) || 0;
-    result.bellcast_beads = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.bellcast_beads) : 0;
-  }
-  if (values[22]) {
-    const meters = Number(values[22]) || 0;
-    result.window_reveal = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.window_reveal) : 0;
-  }
-  
-  // Starter tracks (from nested substep) - metal or plastic
-  if (values[18]) {
-    const meters = Number(values[18]) || 0;
-    result.starter_tracks = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.starter_track_metal) : 0;
-  }
-  if (values[32]) {
-    const meters = Number(values[32]) || 0;
-    result.starter_tracks = meters > 0 ? Math.ceil(meters / CALC_VALUES.beads.starter_track_plastic) : 0;
-  }
-
-  // ===== ADDITIONAL PRODUCTS =====
-  // Corner brick slips - convert meters to boxes (round up)
-  if (values[60]) {
-    const meters = Number(values[60]) || 0;
-    result.corner_brick_slips = meters > 0 ? Math.ceil(meters / CALC_VALUES.additional.corner_brick_slips) : 0;
-  }
-  
-  if (values[27]) result.levelling_coat = Number(values[27]) || 0;
-  if (values[28]) result.fungicidal_wash = Number(values[28]) || 0;
-  if (values[29]) result.blue_film = Number(values[29]) || 0;
-  if (values[30]) result.orange_tape = Number(values[30]) || 0;
-
   return result;
-};
+}
 
-// Helper to convert grain size option ID to value
-const getGrainSizeValue = (grainSizeId?: number): "0.5" | "1" | "1.5" | "2" | "3" => {
-  if (!grainSizeId) return "1.5";
-  
-  switch (grainSizeId) {
-    case OPTION_IDS.GRAINSIZE["0_5MM"]:
-      return "0.5";
-    case OPTION_IDS.GRAINSIZE["1MM"]:
-      return "1";
-    case OPTION_IDS.GRAINSIZE["1_5MM"]:
-      return "1.5";
-    case OPTION_IDS.GRAINSIZE["2MM"]:
-      return "2";
-    case OPTION_IDS.GRAINSIZE["3MM"]:
-      return "3";
-    default:
-      return "1.5";
+function stepConditionsSkip(substepId: number, selectedOptions: number[], step: any): boolean {
+  return step.conditions?.some(
+    (cond: any) => cond.skip_steps.includes(substepId) && selectedOptions.includes(cond.trigger_option)
+  ) ?? false;
+}
+
+function isSubstepSkippedInSubsteps(substepId: number, selectedOptions: number[], substeps: FormStep[]): boolean {
+  for (const sub of substeps) {
+    if (stepConditionsSkip(substepId, selectedOptions, sub)) return true;
+    if (sub.substeps?.length && isSubstepSkippedInSubsteps(substepId, selectedOptions, sub.substeps)) return true;
   }
-};
+  return false;
+}
 
-// Helper to get selected option ID for a step
-export const getSelectedOption = (stepId: number, selectedOptions: number[]): number | undefined => {
-  // Placeholder - enhance based on your needs
-  return selectedOptions[0];
-};
+function isSubstepSkipped(substepId: number, selectedOptions: number[], stepsData: StepsData): boolean {
+  for (const step of stepsData.steps) {
+    if (stepConditionsSkip(substepId, selectedOptions, step)) return true;
+    if (step.substeps?.length && isSubstepSkippedInSubsteps(substepId, selectedOptions, step.substeps)) return true;
+  }
+  return false;
+}
+
+// ── Product/material helpers ──────────────────────────────────────────────────
+
+function addProductToMaterials(
+  materials: CalculatedMaterials,
+  productCode: string,
+  inputValue: number
+): void {
+  const product = products.find(p => p.productCode === productCode);
+  if (!product || inputValue <= 0) return;
+
+  const categoryKey = (product as any).category.replaceAll('-', '_');
+  let quantity: number;
+
+  if ('coverage' in product && typeof (product as any).coverage === 'number') {
+    quantity = roundUp(inputValue / (product as any).coverage);
+  } else {
+    quantity = inputValue;
+  }
+
+  if (quantity > 0) {
+    materials[categoryKey] = product.productCode;
+    materials[`${categoryKey}_units`] = quantity;
+  }
+}
+
+function getThicknessSuffix(thickness: number): string {
+  return thickness < 100 ? String(thickness).padStart(3, '0') : String(thickness);
+}
+
+function resolveInsulationThickness(stepsData: StepsData, selectedOptions: number[]): number | undefined {
+  const thicknessStep = stepsData.steps.find(s => s.id === 6);
+  const thicknessOptId = selectedOptions.find(opt => thicknessStep?.options?.some(o => o.id === opt));
+  return thicknessStep?.options?.find(o => o.id === thicknessOptId)?.json_value as number | undefined;
+}
+
+// ── Variant resolvers ─────────────────────────────────────────────────────────
+
+function resolveThicknessVariant(
+  variants: any[], selectedOptions: number[], stepsData: StepsData, surfaceArea: number
+): { quantity: number; productCodeSuffix: string | null } {
+  const thickness = resolveInsulationThickness(stepsData, selectedOptions);
+  const variant = thickness ? variants.find(v => v.thickness === thickness) : variants[0];
+  const quantity = variant?.coverage ? roundUp(surfaceArea / variant.coverage) : 0;
+  const suffix = thickness ? getThicknessSuffix(thickness) : null;
+  return { quantity, productCodeSuffix: suffix };
+}
+
+function resolveGrainVariant(
+  variants: any[], selectedOptions: number[], stepsData: StepsData, surfaceArea: number
+): { quantity: number; productCodeSuffix: string | null } {
+  const grainStep = stepsData.steps.find(s => s.id === 10);
+  const grainOptId = selectedOptions.find(opt => grainStep?.options?.some(o => o.id === opt));
+  const grainSize = grainStep?.options?.find(o => o.id === grainOptId)?.json_value as number;
+  const variant = grainSize
+    ? variants.find(v => v.grainSize === grainSize)
+    : (variants.find(v => v.grainSize === 1.5) ?? variants[0]);
+  const quantity = variant?.coverage ? roundUp(surfaceArea / variant.coverage) : 0;
+  return { quantity, productCodeSuffix: grainSize ? `${grainSize}A` : null };
+}
+
+function resolveUsageVariant(
+  variants: any[], selectedOptions: number[], stepsData: StepsData, surfaceArea: number
+): { quantity: number; productCodeSuffix: string | null } {
+  const systemStep = stepsData.steps.find(s => s.id === 4);
+  const systemOptId = selectedOptions.find(opt => systemStep?.options?.some(o => o.id === opt));
+  // RENDER_ONLY option id = 5, INSULATION_AND_RENDER = 4
+  const usage = systemOptId === 5 ? 'render_only' : 'insulation_system';
+  const variant = variants.find(v => v.usage === usage) ?? variants[0];
+  const quantity = variant?.coverage ? roundUp(surfaceArea / variant.coverage) : 0;
+  return { quantity, productCodeSuffix: null };
+}
+
+function resolveVariantProduct(
+  product: any, selectedOptions: number[], stepsData: StepsData, surfaceArea: number
+): { quantity: number; productCode: string } {
+  const variants = product.variants as any[];
+  const firstVariant = variants[0];
+  let result: { quantity: number; productCodeSuffix: string | null };
+
+  if ('thickness' in firstVariant) result = resolveThicknessVariant(variants, selectedOptions, stepsData, surfaceArea);
+  else if ('grainSize' in firstVariant) result = resolveGrainVariant(variants, selectedOptions, stepsData, surfaceArea);
+  else result = resolveUsageVariant(variants, selectedOptions, stepsData, surfaceArea);
+
+  let productCode: string;
+  if (!result.productCodeSuffix) {
+    productCode = product.productCode;
+  } else if (product.productCode === 'SPI-EWIPLUS') {
+    productCode = `${product.productCode}${String(Number(result.productCodeSuffix))}`;
+  } else {
+    productCode = `${product.productCode}-${result.productCodeSuffix}`;
+  }
+  return { quantity: result.quantity, productCode };
+}
+
+// ── Category processors ───────────────────────────────────────────────────────
+
+function processSingleProduct(
+  product: any, categoryKey: string, selectedOptions: number[], stepsData: StepsData,
+  surfaceArea: number, materials: CalculatedMaterials
+): void {
+  const hasVariants = Array.isArray(product.variants) && product.variants.length > 0;
+  const hasCoverage = typeof product.coverage === 'number';
+
+  let productCode = product.productCode;
+  let quantity = hasCoverage ? roundUp(surfaceArea / product.coverage) : 0;
+
+  if (!hasVariants && categoryKey === 'insulation') {
+    const thickness = resolveInsulationThickness(stepsData, selectedOptions);
+    if (thickness) {
+      productCode = product.productCode === 'SPI-EWIPLUS'
+        ? `${productCode}${String(thickness)}`
+        : `${productCode}-${getThicknessSuffix(thickness)}`;
+    }
+  }
+
+  if (hasVariants) {
+    const resolved = resolveVariantProduct(product, selectedOptions, stepsData, surfaceArea);
+    productCode = resolved.productCode;
+    quantity = resolved.quantity;
+  }
+
+  if (quantity > 0) {
+    materials[categoryKey] = productCode;
+    materials[`${categoryKey}_units`] = quantity;
+  }
+}
+
+function processSizeVariantCategory(
+  categoryProducts: any[], categoryKey: string, surfaceArea: number, materials: CalculatedMaterials
+): void {
+  const sorted = [...categoryProducts]
+    .filter(p => typeof p.coverage === 'number')
+    .sort((a, b) => b.coverage - a.coverage);
+
+  let remaining = surfaceArea;
+  sorted.forEach((product, i) => {
+    const qty = i === sorted.length - 1
+      ? Math.ceil(remaining / product.coverage)
+      : Math.floor(remaining / product.coverage);
+    remaining -= qty * product.coverage;
+    if (qty > 0) {
+      const suffix = product.productCode.split('-').pop();
+      const key = `${categoryKey}_${suffix}`;
+      materials[key] = product.productCode;
+      materials[`${key}_units`] = qty;
+    }
+  });
+}
+
+function processCategoryProducts(
+  categoryProducts: any[], categoryKey: string, selectedOptions: number[],
+  stepsData: StepsData, surfaceArea: number, materials: CalculatedMaterials
+): void {
+  const isSizeVariant = categoryProducts.length > 1 && !categoryProducts.some(p => 'avaliable_lenght' in p);
+
+  if (isSizeVariant) {
+    processSizeVariantCategory(categoryProducts, categoryKey, surfaceArea, materials);
+    return;
+  }
+
+  categoryProducts.forEach(product =>
+    processSingleProduct(product, categoryKey, selectedOptions, stepsData, surfaceArea, materials)
+  );
+}
+
+// ── Fixings ───────────────────────────────────────────────────────────────────
+
+function processFixings(
+  option: any, selectedOptions: number[], stepsData: StepsData,
+  surfaceArea: number, materials: CalculatedMaterials
+): void {
+  const insulationOptionIds = stepsData.steps.find(s => s.id === 5)?.options?.map(o => o.id) ?? [];
+  const selectedInsulationOptId = selectedOptions.find(opt => insulationOptionIds.includes(opt));
+  const selectedInsulationOpt = stepsData.steps
+    .find(s => s.id === 5)
+    ?.options?.find(o => o.id === selectedInsulationOptId);
+
+  const thickness = resolveInsulationThickness(stepsData, selectedOptions);
+  if (!selectedInsulationOpt || !thickness) return;
+
+  // EPS needs extra 20mm of fixing into wall compared to others
+  const isEPS = selectedInsulationOpt.json_value === 'EPS';
+  const requiredLength = isEPS ? thickness + 65 : thickness + 45;
+
+  const fixingProducts = option.productCode
+    .map((code: string) => products.find(p => p.productCode === code))
+    .filter((p: any): p is any => p !== undefined && 'avaliable_lenght' in p);
+
+  let bestProduct: any = null;
+  let bestLength = Infinity;
+
+  fixingProducts.forEach((product: any) => {
+    const sorted = [...(product.avaliable_lenght as number[])].sort((a, b) => a - b);
+    const suitable = sorted.find(l => l >= requiredLength);
+    if (suitable && suitable < bestLength) {
+      bestLength = suitable;
+      bestProduct = product;
+    }
+  });
+
+  if (bestProduct) {
+    const quantity = roundUp((surfaceArea * bestProduct.unitPerSqm) / bestProduct.unitInPack);
+    materials.fixings = `${bestProduct.productCode}-${bestLength}`;
+    materials.fixings_units = quantity;
+  }
+}
+
+// ── Main export ───────────────────────────────────────────────────────────────
+
+export function calculateMaterials(params: CalculateMaterialsParams): CalculatedMaterials {
+  const { selectedOptions, values, stepsData } = params;
+
+  const materials: CalculatedMaterials = {};
+  const surfaceArea = Number(values[3]) || 0;
+
+  selectedOptions.forEach(optionId => {
+    const step = stepsData.steps.find(s => s.options?.some(opt => opt.id === optionId));
+    if (!step) return;
+
+    const option = step.options?.find(opt => opt.id === optionId);
+    if (!option?.productCode?.length) return;
+
+    if (step.id === 7) {
+      processFixings(option, selectedOptions, stepsData, surfaceArea, materials);
+      return;
+    }
+
+    const productsByCategory = new Map<string, any[]>();
+    option.productCode.forEach((code: string) => {
+      const product = products.find(p => p.productCode === code);
+      if (product) {
+        const cat = (product as any).category.replaceAll('-', '_');
+        if (!productsByCategory.has(cat)) productsByCategory.set(cat, []);
+        productsByCategory.get(cat)!.push(product);
+      }
+    });
+
+    productsByCategory.forEach((categoryProducts, categoryKey) =>
+      processCategoryProducts(categoryProducts, categoryKey, selectedOptions, stepsData, surfaceArea, materials)
+    );
+  });
+
+  const allNumberSubsteps = collectNumberSubsteps(stepsData.steps);
+
+  allNumberSubsteps.forEach(substep => {
+    if (isSubstepSkipped(substep.id, selectedOptions, stepsData)) return;
+    const inputValue = Number(values[substep.id]) || 0;
+    if (inputValue <= 0) return;
+    substep.productCode!.forEach(code => addProductToMaterials(materials, code, inputValue));
+  });
+
+  return materials;
+}

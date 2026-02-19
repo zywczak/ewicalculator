@@ -70,7 +70,6 @@ const renderPreview = ({
     ? <ResultsTable 
         isMobile={isMobile} 
         calculatedMaterials={calculatedMaterials ?? null}
-        selectedOptions={selectedOptions}
         stepsData={stepsData}
       />
     : <HousePreview 

@@ -13,10 +13,7 @@ export interface FormStepOption {
   json_value: string | number |null;
   image: string | null;
   parent_option_id?: number[];
-  products?: {
-    [key: string]: ProductInfo | null; // key is material type like "eps", "wool", "kingspan", or "default"
-  };
-  product?: ProductInfo | null;
+  productCode?: string[]; // optional product code to link the option to a product
 }
 
 export interface HelpImage {
@@ -76,10 +73,7 @@ export interface FormStep {
   help: HelpSection[];
   conditions: StepCondition[];
   image?: string | null;
-  products?: {
-    [key: string]: ProductInfo;
-  };
-  product?: ProductInfo | null;
+  productCode?: string[]; // optional product code to link the step to a product
 }
 
 export interface StepsData {

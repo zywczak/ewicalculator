@@ -24,8 +24,8 @@ const NumberStepInput: React.FC<StepInputProps> = ({
 
   const handleBlur = () => {
     // Notify parent that focus is lost
-    if (step.image && (window as any).__setFocusedSubstepImage) {
-      (window as any).__setFocusedSubstepImage(null);
+    if (step.image && (globalThis as any).__setFocusedSubstepImage) {
+      (globalThis as any).__setFocusedSubstepImage(null);
     }
     
     if (localValue === "") {
@@ -38,8 +38,8 @@ const NumberStepInput: React.FC<StepInputProps> = ({
 
   const handleFocus = () => {
     // Notify parent that this input is focused and has an image
-    if (step.image && (window as any).__setFocusedSubstepImage) {
-      (window as any).__setFocusedSubstepImage(step.image);
+    if (step.image && (globalThis as any).__setFocusedSubstepImage) {
+      (globalThis as any).__setFocusedSubstepImage(step.image);
     }
   };
 

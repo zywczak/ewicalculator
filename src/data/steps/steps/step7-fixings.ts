@@ -13,38 +13,17 @@ export const STEP_7_FIXINGS: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.FIXINGS.PLASTIC, option_value: "Plastic", json_value: 2, image: "/media/hammer_plastic_fixing.png",
+    { id: OPTION_IDS.FIXINGS.PLASTIC, option_value: "Plastic", json_value: "plastic", image: "/media/hammer_plastic_fixing.png",
         parent_option_id: [OPTION_IDS.INSULATION.EPS],
-        product: {
-            productCode: "WKR-FIXPLUG10",
-            productName: "Hammer Fixing with Plastic Pin (200/box)",
-            image: "/media/hammer_plastic_fixing.png",
-            unitDetail: "200/box",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/10mm-hammer-fixing-with-plastic-pin-fixplug-10/",
-            avaliable_lenght: [120, 140, 160, 180]
-     },
+        productCode: ["WKR-FIXPLUG10"],
     },
-    { id: OPTION_IDS.FIXINGS.METAL, option_value: "Hammer Metal", json_value: 1, image: "/media/metal_hammer_fixing.png",
+    { id: OPTION_IDS.FIXINGS.METAL, option_value: "Hammer Metal", json_value: "hammer_metal", image: "/media/metal_hammer_fixing.png",
         parent_option_id: [OPTION_IDS.INSULATION.EPS, OPTION_IDS.INSULATION.WOOL],
-        product: {
-            productCode: "ZIEL-ETX-M",
-            productName: "EWI Pro - Metal Hammer Fixing (100/box)",
-            image: "/media/metal_hammer_fixing.png",  
-            unitDetail: "100/box",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/ewi-pro-metal-hammer-fixing-8mm/",
-            avaliable_lenght: [75, 95, 115, 135, 155, 175, 195]
-        },
+        productCode: ["ZIEL-ETX-M"],
      },
-     { id: OPTION_IDS.FIXINGS.SCREW_METAL, option_value: "Screw Metal", json_value: 1, image: "/media/screw_metal_fixing.png",
+     { id: OPTION_IDS.FIXINGS.SCREW_METAL, option_value: "Screw Metal", json_value: "screw_metal", image: "/media/screw_metal_fixing.png",
         parent_option_id: [OPTION_IDS.INSULATION.KINGSPAN, OPTION_IDS.INSULATION.WOOL, OPTION_IDS.INSULATION.WOOD_FIBRE],
-        product: {
-            productCode: "ZIEL-ETX-MT",
-            productName: "EWI Pro - Metal Screw Insulation Fixing (100/box)",
-            image: "/media/screw_metal_fixing.png",  
-            unitDetail: "100/box",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/ewi-pro-metal-screw-fixing-8mm/",
-            avaliable_lenght: [95, 115, 135, 155, 175, 195, 215, 255]
-        },
+        productCode: ["ZIEL-ETX-MT", "RWL-R-TFIX-8S"],
      },
     ],
     help: [

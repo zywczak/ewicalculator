@@ -3,9 +3,9 @@ import { Box, Typography } from "@mui/material";
 import { StepInputProps } from "../Step/StepInput";
 
 const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSubstep, isMobile = false, selectedParentOptionIds = [] }) => {
-  const handleChange = (val: string) => {
-    const selectedOpt = step.options.find((o) => o.option_value === val);
-    onChange(val, selectedOpt?.id);
+  const handleChange = (optionId: number, jsonValue: string | number) => {
+    // Always use json_value for data storage
+    onChange(jsonValue, optionId);
   };
 
   const filteredOptions = React.useMemo(() => {
@@ -30,7 +30,8 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
       }}
     >
       {filteredOptions.map((opt, index) => {
-        const isSelected = value === opt.option_value;
+        // Compare with both json_value and option_value for backward compatibility
+        const isSelected = value === opt.json_value || value === opt.option_value;
         const isLast = index === filteredOptions.length - 1;
 
         const backgroundColor = (isLast || isSelected) ? "transparent" : "#E0E0E0";
@@ -38,7 +39,7 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
         return (
           <Box
             key={opt.id}
-            onClick={() => handleChange(opt.option_value)}
+            onClick={() => handleChange(opt.id, opt.json_value ?? opt.option_value)}
             sx={{
               cursor: "pointer",
               display: "flex",

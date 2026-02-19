@@ -1,7 +1,7 @@
 import OPTION_IDS from "../../constants/optionIds";
 import { FormStep } from "../types";
 
-const RENDER_PARENTS = [
+export const RENDER_PARENTS = [
   OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE,
   OPTION_IDS.RENDER_TYPE.SILICONE,
   OPTION_IDS.RENDER_TYPE.NANO_DREX,
@@ -26,13 +26,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "sahara",
         image: "/media/sahara.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-SAHARA-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Sahara",
-            image: "/media/sahara.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-sahara/"
-        }    
+        productCode: ["ELS-SAHARA-SLIP-1M2"] 
     },
     { 
         id: OPTION_IDS.COLOURS.BLACKPOOL,
@@ -40,13 +34,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "blackpool",
         image: "/media/blackpool.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-BLACKPOOL-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Blackpool",
-            image: "/media/blackpool.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips---blackpool-corner-brick-slip/"
-        }    
+        productCode: ["ELS-BLACKPOOL-SLIP-1M2"]   
     },
     { 
         id: OPTION_IDS.COLOURS.COLORADO,
@@ -54,13 +42,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "colorado",
         image: "/media/colorado.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-COLORADO-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Colorado",
-            image: "/media/colorado.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-colorado/"
-        }
+        productCode: ["ELS-COLORADO-SLIP-1M2"]
     },
     { 
         id: OPTION_IDS.COLOURS.CORDOBA,
@@ -68,13 +50,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "cordoba",
         image: "/media/cordoba.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-CORDOBA-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Cordoba",
-            image: "/media/cordoba.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-cordoba/"
-        }
+        productCode: ["ELS-CORDOBA-SLIP-1M2"]
     },
     { 
         id: OPTION_IDS.COLOURS.CORSICA,
@@ -82,13 +58,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "corsica",
         image: "/media/corsica.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-CORSICA-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Corsica",
-            image: "/media/corsica.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-corsica/"
-        }
+        productCode: ["ELS-CORSICA-SLIP-1M2"]
     },
     { 
         id: OPTION_IDS.COLOURS.NEBRASKA,
@@ -96,13 +66,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "nebraska",
         image: "/media/nebraska.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-NEBRASKA-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Nebraska",
-            image: "/media/nebraska.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-nebraska/"
-        }
+        productCode: ["ELS-NEBRASKA-SLIP-1M2"],
     },
     { 
         id: OPTION_IDS.COLOURS.MALTA,
@@ -110,13 +74,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "malta",
         image: "/media/malta.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-MALTA-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Malta",
-            image: "/media/malta.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-malta/"
-        }
+        productCode: ["ELS-MALTA-SLIP-1M2"],
     },
     { 
         id: OPTION_IDS.COLOURS.ALASKA,
@@ -124,13 +82,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "alaska",
         image: "/media/alaska.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-ALASKA-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Alaska",
-            image: "/media/alaska.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-alaska/"
-        }
+        productCode: ["ELS-ALASKA-SLIP-1M2"],
     },
     { 
         id: OPTION_IDS.COLOURS.GLASGOW,
@@ -138,13 +90,7 @@ export const STEP_11_COLOUR: FormStep = {
         json_value: "glasgow",
         image: "/media/glasgow.png",
         parent_option_id: [OPTION_IDS.RENDER_TYPE.BRICK_SLIPS],
-        product: {
-            productCode: "ELS-GLASGOW-SLIP-1M2",
-            productName: "Elabrick Brick Slips - Glasgow",
-            image: "/media/glasgow.png",
-            unitDetail: "1sqm/bag",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/elabrick-brick-slips-glasgow/"
-        }
+        productCode: ["ELS-GLASGOW-SLIP-1M2"],
     },
     { id: OPTION_IDS.COLOURS.COLOR_10001, option_value: "Brilliant White", json_value: "10001-Brilliant_White", image: "/media/colors/10001-Brilliant_White.jpg",  parent_option_id: RENDER_PARENTS },
     { id: OPTION_IDS.COLOURS.COLOR_20001_PURE_WHITE, option_value: "Pure White", json_value: "20001-Pure_White", image: "/media/colors/20001-Pure_White.jpg",  parent_option_id: RENDER_PARENTS },

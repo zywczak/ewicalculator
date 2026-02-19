@@ -13,69 +13,27 @@ export const STEP_2_SURFACE: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.SURFACE.ICF, option_value: "ICF", json_value: 6, image: "/media/icf.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.ICF, option_value: "ICF", json_value: "icf", image: "/media/icf.jpg",
+        productCode: ["EWI-310"]
      },
-    { id: OPTION_IDS.SURFACE.PEBBLEDASH, option_value: "Pebbledash", json_value: 4, image: "/media/pebbledash.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.PEBBLEDASH, option_value: "Pebbledash", json_value: "pebbledash", image: "/media/pebbledash.jpg",
+        productCode: ["EWI-310"]
      },
-    { id: OPTION_IDS.SURFACE.BLOCK, option_value: "Blockwork", json_value: 3, image: "/media/block.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.BLOCK, option_value: "Blockwork", json_value: "block", image: "/media/block.jpg",
+        productCode: ["EWI-310"]
      },
-    { id: OPTION_IDS.SURFACE.BRICK, option_value: "Brick", json_value: 1, image: "/media/brick.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.BRICK, option_value: "Brick", json_value: "brick", image: "/media/brick.jpg",
+        productCode: ["EWI-310"]
      },
-    { id: OPTION_IDS.SURFACE.PAINTED_BRICK, option_value: "Painted brick", json_value: 2, image: "/media/paintedbrick.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.PAINTED_BRICK, option_value: "Painted brick", json_value: "painted_brick", image: "/media/paintedbrick.jpg",
+        productCode: ["EWI-310"]
      },
-    { id: OPTION_IDS.SURFACE.SAND_CEMENT, option_value: "Sand & cement render", json_value: 5, image: "/media/sandandcement.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.SAND_CEMENT, option_value: "Sand & cement render", json_value: "sand_cement", image: "/media/sandandcement.jpg",
+        productCode: ["EWI-310"]
      },
-    { id: OPTION_IDS.SURFACE.RENDER_CARRIER, option_value: "Render carrier board", json_value: 7, image: "/media/rendercarrierboard.jpg" },
-    { id: OPTION_IDS.SURFACE.STONE, option_value: "Other", json_value: 8, image: "/media/other.jpg",
-        product: {
-            productCode: "EWI-310",
-            productName: "Universal Primer",
-            image: "/media/universal_primer.png",
-            unitDetail: "bucket",
-            link: "https://ewistore.co.uk/shop/external-wall-insulation/universal-primer-ewi-310-20kg/"
-        }
+    { id: OPTION_IDS.SURFACE.RENDER_CARRIER, option_value: "Render carrier board", json_value: "render_carrier_board", image: "/media/rendercarrierboard.jpg" },
+    { id: OPTION_IDS.SURFACE.STONE, option_value: "Other", json_value: "other", image: "/media/other.jpg",
+        productCode: ["EWI-310"]
      },
     ],
     help: [

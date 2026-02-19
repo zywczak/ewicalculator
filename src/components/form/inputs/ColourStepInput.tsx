@@ -3,7 +3,7 @@
   import { StepInputProps } from "../Step/StepInput";
   import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
   import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
-  import { STEP_11_COLOUR } from '../../../data/steps/steps/step11-colour';
+  import { RENDER_PARENTS, STEP_11_COLOUR } from '../../../data/steps/steps/step11-colour';
   import OPTION_IDS from '../../../data/constants/optionIds';
 
   interface ColorOption {
@@ -16,12 +16,6 @@
   const ITEMS_PER_PAGE = 18;
 
   const BRICK_SLIPS_OPTION_ID = OPTION_IDS.RENDER_TYPE.BRICK_SLIPS;
-  const RENDER_PARENTS = [
-    OPTION_IDS.RENDER_TYPE.SILICONE_SILICATE,
-    OPTION_IDS.RENDER_TYPE.SILICONE,
-    OPTION_IDS.RENDER_TYPE.NANO_DREX,
-    OPTION_IDS.RENDER_TYPE.PREMIUM_BIO,
-  ];
 
   const BRICK_SLIPS_COLORS = STEP_11_COLOUR.options
     .filter(opt => {
@@ -54,6 +48,7 @@
     onChange,
     isMobile = false,
     selectedParentOptionIds = [],
+    disabled = false,
   }) => {
     const [page, setPage] = useState(0);
     const [colors, setColors] = useState<ColorOption[]>([]);
@@ -71,13 +66,9 @@
     const startIndex = page * ITEMS_PER_PAGE;
     const currentPageColors = colors.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-    const handleSelect = (colorId: number, colorCode: string, jsonValue?: string) => {
-      const isBrickSlips = selectedParentOptionIds.includes(BRICK_SLIPS_OPTION_ID);
-      if (isBrickSlips && jsonValue) {
-        onChange(jsonValue, colorId);
-      } else {
-        onChange(colorCode, colorId);
-      }
+    const handleSelect = (colorId: number, jsonValue: string) => {
+      // Always use json_value for consistency
+      onChange(jsonValue, colorId);
     };
 
     const nextPage = () => setPage(prev => Math.min(prev + 1, totalPages - 1));
@@ -85,7 +76,7 @@
 
     return (
       <Box sx={{ width: isMobile ? "calc(100% - 48px)" : "240px", mx: "24px" }}>
-        <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: "12px" }}>
+        <Box display="flex" alignItems="center" justifyContent="space-between" sx={{ mb: "24px" }}>
           <Typography sx={{ fontSize: "16px", fontWeight: 700, color: "#333" }}>
             Page <span style={{ color: "#333" }}>{page + 1}</span>
             <span style={{ color: "#aaa" }}>/{totalPages}</span>
@@ -106,21 +97,23 @@
             const isSelected = value === color.colour_code || value === color.json_value;
 
             return (
-              <Box 
-                key={color.id} 
-                onClick={() => handleSelect(color.id, color.colour_code, typeof color.json_value === "undefined" ? undefined : String(color.json_value))}
-                sx={{ 
-                  height: isMobile ? "auto" : "45px", 
-                  width: isMobile ? "auto" : "73px", 
-                  aspectRatio: "73/48", 
-                  borderRadius: "12px", 
-                  cursor: "pointer",
+              <Box
+                key={color.id}
+                onClick={() => !disabled && handleSelect(color.id, String(color.json_value))}
+                sx={{
+                  height: isMobile ? "auto" : "45px",
+                  width: isMobile ? "auto" : "73px",
+                  aspectRatio: "73/48",
+                  borderRadius: "12px",
+                  cursor: disabled ? "not-allowed" : "pointer",
+                  pointerEvents: disabled ? "none" : "auto",
+                  opacity: disabled ? 0.6 : 1,
                   backgroundColor: "#ffffff",
-                  position: "relative", 
-                  overflow: "hidden", 
+                  position: "relative",
+                  overflow: "hidden",
                   transition: "transform 0.15s ease-in-out",
                   willChange: "transform",
-                  "&:hover": { transform: "scale(1.03)" } 
+                  ...(disabled ? {} : { "&:hover": { transform: "scale(1.03)" } }),
                 }}
               >
                 <img 
