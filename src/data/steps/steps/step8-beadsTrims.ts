@@ -35,8 +35,8 @@ export const STEP_8_BEADS: FormStep = {
             validation_regex: null,
             substeps: [],
             options: [
-            { id: OPTION_IDS.STARTER_TRACKS.METAL, option_value: "Metal", json_value: "metal", image: null },
-            { id: OPTION_IDS.STARTER_TRACKS.PLASTIC, option_value: "Plastic", json_value: "plastic", image: null }
+            { id: OPTION_IDS.STARTER_TRACKS.METAL, option_value: "Metal", json_value: "metal", image: "/media/metalstartertrack.png" },
+            { id: OPTION_IDS.STARTER_TRACKS.PLASTIC, option_value: "Plastic", json_value: "plastic", image: "/media/plastic-start-bead.png" }
             ],
             help: [],
             conditions: [

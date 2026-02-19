@@ -45,7 +45,6 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   // HOUSE PREVIEW - RENDER COLOURS - DETACHED
   { image_url: "/media/detached_renders/10001-Brilliant_White.jpg", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.COLOR_10001] },
   { image_url: "/media/detached_renders/20001-Pure_White.jpg", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.COLOR_20001_PURE_WHITE] },
-  { image_url: "/media/detached_renders/20001.jpg", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.COLOR_20001] },
   { image_url: "/media/detached_renders/20168-Paraffin.jpg", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.COLOR_20168] },
   { image_url: "/media/detached_renders/21189-Peach.jpg", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.COLOR_21189] },
   { image_url: "/media/detached_renders/22219-Peony.jpg", options: [OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.COLOR_22219] },
@@ -95,7 +94,6 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   // HOUSE PREVIEW - RENDER COLOURS - SEMI-DETACHED
   { image_url: "/media/semi-detached_renders/10001-Brilliant_White.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.COLOURS.COLOR_10001] },
   { image_url: "/media/semi-detached_renders/20001-Pure_White.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.COLOURS.COLOR_20001_PURE_WHITE] },
-  { image_url: "/media/semi-detached_renders/20001.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.COLOURS.COLOR_20001] },
   { image_url: "/media/semi-detached_renders/20168-Paraffin.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.COLOURS.COLOR_20168] },
   { image_url: "/media/semi-detached_renders/21189-Peach.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.COLOURS.COLOR_21189] },
   { image_url: "/media/semi-detached_renders/22219-Peony.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.COLOURS.COLOR_22219] },
@@ -145,7 +143,6 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
     // HOUSE PREVIEW - RENDER COLOURS - TERRACED
   { image_url: "/media/terraced_renders/10001-Brilliant_White.jpg", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.COLOURS.COLOR_10001] },
   { image_url: "/media/terraced_renders/20001-Pure_White.jpg", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.COLOURS.COLOR_20001_PURE_WHITE] },
-  { image_url: "/media/terraced_renders/20001.jpg", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.COLOURS.COLOR_20001] },
   { image_url: "/media/terraced_renders/20168-Paraffin.jpg", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.COLOURS.COLOR_20168] },
   { image_url: "/media/terraced_renders/21189-Peach.jpg", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.COLOURS.COLOR_21189] },
   { image_url: "/media/terraced_renders/22219-Peony.jpg", options: [OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.COLOURS.COLOR_22219] },

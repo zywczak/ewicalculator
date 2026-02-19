@@ -86,12 +86,6 @@ const Calculator: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const onResize = () => { s.setIsMobileView(globalThis.innerWidth <= 705); s.setIsSmallerTitle(globalThis.innerWidth <= 900); };
-    globalThis.addEventListener("resize", onResize);
-    return () => globalThis.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       const h = (globalThis as any).__multiStepFormHandlers;
       if (h?.isStepComplete !== undefined) s.setIsStepComplete(h.isStepComplete);
@@ -222,70 +216,80 @@ const Calculator: React.FC = () => {
         </Typography>
       </Box>
 
-      <ResponsiveCalculatorWrapper isMobileView={s.isMobileView} defaultWidth={1265}>
-        <Box sx={{ px: s.isMobileView ? "0px" : "1px", pb: "1px" }}>
-          <Card ref={s.cardRef} elevation={0} sx={{
-            position: "relative", m: "auto", my: "24px",
-            pb: s.isMobileView ? "24px" : "0px",
-            width: s.isMobileView ? "100%" : "1225px",
-            height: s.isMobileView ? null : "680px",
-            boxSizing: "border-box", borderRadius: "20px",
-            boxShadow: "0px 0px 20px rgba(0,0,0,0.2)",
-          }}>
-            {!s.isMobileView && (
-              <ProcessFlow
-                currentStep={s.currentStep} totalSteps={parentSteps.length} steps={parentSteps}
-                onStepClick={handleGoToStep} completedSteps={s.completedSteps}
-                isCurrentStepComplete={s.isStepComplete} isCurrentStepRequired={parentStep.required !== false}
-                selectedOptions={s.selectedOptions}
-              />
-            )}
+     <ResponsiveCalculatorWrapper
+  defaultWidth={1225}
+  defaultHeight={680}
+  mobileBreakpoint={600}
+>
+  {(isMobileFromWrapper) => {
+    const isMobile = isMobileFromWrapper;
 
-            <Box sx={{ display: s.isMobileView ? "block" : "flex", justifyContent: "space-between" }}>
-              <StepHeader
-                stepIndex={s.currentStep + 1} stepName={parentStep.step_name}
-                image={parentStep.image} description={parentStep.description}
-                maxSteps={parentSteps.length} helpAvailable={!!parentStep.help?.length}
-                onHelpClick={() => s.setOpenHelp(true)} isMobile={s.isMobileView}
-                selectedOptionImage={selectedOptionImage}
-              />
-              <FormBoard
-                currentStep={s.currentStep} totalSteps={parentSteps.length} parentStep={parentStep}
-                onNext={handleNext} onPrev={handlePrev}
-                onOptionChange={(option) => handleOptionChange(option.id, option.stepId)}
-                isMobile={s.isMobileView} values={s.values} setValues={s.setValues}
-                errors={s.errors} setErrors={s.setErrors}
-                selectedOptions={s.selectedOptions} setSelectedOptions={s.setSelectedOptions}
-                stepsData={s.stepsData} customImage={s.customImage} isDrawingMode={s.isDrawingMode}
-                onOutlineChange={handleOutlineChange} canCompleteOutline={s.canCompleteOutline}
-                onCustomImageUpload={handleCustomImageUpload}
-                onAcceptOutline={() => handleAcceptOutline(s.customImage)}
-                onRemoveCustomImage={handleRemoveCustomImage}
-                onColourSelection={handleColourSelection}
-                isGeneratingImage={s.isGeneratingImage} generatedImage={s.generatedImage}
-                calculatedMaterials={s.calculatedMaterials}
-              />
-            </Box>
-
-            {s.isMobileView ? (
-              <Box sx={{ display: "flex", gap: "8px", px: "24px", mt: "24px", alignItems: "center" }}>
-                <Box sx={{ flex: 1 }}>{!isFirstStep && <ActionButton onClick={handlePrevClick} isMobile variant="prev" />}</Box>
-                <Box sx={{ flex: 2 }}>{!!parentStep.help?.length && <HelpButton helpAvailable isMobile onHelpClick={() => s.setOpenHelp(true)} />}</Box>
-                <Box sx={{ flex: 1 }}><ActionButton onClick={handleNextClick} isMobile variant={isLastStep ? "send" : "next"} disabled={!s.isStepComplete} /></Box>
-              </Box>
-            ) : (
-              <Box sx={{ display: "flex", justifyContent: "flex-end", mr: "24px", mt: "24px" }}>
-                <img src={EwiproLogo} alt="Ewipro Logo" style={{ height: "40px" }} />
-              </Box>
-            )}
-
-            <Help open={s.openHelp} onClose={() => s.setOpenHelp(false)} helpSections={parentStep.help ?? []}
-              isMobile={s.isMobileView} container={s.cardRef.current}
-              selectedOptions={s.selectedOptions} OPTION_IDS={OPTION_IDS}
+    return (
+      <Box sx={{ px: isMobile ? "0px" : "1px", pb: "1px" }}>
+        <Card ref={s.cardRef} elevation={0} sx={{
+          position: "relative", m: "auto", my: "24px",
+          pb: isMobile ? "24px" : "0px",
+          width: isMobile ? "100%" : "1225px",
+          height: isMobile ? null : "680px",
+          boxSizing: "border-box", borderRadius: "20px",
+          boxShadow: "0px 0px 20px rgba(0,0,0,0.2)",
+        }}>
+          {!isMobile && (
+            <ProcessFlow
+              currentStep={s.currentStep} totalSteps={parentSteps.length} steps={parentSteps}
+              onStepClick={handleGoToStep} completedSteps={s.completedSteps}
+              isCurrentStepComplete={s.isStepComplete} isCurrentStepRequired={parentStep.required !== false}
+              selectedOptions={s.selectedOptions}
             />
-          </Card>
-        </Box>
-      </ResponsiveCalculatorWrapper>
+          )}
+
+          <Box sx={{ display: isMobile ? "block" : "flex", justifyContent: "space-between" }}>
+            <StepHeader
+              stepIndex={s.currentStep + 1} stepName={parentStep.step_name}
+              image={parentStep.image} description={parentStep.description}
+              maxSteps={parentSteps.length} helpAvailable={!!parentStep.help?.length}
+              onHelpClick={() => s.setOpenHelp(true)} isMobile={isMobile}
+              selectedOptionImage={selectedOptionImage}
+            />
+            <FormBoard
+              currentStep={s.currentStep} totalSteps={parentSteps.length} parentStep={parentStep}
+              onNext={handleNext} onPrev={handlePrev}
+              onOptionChange={(option) => handleOptionChange(option.id, option.stepId)}
+              isMobile={isMobile} values={s.values} setValues={s.setValues}
+              errors={s.errors} setErrors={s.setErrors}
+              selectedOptions={s.selectedOptions} setSelectedOptions={s.setSelectedOptions}
+              stepsData={s.stepsData} customImage={s.customImage} isDrawingMode={s.isDrawingMode}
+              onOutlineChange={handleOutlineChange} canCompleteOutline={s.canCompleteOutline}
+              onCustomImageUpload={handleCustomImageUpload}
+              onAcceptOutline={() => handleAcceptOutline(s.customImage)}
+              onRemoveCustomImage={handleRemoveCustomImage}
+              onColourSelection={handleColourSelection}
+              isGeneratingImage={s.isGeneratingImage} generatedImage={s.generatedImage}
+              calculatedMaterials={s.calculatedMaterials}
+            />
+          </Box>
+
+          {isMobile ? (
+            <Box sx={{ display: "flex", gap: "8px", px: "24px", mt: "24px", alignItems: "center" }}>
+              <Box sx={{ flex: 1 }}>{!isFirstStep && <ActionButton onClick={handlePrevClick} isMobile variant="prev" />}</Box>
+              <Box sx={{ flex: 2 }}>{!!parentStep.help?.length && <HelpButton helpAvailable isMobile onHelpClick={() => s.setOpenHelp(true)} />}</Box>
+              <Box sx={{ flex: 1 }}><ActionButton onClick={handleNextClick} isMobile variant={isLastStep ? "send" : "next"} disabled={!s.isStepComplete} /></Box>
+            </Box>
+          ) : (
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mr: "24px", mt: "24px" }}>
+              <img src={EwiproLogo} alt="Ewipro Logo" style={{ height: "40px" }} />
+            </Box>
+          )}
+
+          <Help open={s.openHelp} onClose={() => s.setOpenHelp(false)} helpSections={parentStep.help ?? []}
+            isMobile={isMobile} container={s.cardRef.current}
+            selectedOptions={s.selectedOptions} OPTION_IDS={OPTION_IDS}
+          />
+        </Card>
+      </Box>
+    );
+  }}
+</ResponsiveCalculatorWrapper>
 
       <Snackbar open={s.snackbarOpen} autoHideDuration={20000} onClose={() => s.setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }} sx={{ mt: 2 }}>

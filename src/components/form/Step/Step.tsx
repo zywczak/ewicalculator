@@ -427,6 +427,13 @@ const Step: React.FC<StepFormProps> = ({
     }
   }, [handleNextClick, handlePrevClick, isStepComplete]);
 
+  // Clear any focused substep image when switching parent steps
+  React.useEffect(() => {
+    if ((globalThis as any).__setFocusedSubstepImage) {
+      (globalThis as any).__setFocusedSubstepImage(null);
+    }
+  }, [parentStep.id]);
+
   const isSubstepVisible = React.useCallback((substepId: number): boolean => {
     const { shouldShow, shouldHide } = checkConditionsRecursive(
       stepsData.steps,

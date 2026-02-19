@@ -1,78 +1,83 @@
 import React, { useEffect, useState, useRef } from "react";
 
 interface ResponsiveCalculatorWrapperProps {
-  children: React.ReactNode;
+  children: React.ReactNode | ((isMobile: boolean) => React.ReactNode);
   defaultWidth?: number;
   defaultHeight?: number;
-  isMobileView: boolean;
+  mobileBreakpoint?: number;
 }
 
-const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = ({ 
-  children, 
+const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = ({
+  children,
   defaultWidth = 1225,
   defaultHeight = 680,
-  isMobileView 
+  mobileBreakpoint = 600,
 }) => {
   const [scale, setScale] = useState(1);
+  const [isMobileView, setIsMobileView] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const updateScale = () => {
-      if (isMobileView || !containerRef.current) {
+    if (!containerRef.current) return;
+    const target = containerRef.current;
+
+    const updateScale = (containerWidth: number) => {
+      if (containerWidth < mobileBreakpoint) {
+        setIsMobileView(true);
         setScale(1);
         return;
       }
 
-      const containerWidth = containerRef.current.offsetWidth;
       const windowHeight = globalThis.innerHeight;
-
       let newScale = containerWidth / defaultWidth;
 
       const scaledHeight = defaultHeight * newScale;
       const maxHeight = windowHeight * 0.8;
-
       if (scaledHeight > maxHeight) {
         newScale = maxHeight / defaultHeight;
       }
 
       newScale = Math.min(newScale, 1);
 
+      setIsMobileView(false);
       setScale(newScale);
     };
 
-    updateScale();
-    globalThis.addEventListener("resize", updateScale);
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateScale(entry.contentRect.width);
+      }
+    });
 
-    const timeout = setTimeout(updateScale, 100);
+    observer.observe(target);
+    updateScale(target.offsetWidth);
 
-    return () => {
-      globalThis.removeEventListener("resize", updateScale);
-      clearTimeout(timeout);
-    };
-  }, [isMobileView, defaultWidth, defaultHeight]);
+    return () => observer.disconnect();
+  }, [defaultWidth, defaultHeight, mobileBreakpoint]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      style={{ 
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        overflow: 'visible',
-        height: isMobileView ? 'auto' : `${defaultHeight * scale}px`,
-        transition: 'height 0.3s ease'
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        overflow: "visible",
+        height: isMobileView ? "auto" : `${defaultHeight * scale}px`,
+        transition: "height 0.3s ease",
       }}
     >
       <div
         style={{
-          transform: isMobileView ? 'none' : `scale(${scale})`,
-          transformOrigin: 'top center',
-          transition: 'transform 0.3s ease',
-          width: isMobileView ? '100%' : `${defaultWidth}px`,
-          height: isMobileView ? 'auto' : `${defaultHeight}px`,
+          transform: isMobileView ? "none" : `scale(${scale})`,
+          transformOrigin: "top center",
+          transition: "transform 0.3s ease",
+          width: isMobileView ? "100%" : `${defaultWidth}px`,
+          height: isMobileView ? "auto" : `${defaultHeight}px`,
+          willChange: "transform",
         }}
       >
-        {children}
+        {typeof children === "function" ? children(isMobileView) : children}
       </div>
     </div>
   );

@@ -19,6 +19,15 @@ const NumberStepInput: React.FC<StepInputProps> = ({
     const val = e.target.value;
     if (/^\d*$/.test(val)) {
       setLocalValue(val);
+
+      if (step.id === 3) {
+        if (val === "") {
+          onChange("");
+        } else {
+          const numericValue = Number(val);
+          onChange(Math.max(0, numericValue));
+        }
+      }
     }
   };
 

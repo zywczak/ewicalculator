@@ -39,7 +39,12 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
         return (
           <Box
             key={opt.id}
-            onClick={() => handleChange(opt.id, opt.json_value ?? opt.option_value)}
+            onClick={() => {
+              handleChange(opt.id, opt.json_value ?? opt.option_value);
+              if ((globalThis as any).__setFocusedSubstepImage) {
+                (globalThis as any).__setFocusedSubstepImage(opt.image ?? null);
+              }
+            }}
             sx={{
               cursor: "pointer",
               display: "flex",
