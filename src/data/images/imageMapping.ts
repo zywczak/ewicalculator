@@ -35,6 +35,24 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   { image_url: "/media/surface/terraced_sand_cement_render.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.SAND_CEMENT] },
   { image_url: "/media/surface/terraced_render_carrier_board.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.RENDER_CARRIER] },
 
+  //HOUSE PREVIEW - INSULATION - DETACHED
+  { image_url: "/media/insulation/detached_eps.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.INSULATION.EPS] },
+  { image_url: "/media/insulation/detached_mineral_wool.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.INSULATION.WOOL] },
+  { image_url: "/media/insulation/detached_kingspan_k5.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.INSULATION.KINGSPAN] },
+  { image_url: "/media/insulation/detached_wood_fibre.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.INSULATION.WOOD_FIBRE] },
+
+  //HOUSE PREVIEW - INSULATION - SEMI-DETACHED
+  { image_url: "/media/insulation/semi-detached_eps.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.INSULATION.EPS] },
+  { image_url: "/media/insulation/semi-detached_mineral_wool.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.INSULATION.WOOL] },
+  { image_url: "/media/insulation/semi-detached_kingspan_k5.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.INSULATION.KINGSPAN] },
+  { image_url: "/media/insulation/semi-detached_wood_fibre.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.INSULATION.WOOD_FIBRE] },
+
+  //HOUSE PREVIEW - INSULATION - TERRACED
+  { image_url: "/media/insulation/terraced_eps.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.INSULATION.EPS] },
+  { image_url: "/media/insulation/terraced_mineral_wool.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.INSULATION.WOOL] },
+  { image_url: "/media/insulation/terraced_kingspan_k5.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.INSULATION.KINGSPAN] },
+  { image_url: "/media/insulation/terraced_wood_fibre.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.INSULATION.WOOD_FIBRE] },
+
   // HOUSE PREVIEW - BRICK SLIPS - DETACHED
   { image_url: "/media/detached_brick_slips/sahara.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.SAHARA] },
   { image_url: "/media/detached_brick_slips/blackpool.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.BLACKPOOL] },
