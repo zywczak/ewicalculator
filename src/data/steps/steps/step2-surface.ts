@@ -13,7 +13,7 @@ export const STEP_2_SURFACE: FormStep = {
     validation_regex: null,
     substeps: [],
     options: [
-    { id: OPTION_IDS.SURFACE.ICF, option_value: "ICF", json_value: "icf", image: "/media/icf.jpg",
+    { id: OPTION_IDS.SURFACE.ICF, option_value: "ICF", json_value: "icf", image: "/media/icf.png",
         productCode: ["EWI-310"]
      },
     { id: OPTION_IDS.SURFACE.PEBBLEDASH, option_value: "Pebbledash", json_value: "pebbledash", image: "/media/pebbledash.jpg",
@@ -46,7 +46,7 @@ export const STEP_2_SURFACE: FormStep = {
         { image_name: "rendercarrierboard.jpg", caption: "Render Carrier Board", image_url: "/media/rendercarrierboard.jpg", description: null },
         { image_name: "pebbledash.jpg", caption: "Pebbledash", image_url: "/media/pebbledash.jpg", description: null },
         { image_name: "paintedbrick.jpg", caption: "Painted Brick", image_url: "/media/paintedbrick.jpg", description: null },
-        { image_name: "icf.jpg", caption: "ICF", image_url: "/media/icf.jpg", description: null },
+        { image_name: "icf.png", caption: "ICF", image_url: "/media/icf.png", description: null },
         { image_name: "brick.jpg", caption: "Brick", image_url: "/media/brick.jpg", description: null },
         { image_name: "block.jpg", caption: "Block", image_url: "/media/block.jpg", description: null },
         { image_name: "other.jpg", caption: "Other", image_url: "/media/other.jpg", description: null },

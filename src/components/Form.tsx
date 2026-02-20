@@ -170,12 +170,45 @@ const Form = ({
     return () => clearInterval(interval);
   }, []);
 
+  const prevStepRef = React.useRef(currentStep);
+
+  React.useEffect(() => {
+    if (!stepsData?.steps) {
+      prevStepRef.current = currentStep;
+      return;
+    }
+
+    if (currentStep < prevStepRef.current) {
+      const stepsToClear = stepsData.steps.slice(currentStep + 1);
+      const optionIdsToRemove = new Set<number>();
+      stepsToClear.forEach((s) => s.options.forEach((o) => optionIdsToRemove.add(o.id)));
+
+      setSelectedOptions((prev) => prev.filter((id) => !optionIdsToRemove.has(id)));
+    }
+
+    if (currentStep > prevStepRef.current) {
+      const newStep = stepsData.steps[currentStep];
+      if (newStep) {
+        const val = (values as Record<number, any>)[newStep.id];
+        if (val !== undefined && val !== "") {
+          const found = newStep.options?.find(o => o.option_value === val || o.json_value === val);
+          if (found) {
+            setSelectedOptions(prev => (prev.includes(found.id) ? prev : [...prev, found.id]));
+            onOptionChange?.({ id: found.id, stepId: newStep.id });
+          }
+        }
+      }
+    }
+
+    prevStepRef.current = currentStep;
+  }, [currentStep, stepsData, setSelectedOptions]);
+
   const callHandler = (name: "handleNextClick" | "handlePrevClick") => {
     const handlers = (globalThis as any).__multiStepFormHandlers;
     handlers?.[name]?.();
   };
 
-  const isColourStep = currentStep === 10; // Step 11 has index 10
+  const isColourStep = currentStep === 10;
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleUploadClick = () => {

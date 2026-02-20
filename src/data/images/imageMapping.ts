@@ -8,6 +8,33 @@ export const STEP_OPTION_IMAGES: StepOptionImage[] = [
   { image_url: "/media/semi-detached.jpg", options: [OPTION_IDS.HOUSE.SEMI_DETACHED] },
   { image_url: "/media/terraced.jpg", options: [OPTION_IDS.HOUSE.TERRACED] },
 
+  // HOUSE PREVIEW - SURFACE MATERIALS - DETACHED
+  { image_url: "/media/surface/detached_icf.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.ICF] }, 
+  { image_url: "/media/surface/detached_pebbledash.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.PEBBLEDASH] },
+  { image_url: "/media/surface/detached_blockwork.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.BLOCK] },
+  { image_url: "/media/surface/detached_brick.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.BRICK] },
+  { image_url: "/media/surface/detached_painted_brick.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.PAINTED_BRICK] },
+  { image_url: "/media/surface/detached_sand_cement_render.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.SAND_CEMENT] },
+  { image_url: "/media/surface/detached_redned_carrier_board.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.SURFACE.RENDER_CARRIER] },
+
+  // HOUSE PREVIEW - SURFACE MATERIALS - SEMI-DETACHED
+  { image_url: "/media/surface/semi-detached_icf.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.ICF] }, 
+  { image_url: "/media/surface/semi-detached_pebbledash.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.PEBBLEDASH] },
+  { image_url: "/media/surface/semi-detached_blockwork.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.BLOCK] },
+  { image_url: "/media/surface/semi-detached_brick.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.BRICK] },
+  { image_url: "/media/surface/semi-detached_painted_brick.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.PAINTED_BRICK] },
+  { image_url: "/media/surface/semi-detached_sand_cement_render.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.SAND_CEMENT] },
+  { image_url: "/media/surface/semi-detached_render_carrier_board.jpg", options: [ OPTION_IDS.HOUSE.SEMI_DETACHED, OPTION_IDS.SURFACE.RENDER_CARRIER] },
+
+  // HOUSE PREVIEW - SURFACE MATERIALS - TERRACED
+  { image_url: "/media/surface/terraced_icf.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.ICF] },
+  { image_url: "/media/surface/terraced_pebbledash.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.PEBBLEDASH] },
+  { image_url: "/media/surface/terraced_blockwork.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.BLOCK] },
+  { image_url: "/media/surface/terraced_brick.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.BRICK] },
+  { image_url: "/media/surface/terraced_painted_brick.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.PAINTED_BRICK] },
+  { image_url: "/media/surface/terraced_sand_cement_render.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.SAND_CEMENT] },
+  { image_url: "/media/surface/terraced_render_carrier_board.jpg", options: [ OPTION_IDS.HOUSE.TERRACED, OPTION_IDS.SURFACE.RENDER_CARRIER] },
+
   // HOUSE PREVIEW - BRICK SLIPS - DETACHED
   { image_url: "/media/detached_brick_slips/sahara.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.SAHARA] },
   { image_url: "/media/detached_brick_slips/blackpool.jpg", options: [ OPTION_IDS.HOUSE.DETACHED, OPTION_IDS.COLOURS.BLACKPOOL] },
