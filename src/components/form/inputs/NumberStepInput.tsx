@@ -59,7 +59,7 @@ const NumberStepInput: React.FC<StepInputProps> = ({
   };
 
   const getInputWidth = () => {
-    if (isSubstep) return isMobile ? "150px" : "96px";
+    if (isSubstep) return isMobile ? "140px" : "96px";
     return isMobile ? "calc(100% - 48px)" : "244px";
   };
 

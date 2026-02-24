@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import { CalculatedMaterials } from "../services/materialCalculator";
 import { products } from "../data/products";
 import { StepsData } from "../data/steps/types";
-import adress from "../api/adress"
+import adress from "../api/adress";
 
 interface Product {
   id: string;
@@ -29,13 +29,18 @@ const DataCell = styled("td")({
   verticalAlign: "middle",
 });
 
+const BASE_WIDTH = 600;
+const BASE_HEIGHT = 450;
+
+/* ---------------- helpers ---------------- */
+
 function parseSuffix(productCodeWithSuffix: string): { baseCode: string; suffix: string } | null {
   const ewiplusMatch = /^(SPI-EWIPLUS)(\d+)$/.exec(productCodeWithSuffix);
   if (ewiplusMatch) {
     return { baseCode: ewiplusMatch[1], suffix: ewiplusMatch[2] };
   }
-  
-  const lastPart = productCodeWithSuffix.split('-').pop() ?? '';
+
+  const lastPart = productCodeWithSuffix.split("-").pop() ?? "";
   const isValidSuffix =
     /^\d{3}$/.test(lastPart) ||
     /^\d+(\.\d+)?A$/.test(lastPart) ||
@@ -43,19 +48,19 @@ function parseSuffix(productCodeWithSuffix: string): { baseCode: string; suffix:
 
   if (!isValidSuffix) return null;
 
-  const parts = productCodeWithSuffix.split('-');
-  const suffix = parts.pop() ?? '';
-  return { baseCode: parts.join('-'), suffix };
+  const parts = productCodeWithSuffix.split("-");
+  const suffix = parts.pop() ?? "";
+  return { baseCode: parts.join("-"), suffix };
 }
 
 function buildProductName(baseName: string, suffix: string, category: string): string {
-  if (suffix.endsWith('A')) {
-    return `${baseName} (${suffix.replace('A', '')}mm grain)`;
+  if (suffix.endsWith("A")) {
+    return `${baseName} (${suffix.replace("A", "")}mm grain)`;
   }
   if (suffix.length === 3 && !Number.isNaN(Number(suffix))) {
     return `${baseName} (${Number(suffix)}mm)`;
   }
-  if (category === 'fixings') {
+  if (category === "fixings") {
     return `${baseName} (${suffix}mm)`;
   }
   return baseName;
@@ -67,7 +72,11 @@ function resolveProduct(
 ): { product: ProductEntry; displayCode: string; productName: string } | null {
   const direct = products.find(p => p.productCode === productCodeWithSuffix);
   if (direct) {
-    return { product: direct, displayCode: productCodeWithSuffix, productName: direct.productName };
+    return {
+      product: direct,
+      displayCode: productCodeWithSuffix,
+      productName: direct.productName,
+    };
   }
 
   const parsed = parseSuffix(productCodeWithSuffix);
@@ -88,18 +97,15 @@ function processMaterialKey(
   calculatedMaterials: CalculatedMaterials,
   productsList: Product[]
 ): void {
-  if (!key.endsWith('_units')) return;
+  if (!key.endsWith("_units")) return;
 
-  const category = key.replace('_units', '');
+  const category = key.replace("_units", "");
   const productCodeWithSuffix = calculatedMaterials[category];
   const quantity = calculatedMaterials[key];
 
   const resolved = resolveProduct(productCodeWithSuffix, category);
 
-  if (!resolved) {
-    console.warn(`[ResultsTable] Product not found for code: ${productCodeWithSuffix}`);
-    return;
-  }
+  if (!resolved) return;
 
   if (quantity && quantity > 0) {
     productsList.push({
@@ -113,28 +119,57 @@ function processMaterialKey(
   }
 }
 
+/* ---------------- component ---------------- */
+
 const ResultsTable: React.FC<ResultsTableProps> = ({
   isMobile = false,
   calculatedMaterials,
-  stepsData
+  stepsData,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const scaleWrapperRef = useRef<HTMLDivElement | null>(null);
+
   const [centerContent, setCenterContent] = useState(false);
+  const [scale, setScale] = useState(1);
+
+  /* ---------- overflow centering ---------- */
 
   const checkOverflow = () => {
     const el = containerRef.current;
     if (!el) return;
-    // If content height is less than or equal to container height -> center
     const fits = el.scrollHeight <= el.clientHeight;
     setCenterContent(fits);
   };
 
   useEffect(() => {
     checkOverflow();
-    const onResize = () => checkOverflow();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
   }, []);
+
+  /* ---------- MOBILE SCALE ENGINE ---------- */
+
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const updateScale = () => {
+      const el = scaleWrapperRef.current;
+      if (!el) return;
+
+      const parentWidth = el.offsetWidth;
+      const newScale = Math.min(1, parentWidth / BASE_WIDTH);
+
+      setScale(newScale);
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+
+    return () => window.removeEventListener("resize", updateScale);
+  }, [isMobile]);
+
+  /* ---------- empty state ---------- */
+
   if (!calculatedMaterials || !stepsData) {
     return (
       <Box
@@ -145,8 +180,8 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
           justifyContent: "center",
           borderRadius: "20px",
           boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
-          width: isMobile ? "100%" : "600px",
-          height: isMobile ? "auto" : "450px",
+          width: "100%",
+          height: BASE_HEIGHT,
           backgroundColor: "#FFFFFF",
           p: "30px",
         }}
@@ -163,100 +198,112 @@ const ResultsTable: React.FC<ResultsTableProps> = ({
     processMaterialKey(key, calculatedMaterials, productsList)
   );
 
+  /* ---------- render ---------- */
+
   return (
     <Box
+      ref={scaleWrapperRef}
       sx={{
-        flex: 1,
+        width: "100%",
         display: "flex",
-        alignItems: "center",
         justifyContent: "center",
-        position: "relative",
         overflow: "hidden",
         borderRadius: "20px",
+        height: isMobile ? `${BASE_HEIGHT * scale}px` : BASE_HEIGHT,
         boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
-        width: isMobile ? "100%" : "600px",
-        height: isMobile ? "auto" : "450px",
-        aspectRatio: isMobile ? "4/3" : undefined,
         backgroundColor: "#FFFFFF",
-        boxSizing: "border-box",
       }}
     >
       <Box
-        ref={containerRef}
         sx={{
-          height: 450,
-          px: "30px",
-          overflowY: centerContent ? "hidden" : "auto",
-          display: centerContent ? "flex" : "block",
-          alignItems: centerContent ? "center" : "flex-start",
-          justifyContent: centerContent ? "center" : "flex-start",
-          flexDirection: "column",
-          scrollbarWidth: "none",
-          width: "100%",
-          msOverflowStyle: "none",
-          "&::-webkit-scrollbar": {
-            display: "none",
-          },
+          width: BASE_WIDTH,
+          transform: isMobile ? `scale(${scale})` : "none",
+          transformOrigin: "top center",
+          transition: "transform 0.2s ease",
         }}
       >
-        <MuiTable sx={{ borderCollapse: "collapse" }}>
-          <colgroup>
-            <col style={{ width: isMobile ? "60px" : "80px", height: isMobile ? 40 : 60 }} />
-            <col style={{ width: "auto" }} />
-            <col style={{ width: isMobile ? "80px" : "120px" }} />
-          </colgroup>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            borderRadius: "20px",
+            boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+            width: BASE_WIDTH,
+            height: BASE_HEIGHT,
+            backgroundColor: "#FFFFFF",
+          }}
+        >
+          <Box
+            ref={containerRef}
+            sx={{
+              height: BASE_HEIGHT,
+              overflowY: centerContent ? "hidden" : "auto",
+              display: centerContent ? "flex" : "block",
+              alignItems: centerContent ? "center" : "flex-start",
+              justifyContent: centerContent ? "center" : "flex-start",
+              flexDirection: "column",
+              scrollbarWidth: "none",
+              width: "100%",
+              "&::-webkit-scrollbar": { display: "none" },
+            }}
+          >
+            <MuiTable sx={{ borderCollapse: "collapse" }}>
+              <colgroup>
+                <col style={{ width: 80 }} />
+                <col style={{ width: "auto" }} />
+                <col style={{ width: 120 }} />
+              </colgroup>
 
-          <TableBody>
-            {productsList.map((item, index) => (
-              <TableRow
-                key={`${item.id}-${index}`}
-                sx={{
-                  p: 0,
-                  m: 0,
-                  backgroundColor: index % 2 === 1 ? "#F9F9F9" : "transparent",
-                  cursor: item.link ? "pointer" : "default",
-                  "&:hover": item.link ? {
-                    backgroundColor: index % 2 === 1 ? "#E8E8E8" : "#F5F5F5",
-                  } : {},
-                }}
-              >
-                <DataCell sx={{ textAlign: "center", p: 0, height: isMobile ? 40 : 60 }}>
-                  <img
-                    src={adress + item.image}
-                    alt={item.id}
-                    onLoad={() => checkOverflow()}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "contain",
-                      display: "block",
+              <TableBody>
+                {productsList.map((item, index) => (
+                  <TableRow
+                    key={`${item.id}-${index}`}
+                    sx={{
+                      backgroundColor: index % 2 ? "#F9F9F9" : "transparent",
                     }}
-                  />
-                </DataCell>
+                  >
+                    <DataCell sx={{ textAlign: "center", pl: "10px", height: 75 }}>
+                      <img
+                        src={adress + item.image}
+                        alt={item.id}
+                        onLoad={checkOverflow}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                          display: "block",
+                        }}
+                      />
+                    </DataCell>
 
-                <DataCell>
-                  <Typography variant="body2" sx={{ color: "#333", lineHeight: 1.4 }}>
-                    <Box component="span" sx={{ fontWeight: 700 }}>
-                      {item.id}
-                    </Box>
-                    <Box component="span" sx={{ color: "#999", fontWeight: 400 }}>
-                      {" - "}{item.name}
-                    </Box>
-                  </Typography>
-                </DataCell>
+                    <DataCell>
+                      <Typography variant="body2" sx={{ color: "#333" }}>
+                        <Box component="span" sx={{ fontWeight: 700 }}>
+                          {item.id}
+                        </Box>
+                        <Box component="span" sx={{ color: "#999" }}>
+                          {" - "}
+                          {item.name}
+                        </Box>
+                      </Typography>
+                    </DataCell>
 
-                <DataCell sx={{ textAlign: "left", pr: "0px" }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: "#666" }}>
-                    {item.quantity}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "#AAA", display: "block" }}>
-                    {item.unitDetail}
-                  </Typography>
-                </DataCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </MuiTable>
+                    <DataCell>
+                      <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        {item.quantity}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: "#AAA" }}>
+                        {item.unitDetail}
+                      </Typography>
+                    </DataCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </MuiTable>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

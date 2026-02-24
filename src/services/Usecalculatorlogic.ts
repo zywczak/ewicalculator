@@ -379,6 +379,7 @@ export function useCalculatorLogic({
   const handleCustomImageUpload = useCallback((file: File) => {
     const reader = new FileReader();
     reader.onloadend = () => {
+      console.debug("Usecalculatorlogic: reader.onloadend setCustomImage");
       setCustomImage(reader.result as string);
       setOutlinePoints([]);
       clearGeneratedImages();
@@ -390,12 +391,17 @@ export function useCalculatorLogic({
   }, [selectedOptions, clearGeneratedImages, clearColourSelection, setCustomImage, setOutlinePoints, setIsDrawingMode]);
 
   const handleOutlineChange = useCallback((points: any[], canComplete: boolean) => {
-    setOutlinePoints(points);
-    setCanCompleteOutline(canComplete);
+    // Defer outline updates to avoid triggering parent state updates
+    // while a child component is rendering.
+    Promise.resolve().then(() => {
+      setOutlinePoints(points);
+      setCanCompleteOutline(canComplete);
+    });
   }, [setOutlinePoints, setCanCompleteOutline]);
 
-  const handleAcceptOutline = useCallback((customImage: string | null) => {
-    if (!customImage || outlineRef.current.length < 3) return;
+  const handleAcceptOutline = useCallback((customImage?: string | null) => {
+    console.debug("Usecalculatorlogic: handleAcceptOutline called", { hasImage: !!customImage, outlineLen: outlineRef.current.length });
+    if (!customImage || outlineRef.current.length < 3) { console.debug("Usecalculatorlogic: cannot accept - missing image or outline"); return; }
     const img = new Image();
     img.onload = () => {
       const { width, height } = img;
@@ -412,7 +418,9 @@ export function useCalculatorLogic({
       createCompositeImage(customImage, canvas.toDataURL());
     };
     img.src = customImage;
-    setIsDrawingMode(false);
+    // Defer changing drawing mode to avoid updating React state during
+    // another component's render (prevents "setState in render" errors).
+    Promise.resolve().then(() => setIsDrawingMode(false));
   }, [createCompositeImage, setIsDrawingMode]);
 
   const handleRemoveCustomImage = useCallback(() => {

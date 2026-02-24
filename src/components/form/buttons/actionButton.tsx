@@ -2,8 +2,8 @@ import React from "react";
 import { Button } from "@mui/material";
 import ArrowCircleRightOutlinedIcon from "@mui/icons-material/ArrowCircleRightOutlined";
 import ArrowCircleLeftOutlinedIcon from "@mui/icons-material/ArrowCircleLeftOutlined";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
+import FileUploadOutlinedIcon from '@mui/icons-material/FileUploadOutlined';
 
 interface ActionButtonProps {
   onClick: () => void;
@@ -21,6 +21,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const getButtonWidth = () => {
     if (isMobile) return "100%";
     if (variant === "nextStep") return "212px";
+    if (variant === "uploadHouse") return "260px";
     return "100px";
   };
 
@@ -29,19 +30,22 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       case "prev":
         return <ArrowCircleLeftOutlinedIcon sx={{ fontSize: 20 }} />;
       case "accept":
-        return <CheckCircleIcon sx={{ fontSize: 20 }} />;
-      case "uploadHouse":
-        return <UploadFileIcon sx={{ fontSize: 20 }} />;
+        return <CheckOutlinedIcon sx={{ fontSize: 20 }} />;
       default:
         return undefined;
     }
   };
 
   const getEndIcon = () => {
-    if (variant === "next" || variant === "nextStep") {
-      return <ArrowCircleRightOutlinedIcon sx={{ fontSize: 20 }} />;
+    switch (variant) {
+      case "next":
+      case "nextStep":
+        return <ArrowCircleRightOutlinedIcon sx={{ fontSize: 20 }} />;
+      case "uploadHouse":
+        return <FileUploadOutlinedIcon sx={{ fontSize: 20 }} />;
+      default:
+        return undefined;
     }
-    return undefined;
   };
 
   const getLabel = () => {
@@ -57,7 +61,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       case "accept":
         return "Accept";
       case "uploadHouse":
-        return "Upload";
+        return "Upload your house photo";
       default:
         return "";
     }

@@ -31,7 +31,7 @@ interface FormProps {
   onOutlineChange?: (points: any[], canComplete: boolean) => void;
   canCompleteOutline?: boolean;
   onCustomImageUpload?: (file: File) => void;
-  onAcceptOutline?: () => void;
+  onAcceptOutline?: (customImage?: string | null) => void;
   onRemoveCustomImage?: () => void;
   onColourSelection?: (colourValue: string, optionId: number) => void;
   isGeneratingImage?: boolean;
@@ -50,6 +50,9 @@ const renderPreview = ({
   isGeneratingImage,
   currentStep,
   onRemoveCustomImage,
+  onCustomImageUpload,
+    onAcceptOutline,
+  canCompleteOutline,
   calculatedMaterials,
   stepsData
 }: {
@@ -63,6 +66,9 @@ const renderPreview = ({
   isGeneratingImage?: boolean;
   currentStep?: number;
   onRemoveCustomImage?: () => void;
+  onCustomImageUpload?: (file: File) => void;
+  onAcceptOutline?: () => void;
+  canCompleteOutline?: boolean;
   calculatedMaterials?: CalculatedMaterials | null;
   stepsData: StepsData;
 }) => (
@@ -82,6 +88,9 @@ const renderPreview = ({
         isGeneratingImage={isGeneratingImage}
         currentStep={currentStep}
         onResetToDefault={onRemoveCustomImage}
+        onCustomImageUpload={onCustomImageUpload}
+        onAcceptOutline={onAcceptOutline}
+        canCompleteOutline={canCompleteOutline}
       />
 );
 
@@ -209,18 +218,7 @@ const Form = ({
   };
 
   const isColourStep = currentStep === 10;
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && onCustomImageUpload) {
-      onCustomImageUpload(file);
-    }
-  };
+  
 
   return (
     <Box
@@ -245,11 +243,12 @@ const Form = ({
           px: isMobile ? "24px" : 0,
           boxSizing: "border-box",
           zIndex: isMobile ? 2 : "auto",
+          mb: (isMobile  && isColourStep) ? "24px" : 0,
         }}
       >
         {renderPreview({
-          isLastStep, 
-          isMobile, 
+          isLastStep,
+          isMobile,
           selectedOptions,
           customImage,
           isDrawingMode,
@@ -258,6 +257,9 @@ const Form = ({
           isGeneratingImage,
           currentStep,
           onRemoveCustomImage,
+          onCustomImageUpload,
+          onAcceptOutline,
+          canCompleteOutline,
           calculatedMaterials,
           stepsData
         })}
@@ -316,71 +318,6 @@ const Form = ({
         </Box>
       )}
 
-      {!isMobile && isColourStep && !customImage && (
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: "-10px",
-            right: "288px",
-            zIndex: 10,
-          }}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-          />
-
-          <ActionButton
-            variant="uploadHouse"
-            onClick={handleUploadClick}
-          />
-        </Box>
-      )}
-
-       {/* Drawing instruction text - positioned above preview */}
-      {!isMobile && isColourStep && isDrawingMode && isDrawingMode && customImage && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "-24px",
-            right: "38px",
-            zIndex: 100,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            color: 'white',
-            textAlign: 'center',
-            width: '600px',
-            padding: '2px 24px',
-            borderRadius: '12px',
-            fontSize: '16px',
-            fontWeight: 500,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          }}
-        >
-          Mark your house
-        </Box>
-       )}
-
-      {/* Accept outline button - pokazuje się od razu po wstawieniu zdjęcia, disabled póki nie narysowano */}
-{!isMobile && isColourStep && customImage && isDrawingMode && (
-  <Box
-    sx={{
-      position: "absolute",
-      bottom: "-10px",
-      right: "288px",
-      zIndex: 10,
-    }}
-  >
-    <ActionButton
-      variant="accept"
-      onClick={onAcceptOutline ?? (() => {})}
-      disabled={!canCompleteOutline}
-      isMobile={false}
-    />
-  </Box>
-)}
     </Box>
   );
 };

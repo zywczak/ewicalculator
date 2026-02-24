@@ -12,6 +12,7 @@ import OPTION_IDS from "../data/constants/optionIds";
 import { calculateMaterials } from "../services/materialCalculator";
 import { useCalculatorState } from "../services/Usecalculatorstate";
 import { useCalculatorLogic } from "../services/Usecalculatorlogic";
+import PhotoUploadInfo from "../components/uploadPhotoInfo";
 
 
 const RENDER_TYPE_IDS = new Set<number>([
@@ -208,10 +209,10 @@ const Calculator: React.FC = () => {
   return (
     <>
       <Box sx={{ textAlign: "center", py: "16px" }}>
-        <Typography sx={{ fontSize: s.isSmallerTitle ? "32px" : "48px", fontWeight: "extraLight", mb: "8px", transition: "font-size 240ms ease, transform 240ms ease", transform: s.isSmallerTitle ? "scale(0.95)" : "scale(1)", willChange: "font-size, transform" }}>
+        <Typography sx={{ fontSize: s.isSmallerTitle ? "26px" : "48px", fontWeight: "extraLight", mb: "8px", transition: "font-size 240ms ease, transform 240ms ease", transform: s.isSmallerTitle ? "scale(0.95)" : "scale(1)", willChange: "font-size, transform" }}>
           Quote Smarter.
         </Typography>
-        <Typography sx={{ fontSize: s.isSmallerTitle ? "32px" : "48px", fontWeight: 700, transition: "font-size 240ms ease, transform 240ms ease", transform: s.isSmallerTitle ? "scale(0.98)" : "scale(1)", willChange: "font-size, transform" }}>
+        <Typography sx={{ fontSize: s.isSmallerTitle ? "26px" : "48px", fontWeight: 700, transition: "font-size 240ms ease, transform 240ms ease", transform: s.isSmallerTitle ? "scale(0.98)" : "scale(1)", willChange: "font-size, transform" }}>
           Use Our Material Calculator
         </Typography>
       </Box>
@@ -219,10 +220,16 @@ const Calculator: React.FC = () => {
      <ResponsiveCalculatorWrapper
   defaultWidth={1225}
   defaultHeight={680}
-  mobileBreakpoint={800}
+  mobileBreakpoint={700}
 >
   {(isMobileFromWrapper) => {
     const isMobile = isMobileFromWrapper;
+
+    const getComponentHeight = () => {
+      if (isMobile) return null;
+      
+      return parentStep.id === 11 ? "810px" : "680px";
+    };
 
     return (
       <Box sx={{ px: isMobile ? "0px" : "1px", pb: "1px" }}>
@@ -230,7 +237,7 @@ const Calculator: React.FC = () => {
           position: "relative", m: "auto", my: "24px",
           pb: isMobile ? "24px" : "0px",
           width: isMobile ? "100%" : "1225px",
-          height: isMobile ? null : "680px",
+          height: getComponentHeight(),
           boxSizing: "border-box", borderRadius: "20px",
           boxShadow: "0px 0px 20px rgba(0,0,0,0.2)",
         }}>
@@ -243,7 +250,9 @@ const Calculator: React.FC = () => {
             />
           )}
 
-          
+          {!isMobile && parentStep.id === 11 && (
+            <PhotoUploadInfo />
+          )}
 
           <Box sx={{ display: isMobile ? "block" : "flex", justifyContent: "space-between" }}>
             <StepHeader
@@ -263,7 +272,7 @@ const Calculator: React.FC = () => {
               stepsData={s.stepsData} customImage={s.customImage} isDrawingMode={s.isDrawingMode}
               onOutlineChange={handleOutlineChange} canCompleteOutline={s.canCompleteOutline}
               onCustomImageUpload={handleCustomImageUpload}
-              onAcceptOutline={() => handleAcceptOutline(s.customImage)}
+              onAcceptOutline={handleAcceptOutline}
               onRemoveCustomImage={handleRemoveCustomImage}
               onColourSelection={handleColourSelection}
               isGeneratingImage={s.isGeneratingImage} generatedImage={s.generatedImage}
@@ -283,9 +292,14 @@ const Calculator: React.FC = () => {
             </Box>
           )}
 
-          <Help open={s.openHelp} onClose={() => s.setOpenHelp(false)} helpSections={parentStep.help ?? []}
-            isMobile={isMobile} container={s.cardRef.current}
-            selectedOptions={s.selectedOptions} OPTION_IDS={OPTION_IDS}
+          <Help
+            open={s.openHelp}
+            onClose={() => s.setOpenHelp(false)}
+            helpSections={parentStep.help ?? []}
+            isMobile={isMobile}
+            container={isMobile ? undefined : s.cardRef.current}
+            selectedOptions={s.selectedOptions}
+            OPTION_IDS={OPTION_IDS}
           />
         </Card>
       </Box>

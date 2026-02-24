@@ -355,16 +355,15 @@ const Step: React.FC<StepFormProps> = ({
       newSelectedOptions = [...filtered, optionId];
     }
 
-    setValues(prev => {
-      const newValues = { ...prev, [stepId]: value };
-      setJsonValues(prevJson => {
-        const updatedJson = { ...prevJson };
-        const allStepsRecursive = getAllStepsRecursive(stepsData.steps);
-        // Use newSelectedOptions instead of old selectedOptions
-        const stepJson = updateJsonValuesForStep(parentStep, newValues, newSelectedOptions, allStepsRecursive);
-        return { ...updatedJson, ...stepJson };
-      });
-      return newValues;
+    // Compute new values first to avoid nested state updates during another component's render
+    const newValues = { ...values, [stepId]: value };
+    setValues(newValues);
+    // Update JSON values based on the freshly computed values
+    setJsonValues(prevJson => {
+      const updatedJson = { ...prevJson };
+      const allStepsRecursive = getAllStepsRecursive(stepsData.steps);
+      const stepJson = updateJsonValuesForStep(parentStep, newValues, newSelectedOptions, allStepsRecursive);
+      return { ...updatedJson, ...stepJson };
     });
 
     if (optionId !== undefined) {
@@ -525,12 +524,11 @@ const Step: React.FC<StepFormProps> = ({
               fontSize: "12px",
               fontWeight: 400,
               color: "#424242",
-              mt: "24px",
               px: "24px",
             }}
             dangerouslySetInnerHTML={{ __html: parentStep.description || "" }}
           />
-          <Divider sx={{ mb: "24px", ml: "24px", mr: "20px", color: "#D0DBE0" }} />
+          <Divider sx={{ mb: "16px", ml: "24px", mr: "20px", color: "#D0DBE0" }} />
         </>
       )}
       {parentStep.id === 11 ? (

@@ -16,6 +16,26 @@ interface HelpProps {
   OPTION_IDS?: any;
 }
 
+const resolveCurrentHelp = (
+  helpSections: HelpSection[],
+  selectedOptions: number[],
+  OPTION_IDS?: any
+): HelpSection => {
+  const isBrickSlipsColourStep =
+    helpSections.length > 1 &&
+    helpSections[1]?.help_title?.toLowerCase().includes("brick slip");
+
+  const brickSlipsId = OPTION_IDS?.RENDER_TYPE?.BRICK_SLIPS;
+  const brickSlipsSelected =
+    brickSlipsId && selectedOptions.includes(brickSlipsId);
+
+  if (isBrickSlipsColourStep && brickSlipsSelected) {
+    return helpSections[1];
+  }
+
+  return helpSections[0];
+};
+
 const Help: React.FC<HelpProps> = ({
   open,
   onClose,
@@ -26,30 +46,27 @@ const Help: React.FC<HelpProps> = ({
   OPTION_IDS,
 }) => {
   if (helpSections.length === 0) return null;
-  let currentHelp = helpSections[0];
-  // Sprawdź czy to krok colour i czy wybrano Brick Slips
-  const isColourStep = helpSections.length > 1 && helpSections[1]?.help_title?.toLowerCase().includes("brick slip");
-  const BRICK_SLIPS_ID = OPTION_IDS?.RENDER_TYPE?.BRICK_SLIPS;
-  if (isColourStep && Array.isArray(selectedOptions) && BRICK_SLIPS_ID && selectedOptions.includes(BRICK_SLIPS_ID)) {
-    currentHelp = helpSections[1];
-  }
+
+  const currentHelp = resolveCurrentHelp(helpSections, selectedOptions, OPTION_IDS);
 
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      fullScreen={false}
+      fullScreen={isMobile}
       maxWidth={false}
       container={container}
+      disableScrollLock={false}
       sx={{
         ...(isMobile
           ? {
               "& .MuiBackdrop-root": {
                 backgroundColor: "rgba(0, 0, 0, 0.5)",
               },
+              // Czarne tło całego ekranu — widoczne jako bary gdy treść jest krótsza
               "& .MuiDialog-container": {
-                alignItems: "center",
-                justifyContent: "center",
+                backgroundColor: "#0000004f",
+                alignItems: "flex-start",
               },
             }
           : {
@@ -72,24 +89,24 @@ const Help: React.FC<HelpProps> = ({
       slotProps={{
         paper: {
           sx: {
-            width: isMobile ? "100vw" : "1245px",
-            maxWidth: isMobile ? "100vw" : "1245px",
+            width: isMobile ? "100%" : "1245px",
+            maxWidth: isMobile ? "100%" : "1245px",
             height: "auto",
             maxHeight: isMobile ? "100vh" : "625px",
-            borderRadius: "20px",
+            borderRadius: isMobile ? 0 : "20px",
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            boxShadow: isMobile
-              ? "none"
-              : "0px 0px 20px rgba(0, 0, 0, 0.2)",
+            boxShadow: isMobile ? "none" : "0px 0px 20px rgba(0, 0, 0, 0.2)",
             pb: isMobile ? 0 : "40px",
             m: isMobile ? 0 : "auto",
+            my: "auto",
           },
         },
       }}
     >
       <HelpHeader isMobile={isMobile} onClose={onClose} />
+
       <Box
         sx={{
           display: "flex",

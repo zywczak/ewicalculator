@@ -4,6 +4,9 @@ import CloseIcon from "@mui/icons-material/Close";
 import defaultImage from "../assets/default.png";
 import { findBestMatchingImage } from "../data/images/utils";
 import address from "../api/adress";
+import PhotoUploadInfoMobile from "./uploadPhotoInfoMobile";
+import QuestionMarkOutlinedIcon from '@mui/icons-material/QuestionMarkOutlined';
+import ActionButton from "./form/buttons/actionButton";
 
 interface Point { x: number; y: number; }
 
@@ -18,6 +21,9 @@ interface HousePreviewProps {
   currentStep?: number;
   onResetToDefault?: () => void;
   compositeImage?: string | null;
+  onCustomImageUpload?: (file: File) => void;
+  onAcceptOutline?: (customImage?: string | null) => void;
+  canCompleteOutline?: boolean;
 }
 
 const HousePreview: React.FC<HousePreviewProps> = ({
@@ -31,6 +37,9 @@ const HousePreview: React.FC<HousePreviewProps> = ({
   currentStep = 0,
   onResetToDefault,
   compositeImage = null,
+  onCustomImageUpload,
+  onAcceptOutline,
+  canCompleteOutline = false,
 }) => {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [points, setPoints] = useState<Point[]>([]);
@@ -87,50 +96,146 @@ const HousePreview: React.FC<HousePreviewProps> = ({
   };
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
-    setPoints((prev) => { const next = [...prev, getPos(e)]; onOutlineChange?.(next, next.length >= 10); return next; });
+    setPoints((prev) => { const next = [...prev, getPos(e)]; onOutlineChange?.(next, next.length >= 3); return next; });
   };
   const handleMouseUp = () => setIsDrawing(false);
 
   const showRemoveButton = !!(customImage || generatedImage) && !!onResetToDefault && currentStep === 10;
   const showCanvas = isDrawingMode && currentStep === 10;
 
+  const isColourStep = currentStep === 10;
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.debug("HousePreview: file selected:", file.name, file);
+      if (onCustomImageUpload) onCustomImageUpload(file);
+      else console.debug("HousePreview: onCustomImageUpload prop missing");
+    }
+  };
+
+  const handleAcceptClick = () => {
+    console.debug("HousePreview: accept clicked", { canCompleteOutline, customImage, pointsLength: points.length });
+    // ensure parent has latest outline points before accepting
+    onOutlineChange?.(points, points.length >= 3);
+    setTimeout(() => {
+      if (onAcceptOutline) onAcceptOutline(customImage);
+      else console.debug("HousePreview: onAcceptOutline prop missing");
+    }, 50);
+  };
+
+  const [showHelp, setShowHelp] = useState(true); // Stan dla helpa
+
   return (
     <Box sx={{
       flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-      position: "relative", overflow: "hidden", borderRadius: "20px",
+      position: "relative",
+      // overflow: "hidden",
+      borderRadius: "20px",
       boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
       width: isMobile ? "100%" : "600px",
       height: isMobile ? "auto" : "450px",
       aspectRatio: isMobile ? "4/3" : undefined,
       backgroundColor: "#FFFFFF",
     }}>
+      {isMobile && currentStep === 10 && !showHelp && (
+        <IconButton
+          onClick={() => setShowHelp(true)}
+          sx={{
+            position: "absolute",
+            top: 10,
+            right: 10,
+            zIndex: 110, // Nad obrazkiem i canvasem
+            backgroundColor: "white",
+            color: "#333",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+            "&:hover": { backgroundColor: "#f5f5f5" },
+          }}
+          size="small"
+        >
+          <QuestionMarkOutlinedIcon fontSize="small" />
+        </IconButton>
+      )}
+      {isMobile && currentStep === 10 && showHelp && (
+        <PhotoUploadInfoMobile onClose={() => setShowHelp(false)} />
+      )}
       {currentImage ? (
         <>
           {showRemoveButton && (
             <IconButton onClick={onResetToDefault} sx={{
-              position: "absolute", top: 8, left: 8, zIndex: 100,
+              position: "absolute", top: "8px", left: "8px", zIndex: 100,
               backgroundColor: "rgba(255,255,255,0.9)", color: "#333",
               "&:hover": { backgroundColor: "rgba(255,255,255,1)", color: "#d32f2f" },
               boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
             }}>
-              <CloseIcon />
+              <CloseIcon sx={{ height: "16px", width: "16px" }} />
             </IconButton>
           )}
 
           <Box component="img" src={currentImage} alt="house preview" sx={{
             width: "100%", height: "100%", margin: 0,
-            borderRadius: isMobile ? 2 : 3, objectFit: "cover",
+            borderRadius: "20px", objectFit: "cover",
             transition: "opacity 0.4s ease-in-out",
-            filter: isGeneratingImage ? "blur(8px)" : "none",
+            filter: isGeneratingImage ? "blur(20px)" : "none",
           }} />
 
           {isGeneratingImage && (
             <Box sx={{
               position: "absolute", top: 0, left: 0, width: "100%", height: "100%",
+              borderRadius: "20px",
               background: "linear-gradient(90deg, transparent 0%, rgba(33,150,243,0.3) 50%, transparent 100%)",
               backgroundSize: "200% 100%", animation: "scan 2s linear infinite", pointerEvents: "none",
               "@keyframes scan": { "0%": { backgroundPosition: "200% 0" }, "100%": { backgroundPosition: "-200% 0" } },
             }} />
+          )}
+
+          { isColourStep && !customImage && (
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: "-44px",
+                right: "calc(50% - 130px)",
+                zIndex: 10,
+              }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+
+              <ActionButton
+                variant="uploadHouse"
+                onClick={handleUploadClick}
+              />
+            </Box>
+          )}
+          
+          {/* Accept outline button - pokazuje się od razu po wstawieniu zdjęcia, disabled póki nie narysowano */}
+          {isColourStep && customImage && isDrawingMode && (
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: "-44px",
+                right: "calc(50% - 50px)",
+                zIndex: 10,
+              }}
+            >
+              <ActionButton
+                variant="accept"
+                onClick={handleAcceptClick}
+                disabled={!canCompleteOutline}
+                isMobile={false}
+              />
+            </Box>
           )}
 
           {showCanvas && (
@@ -144,7 +249,7 @@ const HousePreview: React.FC<HousePreviewProps> = ({
       ) : (
         <Box component="img" src={defaultImage} alt="default" sx={{
           width: "100%", height: "100%", margin: 0,
-          borderRadius: isMobile ? 2 : 3, objectFit: "cover",
+          borderRadius: "20px", objectFit: "cover",
         }} />
       )}
     </Box>

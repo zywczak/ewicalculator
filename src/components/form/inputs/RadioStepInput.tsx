@@ -21,7 +21,7 @@ const RadioStepInput: React.FC<StepInputProps> = ({ step, value, onChange, isSub
 
   const width = React.useMemo(() => {
     if (!isSubstep) return "100%";
-    return isMobile ? "170px" : "130px";
+    return isMobile ? "165px" : "130px";
   }, [isSubstep, isMobile]);
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { StepsData } from "../data/steps/types";
 import { STEPS_DATA } from "../data/steps/stepsData";
 import { CalculatedMaterials } from "./materialCalculator";
@@ -23,7 +23,7 @@ export function useCalculatorState() {
   const [logID, setLogID] = useState(0);
 
   const [isMobileView, setIsMobileView] = useState(globalThis.innerWidth <= 705);
-  const [isSmallerTitle, setIsSmallerTitle] = useState(globalThis.innerWidth <= 900);
+  const [isSmallerTitle, setIsSmallerTitle] = useState(globalThis.innerWidth <= 705);
   const [openHelp, setOpenHelp] = useState(false);
   const [isStepComplete, setIsStepComplete] = useState(false);
   const [focusedSubstepImage, setFocusedSubstepImage] = useState<string | null>(null);
@@ -31,6 +31,20 @@ export function useCalculatorState() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">("success");
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Update responsive flags on window resize so they change instantly
+  useEffect(() => {
+    const onResize = () => {
+      setIsMobileView(globalThis.innerWidth <= 705);
+      setIsSmallerTitle(globalThis.innerWidth <= 705);
+    };
+
+    // listen for resize
+    window.addEventListener("resize", onResize);
+    // in case of orientation change or initial mount
+    onResize();
+    return () => window.removeEventListener("resize", onResize);
+  }, [setIsMobileView, setIsSmallerTitle]);
 
   // Image / drawing
   const [customImage, setCustomImage] = useState<string | null>(null);
