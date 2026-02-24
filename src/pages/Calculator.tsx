@@ -219,7 +219,7 @@ const Calculator: React.FC = () => {
      <ResponsiveCalculatorWrapper
   defaultWidth={1225}
   defaultHeight={680}
-  mobileBreakpoint={600}
+  mobileBreakpoint={800}
 >
   {(isMobileFromWrapper) => {
     const isMobile = isMobileFromWrapper;
@@ -242,6 +242,8 @@ const Calculator: React.FC = () => {
               selectedOptions={s.selectedOptions}
             />
           )}
+
+          
 
           <Box sx={{ display: isMobile ? "block" : "flex", justifyContent: "space-between" }}>
             <StepHeader

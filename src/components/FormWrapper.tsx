@@ -11,7 +11,7 @@ const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = 
   children,
   defaultWidth = 1225,
   defaultHeight = 680,
-  mobileBreakpoint = 600,
+  mobileBreakpoint = 800,
 }) => {
   const [scale, setScale] = useState(1);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -36,8 +36,6 @@ const ResponsiveCalculatorWrapper: React.FC<ResponsiveCalculatorWrapperProps> = 
       if (scaledHeight > maxHeight) {
         newScale = maxHeight / defaultHeight;
       }
-
-      newScale = Math.min(newScale, 1);
 
       setIsMobileView(false);
       setScale(newScale);
