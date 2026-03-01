@@ -1,25 +1,53 @@
-# Preparing
+# EWI-Pro Kalkulator Materiałów
 
-1. In file src/api/axiosApi.tsx address 
-  ```const BASE_API_URL = "https://api-veen-e-test.ewipro.com";```
-  works for login, if you want more information in app about projects, subcontractors after login delete 
-  ```-test```
-   
-# Local deployment
+Interaktywny kalkulator materiałów do systemów ociepleń EWI-Pro, dostępny jako aplikacja webowa oraz widget do osadzenia na innych stronach.
 
-In order to deploy application on local environment follow the steps below:
+## Funkcje
+- Wieloetapowy formularz doboru materiałów do ociepleń
+- Dynamiczne podsumowanie i kalkulacja ilości materiałów
+- Podgląd wizualny domu i wybranych opcji
+- Obsługa zdjęć i rysowania konturów
+- Tryb responsywny (desktop/mobile)
+- Możliwość osadzenia jako widget (web component)
 
-1. Install nodejs on your computer
-   ```https://nodejs.org/en```
-  , if you don't have it
+## Stos technologiczny
+- React + TypeScript
+- Vite
+- Material UI
+- react-to-webcomponent (widget)
 
-2. Clone repository
-    ```git clone https://github.com/zywczak/installer-portal.ewipro.git```
+## Instalacja
 
-3. ```cd installer-portal.ewipro```
+1. Zainstaluj zależności:
+   ```bash
+   npm install
+   ```
 
-4. Everytime you pull the newest version of code run ```npm install```
+2. Uruchom aplikację developerską:
+   ```bash
+   npm run dev
+   ```
+   Domyślnie aplikacja będzie dostępna pod `http://localhost:5173`.
 
-5. Run ```npx vite```
+## Budowanie widgetu
 
-6. ```npx vite build``` use if you want local form-widget (this create ```dist``` folder)
+Aby zbudować wersję widgetu (web component):
+
+```bash
+npm run build
+```
+
+Plik wynikowy znajdziesz w katalogu `dist/` jako `form-widget.js`.
+
+## Osadzanie widgetu
+
+1. Skopiuj plik `dist/form-widget.js` na swoją stronę lub załącz adres .
+2. Dodaj do HTML:
+   ```html
+   <script type="module" src="form-widget.js"></script>
+   <form-widget></form-widget>
+   ```
+
+## Konfiguracja API
+
+Aplikacja korzysta z klucza API do autoryzacji. Możesz przekazać go przez parametr URL `?apiKEY=...` lub ustawić w pliku `.env` jako `VITE_API_KEY`.
