@@ -1,3 +1,22 @@
+// ─── Tracking params ───────────────────────────────────────────────────────
+export const getTrackingParams = () => {
+  const urlParams = new URLSearchParams(globalThis.location.search);
+  const gclid = urlParams.get("gclid");
+  const fbclid = urlParams.get("fbclid");
+
+  let referrer: string | null = null;
+  if (gclid) {
+    referrer = "gclid";
+  } else if (fbclid) {
+    referrer = "fbclid";
+  }
+
+  return {
+    referrer,
+    trackingNumber: gclid ?? fbclid ?? null,
+  };
+};
+
 import { useCallback, useRef } from "react";
 import { OPTION_IDS } from "../data/constants/optionIds";
 import { StepsData } from "../data/steps/types";
@@ -210,17 +229,17 @@ export function useCalculatorLogic({
       if (logID !== 0) params += `&logID=${logID}&lastStep=${lastStep}`;
 
       const mappedData = buildMappedData(accumulatedJsonData);
+      const trackingParams = getTrackingParams();
 
       const dataObj = {
         ...mappedData,
         calculated_materials: calculatedMaterials,
         ...(generatedImageBase64 && { photo: generatedImageBase64 }),
-      }
-    
+        ...trackingParams,
+      };
       const res = await fetch(`https://veen-e.ewipro.com:7443/ewi-calculator/log.php${params}`, {
         method: "POST", headers: { Accept: "application/json" }, body: JSON.stringify(dataObj),
       });
-
       const data = await res.json();
       if (data.logID) setLogID(data.logID);
 
@@ -236,6 +255,7 @@ export function useCalculatorLogic({
   const submitForm = useCallback(async () => {
     try {
       const mappedData = buildMappedData(accumulatedJsonData);
+      const trackingParams = getTrackingParams();
       const payload = {
         apiKEY: getApiKey(), sessionNumber, logID,
         data: {
@@ -243,6 +263,7 @@ export function useCalculatorLogic({
           customer_details: cleanObject(buildCustomerDetails()),
           materials: cleanObject(calculatedMaterials ?? {}),
           ...(generatedImageBase64 && { photo: generatedImageBase64 }),
+          ...trackingParams,
         },
       };
       const res = await fetch("https://veen-e.ewipro.com:7443/ewi-calculator/log.php", {
@@ -391,8 +412,6 @@ export function useCalculatorLogic({
   }, [selectedOptions, clearGeneratedImages, clearColourSelection, setCustomImage, setOutlinePoints, setIsDrawingMode]);
 
   const handleOutlineChange = useCallback((points: any[], canComplete: boolean) => {
-    // Defer outline updates to avoid triggering parent state updates
-    // while a child component is rendering.
     Promise.resolve().then(() => {
       setOutlinePoints(points);
       setCanCompleteOutline(canComplete);
@@ -418,13 +437,10 @@ export function useCalculatorLogic({
       createCompositeImage(customImage, canvas.toDataURL());
     };
     img.src = customImage;
-    // Defer changing drawing mode to avoid updating React state during
-    // another component's render (prevents "setState in render" errors).
     Promise.resolve().then(() => setIsDrawingMode(false));
   }, [createCompositeImage, setIsDrawingMode]);
 
   const handleRemoveCustomImage = useCallback(() => {
-    // Abort any in-flight colour generation request before clearing state
     colourAbortControllerRef.current?.abort();
     colourAbortControllerRef.current = null;
     setIsGeneratingImage(false);

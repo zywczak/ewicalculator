@@ -122,7 +122,6 @@ const HousePreview: React.FC<HousePreviewProps> = ({
 
   const handleAcceptClick = () => {
     console.debug("HousePreview: accept clicked", { canCompleteOutline, customImage, pointsLength: points.length });
-    // ensure parent has latest outline points before accepting
     onOutlineChange?.(points, points.length >= 3);
     setTimeout(() => {
       if (onAcceptOutline) onAcceptOutline(customImage);
@@ -130,13 +129,12 @@ const HousePreview: React.FC<HousePreviewProps> = ({
     }, 50);
   };
 
-  const [showHelp, setShowHelp] = useState(true); // Stan dla helpa
+  const [showHelp, setShowHelp] = useState(true);
 
   return (
     <Box sx={{
       flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
       position: "relative",
-      // overflow: "hidden",
       borderRadius: "20px",
       boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
       width: isMobile ? "100%" : "600px",
@@ -151,7 +149,7 @@ const HousePreview: React.FC<HousePreviewProps> = ({
             position: "absolute",
             top: 10,
             right: 10,
-            zIndex: 110, // Nad obrazkiem i canvasem
+            zIndex: 110,
             backgroundColor: "white",
             color: "#333",
             boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
@@ -219,7 +217,6 @@ const HousePreview: React.FC<HousePreviewProps> = ({
             </Box>
           )}
           
-          {/* Accept outline button - pokazuje się od razu po wstawieniu zdjęcia, disabled póki nie narysowano */}
           {isColourStep && customImage && isDrawingMode && (
             <Box
               sx={{

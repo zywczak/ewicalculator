@@ -11,11 +11,7 @@ interface FormProps {
   currentStep: number;
   totalSteps: number;
   parentStep: FormStep;
-  onNext: (
-    values?: Record<string, any>,
-    triggerStepId?: number,
-    selectedOptionId?: number
-  ) => void;
+  onNext: (values?: Record<string, any>, triggerStepId?: number, selectedOptionId?: number) => void;
   onPrev: () => void;
   onOptionChange: (option: any) => void;
   isMobile: boolean;
@@ -39,60 +35,77 @@ interface FormProps {
   calculatedMaterials?: CalculatedMaterials | null;
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const clearStepsAhead = (
+  currentStep: number,
+  stepsData: StepsData,
+  setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>
+) => {
+  const optionIdsToRemove = new Set<number>();
+  stepsData.steps.slice(currentStep + 1).forEach((s) =>
+    s.options.forEach((o) => optionIdsToRemove.add(o.id))
+  );
+  setSelectedOptions((prev) => prev.filter((id) => !optionIdsToRemove.has(id)));
+};
+
+const restoreStepSelection = (
+  currentStep: number,
+  stepsData: StepsData,
+  values: Record<number, string | number>,
+  setSelectedOptions: React.Dispatch<React.SetStateAction<number[]>>,
+  onOptionChange: (option: any) => void
+) => {
+  const newStep = stepsData.steps[currentStep];
+  if (!newStep) return;
+  const val = (values as Record<number, any>)[newStep.id];
+  if (val === undefined || val === "") return;
+  const found = newStep.options?.find((o) => o.option_value === val || o.json_value === val);
+  if (!found) return;
+  setSelectedOptions((prev) => (prev.includes(found.id) ? prev : [...prev, found.id]));
+  onOptionChange?.({ id: found.id, stepId: newStep.id });
+};
+
+const previewBoxSx = (isMobile: boolean, isColourStep: boolean) => ({
+  position: isMobile ? "relative" : "absolute",
+  bottom: isMobile ? "auto" : "34px",
+  right: isMobile ? "auto" : "38px",
+  width: isMobile ? "100%" : "600px",
+  height: isMobile ? "auto" : "450px",
+  px: isMobile ? "24px" : 0,
+  boxSizing: "border-box",
+  zIndex: isMobile ? 2 : "auto",
+  mb: isMobile && isColourStep ? "24px" : 0,
+});
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
 const renderPreview = ({
-  isLastStep,
-  isMobile,
-  selectedOptions,
-  customImage,
-  isDrawingMode,
-  onOutlineChange,
-  generatedImage,
-  isGeneratingImage,
-  currentStep,
-  onRemoveCustomImage,
-  onCustomImageUpload,
-    onAcceptOutline,
-  canCompleteOutline,
-  calculatedMaterials,
-  stepsData
-}: {
-  isLastStep: boolean;
-  isMobile: boolean;
-  selectedOptions: number[];
-  customImage?: string | null;
-  isDrawingMode?: boolean;
-  onOutlineChange?: (points: any[], canComplete: boolean) => void;
-  generatedImage?: string | null;
-  isGeneratingImage?: boolean;
-  currentStep?: number;
-  onRemoveCustomImage?: () => void;
-  onCustomImageUpload?: (file: File) => void;
-  onAcceptOutline?: () => void;
-  canCompleteOutline?: boolean;
-  calculatedMaterials?: CalculatedMaterials | null;
-  stepsData: StepsData;
-}) => (
-  isLastStep
-    ? <ResultsTable 
-        isMobile={isMobile} 
-        calculatedMaterials={calculatedMaterials ?? null}
-        stepsData={stepsData}
-      />
-    : <HousePreview 
-        selectedOptions={selectedOptions} 
-        isMobile={isMobile}
-        customImage={customImage}
-        isDrawingMode={isDrawingMode}
-        onOutlineChange={onOutlineChange}
-        generatedImage={generatedImage}
-        isGeneratingImage={isGeneratingImage}
-        currentStep={currentStep}
-        onResetToDefault={onRemoveCustomImage}
-        onCustomImageUpload={onCustomImageUpload}
-        onAcceptOutline={onAcceptOutline}
-        canCompleteOutline={canCompleteOutline}
-      />
-);
+  isLastStep, isMobile, selectedOptions, customImage, isDrawingMode,
+  onOutlineChange, generatedImage, isGeneratingImage, currentStep,
+  onRemoveCustomImage, onCustomImageUpload, onAcceptOutline,
+  canCompleteOutline, calculatedMaterials, stepsData,
+}: Omit<FormProps, "totalSteps" | "parentStep" | "onNext" | "onPrev" | "onOptionChange"
+  | "values" | "setValues" | "errors" | "setErrors" | "setSelectedOptions" | "onColourSelection">
+  & { isLastStep: boolean }) =>
+  isLastStep ? (
+    <ResultsTable isMobile={isMobile} calculatedMaterials={calculatedMaterials ?? null} stepsData={stepsData} />
+  ) : (
+    <HousePreview
+      selectedOptions={selectedOptions}
+      isMobile={isMobile}
+      customImage={customImage}
+      isDrawingMode={isDrawingMode}
+      onOutlineChange={onOutlineChange}
+      generatedImage={generatedImage}
+      isGeneratingImage={isGeneratingImage}
+      currentStep={currentStep}
+      onResetToDefault={onRemoveCustomImage}
+      onCustomImageUpload={onCustomImageUpload}
+      onAcceptOutline={onAcceptOutline}
+      canCompleteOutline={canCompleteOutline}
+    />
+  );
 
 const renderActions = (
   isFirstStep: boolean,
@@ -102,71 +115,38 @@ const renderActions = (
   onPrev: () => void
 ) => {
   if (isFirstStep) {
-    return (
-      <ActionButton
-        onClick={onNext}
-        variant="nextStep"
-        disabled={!isStepComplete}
-      />
-    );
+    return <ActionButton onClick={onNext} variant="nextStep" disabled={!isStepComplete} />;
   }
-
   if (isLastStep) {
     return (
       <>
         <ActionButton onClick={onPrev} variant="prev" />
-        <ActionButton
-          onClick={onNext}
-          variant="send"
-          disabled={!isStepComplete}
-        />
+        <ActionButton onClick={onNext} variant="send" disabled={!isStepComplete} />
       </>
     );
   }
-
   return (
     <>
       <ActionButton onClick={onPrev} variant="prev" />
-      <ActionButton
-        onClick={onNext}
-        variant="next"
-        disabled={!isStepComplete}
-      />
+      <ActionButton onClick={onNext} variant="next" disabled={!isStepComplete} />
     </>
   );
 };
 
-const Form = ({
-  currentStep,
-  totalSteps,
-  parentStep,
-  onNext,
-  onPrev,
-  onOptionChange,
-  isMobile,
-  values,
-  setValues,
-  errors,
-  setErrors,
-  selectedOptions,
-  setSelectedOptions,
-  stepsData,
-  customImage,
-  isDrawingMode,
-  onOutlineChange,
-  canCompleteOutline,
-  onCustomImageUpload,
-  onAcceptOutline,
-  onRemoveCustomImage,
-  onColourSelection,
-  isGeneratingImage,
-  generatedImage,
-  calculatedMaterials,
-}: FormProps) => {
+// ─── Component ────────────────────────────────────────────────────────────────
 
+const Form = ({
+  currentStep, totalSteps, parentStep, onNext, onPrev, onOptionChange,
+  isMobile, values, setValues, errors, setErrors, selectedOptions,
+  setSelectedOptions, stepsData, customImage, isDrawingMode, onOutlineChange,
+  canCompleteOutline, onCustomImageUpload, onAcceptOutline, onRemoveCustomImage,
+  onColourSelection, isGeneratingImage, generatedImage, calculatedMaterials,
+}: FormProps) => {
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === totalSteps - 1;
+  const isColourStep = currentStep === 10;
   const [isStepComplete, setIsStepComplete] = React.useState(false);
+  const prevStepRef = React.useRef(currentStep);
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -175,40 +155,19 @@ const Form = ({
         setIsStepComplete(handlers.isStepComplete);
       }
     }, 100);
-
     return () => clearInterval(interval);
   }, []);
-
-  const prevStepRef = React.useRef(currentStep);
 
   React.useEffect(() => {
     if (!stepsData?.steps) {
       prevStepRef.current = currentStep;
       return;
     }
-
     if (currentStep < prevStepRef.current) {
-      const stepsToClear = stepsData.steps.slice(currentStep + 1);
-      const optionIdsToRemove = new Set<number>();
-      stepsToClear.forEach((s) => s.options.forEach((o) => optionIdsToRemove.add(o.id)));
-
-      setSelectedOptions((prev) => prev.filter((id) => !optionIdsToRemove.has(id)));
+      clearStepsAhead(currentStep, stepsData, setSelectedOptions);
+    } else if (currentStep > prevStepRef.current) {
+      restoreStepSelection(currentStep, stepsData, values, setSelectedOptions, onOptionChange);
     }
-
-    if (currentStep > prevStepRef.current) {
-      const newStep = stepsData.steps[currentStep];
-      if (newStep) {
-        const val = (values as Record<number, any>)[newStep.id];
-        if (val !== undefined && val !== "") {
-          const found = newStep.options?.find(o => o.option_value === val || o.json_value === val);
-          if (found) {
-            setSelectedOptions(prev => (prev.includes(found.id) ? prev : [...prev, found.id]));
-            onOptionChange?.({ id: found.id, stepId: newStep.id });
-          }
-        }
-      }
-    }
-
     prevStepRef.current = currentStep;
   }, [currentStep, stepsData, setSelectedOptions]);
 
@@ -216,9 +175,6 @@ const Form = ({
     const handlers = (globalThis as any).__multiStepFormHandlers;
     handlers?.[name]?.();
   };
-
-  const isColourStep = currentStep === 10;
-  
 
   return (
     <Box
@@ -232,36 +188,12 @@ const Form = ({
         mr: isMobile ? 0 : "24px",
       }}
     >
-      {/* Preview */}
-      <Box
-        sx={{
-          position: isMobile ? "relative" : "absolute",
-          bottom: isMobile ? "auto" : "34px",
-          right: isMobile ? "auto" : "38px",
-          width: isMobile ? "100%" : "600px",
-          height: isMobile ? "auto" : "450px",
-          px: isMobile ? "24px" : 0,
-          boxSizing: "border-box",
-          zIndex: isMobile ? 2 : "auto",
-          mb: (isMobile  && isColourStep) ? "24px" : 0,
-        }}
-      >
+      <Box sx={previewBoxSx(isMobile, isColourStep)}>
         {renderPreview({
-          isLastStep,
-          isMobile,
-          selectedOptions,
-          customImage,
-          isDrawingMode,
-          onOutlineChange,
-          generatedImage,
-          isGeneratingImage,
-          currentStep,
-          onRemoveCustomImage,
-          onCustomImageUpload,
-          onAcceptOutline,
-          canCompleteOutline,
-          calculatedMaterials,
-          stepsData
+          isLastStep, isMobile, selectedOptions, customImage, isDrawingMode,
+          onOutlineChange, generatedImage, isGeneratingImage, currentStep,
+          onRemoveCustomImage, onCustomImageUpload, onAcceptOutline,
+          canCompleteOutline, calculatedMaterials, stepsData,
         })}
       </Box>
 
@@ -282,9 +214,7 @@ const Form = ({
           parentStep={parentStep}
           onNext={onNext}
           onPrev={onPrev}
-          onOptionChange={(optionId, stepId) =>
-            onOptionChange({ id: optionId, stepId })
-          }
+          onOptionChange={(optionId, stepId) => onOptionChange({ id: optionId, stepId })}
           isMobile={isMobile}
           values={values}
           setValues={setValues}
@@ -299,25 +229,14 @@ const Form = ({
       </Box>
 
       {!isMobile && (
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: "-10px",
-            left: "40px",
-            display: "flex",
-            gap: "12px",
-          }}
-        >
+        <Box sx={{ position: "absolute", bottom: "-10px", left: "40px", display: "flex", gap: "12px" }}>
           {renderActions(
-            isFirstStep,
-            isLastStep,
-            isStepComplete,
+            isFirstStep, isLastStep, isStepComplete,
             () => callHandler("handleNextClick"),
             () => callHandler("handlePrevClick")
           )}
         </Box>
       )}
-
     </Box>
   );
 };
